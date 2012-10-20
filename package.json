@@ -1,0 +1,22 @@
+{
+  "name": "ShareFest",
+  "domains": [
+    "sharefest.jit.su"
+  ],
+  "description": "",
+  "version": "0.2.1-56",
+  "author": "",
+  "dependencies": {
+    "express": ">=3.0",
+    "socket.io": ">=0.8",
+    "librato-metrics": ">=0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "server.js"
+  },
+  "engines": {
+    "node": "0.6.x"
+  },
+  "subdomain": "sharefest"
+}
