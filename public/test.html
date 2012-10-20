@@ -60,6 +60,7 @@
 </table>
 </body>
 
+<script type="text/javascript" src="js/util.js"></script>
 <script type="application/javascript;version=1.8">
 let button = document.getElementById("thebutton");
 let text_pc1 = document.getElementById("pc1_input");
@@ -173,6 +174,7 @@ function step2() {
             iter2 = iter2 + 1;
             if (evt.data instanceof Blob) {
                 fancy_log("*** pc1 sent Blob: " + evt.data + ", length=" + evt.data.size, "red");
+                saveLocally(evt.data);
             } else {
                 fancy_log("*** pc1 said: " + evt.data + ", length=" + evt.data.length, "red");
             }
@@ -265,7 +267,7 @@ function start() {
         channel.onopen = function () {
             log("pc1 onopen fired for " + channel);
             channel.send("pc1 says Hello out there...");
-            log("pc1 state: " + channel.state);
+            log("pc1 state: " + channel.readyState);
         }
         channel.onclose = function () {
             log("pc1 onclose fired");
