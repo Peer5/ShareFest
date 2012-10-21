@@ -1,0 +1,95 @@
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Gupshup</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="A WebRTC Demo" name="description">
+    <meta content="Anant Narayanan" name="author">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <!-- For IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="https://www.firebase.com/js/libs/idle.js" type="text/javascript"></script>
+    <script src="https://static.firebase.com/v0/firebase.js"></script>
+  </head>
+
+  <body class="">
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          &nbsp;
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="main">
+
+      <div style="display:none;" class="alert alert-block alert-error" id="alert">
+        <h4 id="message" class="alert-heading"></h4>
+      </div>
+
+      <div id="mainContainer">
+
+      <div style="display: block;" class="span4" id="welcome">
+        <h3>Welcome <span id="username"></span>!</h3>
+        <p>Click on any online user to initiate a chat.</p>
+      </div>
+
+      <br>
+
+      <div id="users" class="span2 well">
+      </div>
+
+      <div aria-hidden="true" aria-labelledby="incomingCall" role="dialog" tabindex="-1" id="incomingCall" class="modal" style="display: none;">
+        <div class="modal-header">
+          <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+          <h3>Incoming Call</h3>
+        </div>
+        <div class="modal-body">
+          <img src="img/incoming.png"><br><p>&nbsp;</p>
+          <p>You have an incoming call from <span id="incomingUser"></span></p>
+          <audio loop="" src="http://localhost/ring.ogg" id="incomingRing">
+        </audio></div>
+        <div class="modal-footer">
+          <button aria-hidden="true" data-dismiss="modal" class="btn">Reject</button>
+          <button class="btn btn-primary" id="incomingAccept">Accept</button>
+        </div>
+      </div>
+
+      </div> <!-- mainContainer -->
+    </div>
+
+    <div style="display: none;" class="container" id="call">
+      <span id="dialing">
+        <img src="img/loading.gif">
+        <b>Dialing...</b>
+      </span>
+      <span style="display: none;" id="hangup">
+        <a onclick="endCall();" class="btn btn-danger">Hang Up</a>
+      </span>
+      <span>
+        <h3>Remote</h3>
+        <video width="640" height="480" controls="" id="remotevideo">
+        <audio id="remoteaudio">
+      </audio></video></span>
+      <span>
+        <h3>Local</h3>
+        <video width="320" height="240" controls="" id="localvideo">
+        <audio muted="" id="localaudio">
+      </audio></video></span>
+    </div>
+
+    <div class="container">
+      <button data-target="#debug" data-toggle="collapse" class="btn btn-warning" type="button">Hide Debug</button>
+      <br>
+      <pre class="collapse in" id="debug"></pre>
+    </div>
+
+
+    <script src="js/chat.js"></script>
+  
+
+</body></html>
