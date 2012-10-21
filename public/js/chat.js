@@ -9,6 +9,10 @@ var user=2;
 var peerc;
 var myUserID;
 var mainRef = new Firebase("https://gamma.firebase.com/kix/gupshup/");
+var num_channels = 0;
+var dc2;
+var dc1;
+var datachannels = [];
 $("#incomingCall").modal();
 $("#incomingCall").modal("hide");
 function prereqs() {
@@ -123,27 +127,15 @@ function acceptCall(offer, fromUser) {
             document.getElementById("localaudio").mozSrcObject = as;
             document.getElementById("localaudio").play();
             var pc = new mozRTCPeerConnection();
-            pc.addStream(vs);
-            pc.addStream(as);
-            pc.onaddstream = function (obj) {
-                log("Got onaddstream of type " + obj.type);
-                if (obj.type == "video") {
-                    document.getElementById("remotevideo").mozSrcObject = obj.stream;
-                    document.getElementById("remotevideo").play();
-                } else {
-                    document.getElementById("remoteaudio").mozSrcObject = obj.stream;
-                    document.getElementById("remoteaudio").play();
-                }
-                document.getElementById("dialing").style.display = "none";
-                document.getElementById("hangup").style.display = "block";
-            };
 
             pc.ondatachannel = function (channel) {
+                log("pc2 onDataChannel");
                 log("pc2 onDataChannel [" + num_channels + "] = " + channel +
                     ", label='" + channel.label + "'");
                 dc2 = channel;
                 datachannels[num_channels] = channel;
                 num_channels++;
+                log("num_channels: " + num_channels);
                 log("pc2 created channel " + dc2 + " binarytype = " + dc2.binaryType);
                 channel.binaryType = "blob";
                 log("pc2 new binarytype = " + dc2.binaryType);
@@ -179,8 +171,24 @@ function acceptCall(offer, fromUser) {
                 log("pc2 onConnection ");
                 //dc2 = pc2.createDataChannel();
                 //log("pc2 created channel " + dc2);
-                dc2.send("homo");
             }
+
+
+
+            pc.addStream(vs);
+            pc.addStream(as);
+            pc.onaddstream = function (obj) {
+                log("Got onaddstream of type " + obj.type);
+                if (obj.type == "video") {
+                    document.getElementById("remotevideo").mozSrcObject = obj.stream;
+                    document.getElementById("remotevideo").play();
+                } else {
+                    document.getElementById("remoteaudio").mozSrcObject = obj.stream;
+                    document.getElementById("remoteaudio").play();
+                }
+                document.getElementById("dialing").style.display = "none";
+                document.getElementById("hangup").style.display = "block";
+            };
 
 
 
@@ -189,7 +197,7 @@ function acceptCall(offer, fromUser) {
                 log("setRemoteDescription, creating answer");
                 pc.createAnswer(function (answer) {
                     pc.setLocalDescription(answer, function () {
-// Send answer to remote end.
+                // Send answer to remote end.
                         log("created Answer and setLocalDescription " + JSON.stringify(answer));
                         peerc = pc;
                         setTimeout(dataChannelConnect,2000);
@@ -270,7 +278,7 @@ function initiateCall(userid) {
 
             pc.onconnection = function () {
                 log("pc1 onConnection ");
-                dc1 = pc1.createDataChannel("This is pc1", {}); // reliable (TCP-like)
+                dc1 = pc.createDataChannel("This is pc1", {}); // reliable (TCP-like)
                 //  dc1 = pc1.createDataChannel("This is pc1",{outOfOrderAllowed: true, maxRetransmitNum: 0}); // unreliable (UDP-like)
                 log("pc1 created channel " + dc1 + " binarytype = " + dc1.binaryType);
                 channel = dc1;
@@ -349,10 +357,7 @@ function dataChannelConnect(){
     log("connecting in data channel");
     log("peerc " + peerc);
     log("user: " + user);
-    if(user == 1)
-        peerc.connectDataConnection(5000,5000);
-    else
-        peerc.connectDataConnection(5000,5000);
+    peerc.connectDataConnection(5000,5000);
 
 }
 prereqs(); 
