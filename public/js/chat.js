@@ -5,6 +5,7 @@ if (!console || !console.log) {
     };
 }
 // Ugh, globals.
+var user=2;
 var peerc;
 var myUserID;
 var mainRef = new Firebase("https://gamma.firebase.com/kix/gupshup/");
@@ -83,12 +84,14 @@ function incomingOffer(offer, fromUser) {
 function incomingAnswer(answer) {
     peerc.setRemoteDescription(JSON.parse(answer), function () {
         log("Call established!");
+        setTimeout(dataChannelConnect,2000);
     }, error);
 }
 ;
 function log(info) {
     var d = document.getElementById("debug");
     d.innerHTML += info + "\n\n";
+    console.log(info);
 }
 function appendUser(userid) {
     if (userid == myUserID) return;
@@ -134,13 +137,62 @@ function acceptCall(offer, fromUser) {
                 document.getElementById("dialing").style.display = "none";
                 document.getElementById("hangup").style.display = "block";
             };
+
+            pc.ondatachannel = function (channel) {
+                log("pc2 onDataChannel [" + num_channels + "] = " + channel +
+                    ", label='" + channel.label + "'");
+                dc2 = channel;
+                datachannels[num_channels] = channel;
+                num_channels++;
+                log("pc2 created channel " + dc2 + " binarytype = " + dc2.binaryType);
+                channel.binaryType = "blob";
+                log("pc2 new binarytype = " + dc2.binaryType);
+
+                channel.onmessage = function (evt) {
+                    log("onMessage in pc2: " + evt.data);
+                    iter2 = iter2 + 1;
+                    if (evt.data instanceof Blob) {
+                        log("*** pc1 sent Blob: " + evt.data + ", length=" + evt.data.size, "red");
+                        saveLocally(evt.data);
+                    } else {
+                        log("*** pc1 said: " + evt.data + ", length=" + evt.data.length, "red");
+                    }
+                };
+                channel.onopen = function () {
+                    log("*** pc2 onopen fired, sending to " + channel);
+                    channel.send("pc2 says Hi there!");
+                };
+                channel.onclose = function () {
+                    log("*** pc2 onclose fired");
+                };
+                log("*** pc2 state:" + channel.readyState);
+                // There's a race condition with onopen; if the channel is already
+                // open it should fire after onDataChannel -- state should normally be 0 here
+                if (channel.readyState != 0) {
+                    log("*** pc2 no onopen??! possible race");
+                }
+
+            };
+
+
+            pc.onconnection = function () {
+                log("pc2 onConnection ");
+                //dc2 = pc2.createDataChannel();
+                //log("pc2 created channel " + dc2);
+                dc2.send("homo");
+            }
+
+
+
             pc.setRemoteDescription(JSON.parse(offer), function () {
+
                 log("setRemoteDescription, creating answer");
                 pc.createAnswer(function (answer) {
                     pc.setLocalDescription(answer, function () {
 // Send answer to remote end.
                         log("created Answer and setLocalDescription " + JSON.stringify(answer));
                         peerc = pc;
+                        setTimeout(dataChannelConnect,2000);
                         var toSend = {
                             type:"answer",
                             to:fromUser,
@@ -153,10 +205,13 @@ function acceptCall(offer, fromUser) {
                     }, error);
                 }, error);
             }, error);
+
+
         }, error);
     }, error);
 }
 function initiateCall(userid) {
+    user=1;
     document.getElementById("main").style.display = "none";
     document.getElementById("call").style.display = "block";
     navigator.mozGetUserMedia({video:true}, function (vs) {
@@ -180,6 +235,73 @@ function initiateCall(userid) {
                 document.getElementById("dialing").style.display = "none";
                 document.getElementById("hangup").style.display = "block";
             };
+
+            pc.ondatachannel = function (channel) {
+                // In case pc2 opens a channel
+                log("pc1 onDataChannel [" + num_channels + "] = " + channel +
+                    ", label='" + channel.label + "'");
+                datachannels[num_channels] = channel;
+                num_channels++;
+
+                channel.onmessage = function (evt) {
+                    log("onMessage in pc1: " + evt.data);
+                    if (evt.data instanceof Blob) {
+                        log("*** pc2 sent Blob: " + evt.data + ", length=" + evt.data.size, "blue");
+                    } else {
+                        log('pc2 said: ' + evt.data + ", length=" + evt.data.length, "blue");
+                    }
+                }
+
+                channel.onopen = function () {
+                    log("pc1 onopen fired for " + channel);
+                    channel.send("pc1 says Hello out there...");
+                    log("pc1 state: " + channel.readyState);
+                }
+                channel.onclose = function () {
+                    log("pc1 onclose fired");
+                };
+                log("pc1 state:" + channel.readyState);
+                // There's a race condition with onopen; if the channel is already
+                // open it should fire after onDataChannel -- state should normally be 0 here
+                if (channel.readyState != 0) {
+                    log("*** pc1 no onopen??! possible race");
+                }
+            }
+
+            pc.onconnection = function () {
+                log("pc1 onConnection ");
+                dc1 = pc1.createDataChannel("This is pc1", {}); // reliable (TCP-like)
+                //  dc1 = pc1.createDataChannel("This is pc1",{outOfOrderAllowed: true, maxRetransmitNum: 0}); // unreliable (UDP-like)
+                log("pc1 created channel " + dc1 + " binarytype = " + dc1.binaryType);
+                channel = dc1;
+                channel.binaryType = "blob";
+                log("pc1 new binarytype = " + dc1.binaryType);
+
+                // Since we create the datachannel, don't wait for onDataChannel!
+                channel.onmessage = function (evt) {
+                    log("onMessage in pc1: " + evt.data);
+                    if (evt.data instanceof Blob) {
+                        log("*** pc2 sent Blob: " + evt.data + ", length=" + evt.data.size, "blue");
+                    } else {
+                        log('pc2 said: ' + evt.data, "blue");
+                    }
+                }
+                channel.onopen = function () {
+                    log("pc1 onopen fired for " + channel);
+                    channel.send("pc1 says Hello...");
+                    log("pc1 state: " + channel.state);
+                }
+                channel.onclose = function () {
+                    log("pc1 onclose fired");
+                };
+                log("pc1 state:" + channel.readyState);
+            }
+
+
+
+
+
+
             pc.createOffer(function (offer) {
                 log("Created offer" + JSON.stringify(offer));
                 pc.setLocalDescription(offer, function () {
@@ -221,5 +343,16 @@ function error(e) {
         alert("Oh no! " + e);
     }
     endCall();
+}
+
+function dataChannelConnect(){
+    log("connecting in data channel");
+    log("peerc " + peerc);
+    log("user: " + user);
+    if(user == 1)
+        peerc.connectDataConnection(5000,5000);
+    else
+        peerc.connectDataConnection(5000,5000);
+
 }
 prereqs(); 

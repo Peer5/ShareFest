@@ -171,6 +171,7 @@ function step2() {
         log("pc2 new binarytype = " + dc2.binaryType);
 
         channel.onmessage = function (evt) {
+            fancy_log("onMessage in pc2: " + evt.data);
             iter2 = iter2 + 1;
             if (evt.data instanceof Blob) {
                 fancy_log("*** pc1 sent Blob: " + evt.data + ", length=" + evt.data.size, "red");
@@ -257,6 +258,7 @@ function start() {
         num_channels++;
 
         channel.onmessage = function (evt) {
+            fancy_log("onMessage in pc1: " + evt.data);
             if (evt.data instanceof Blob) {
                 fancy_log("*** pc2 sent Blob: " + evt.data + ", length=" + evt.data.size, "blue");
             } else {
@@ -290,6 +292,7 @@ function start() {
 
         // Since we create the datachannel, don't wait for onDataChannel!
         channel.onmessage = function (evt) {
+            fancy_log("onMessage in pc1: " + evt.data);
             if (evt.data instanceof Blob) {
                 fancy_log("*** pc2 sent Blob: " + evt.data + ", length=" + evt.data.size, "blue");
             } else {
