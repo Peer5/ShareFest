@@ -293,12 +293,6 @@ function initiateCall(userid) {
                 };
                 log("pc1 state:" + channel.readyState);
             }
-
-
-
-
-
-
             pc.createOffer(function (offer) {
                 log("Created offer" + JSON.stringify(offer));
                 pc.setLocalDescription(offer, function () {
