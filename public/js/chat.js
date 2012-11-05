@@ -137,7 +137,6 @@ function acceptCall(offer, fromUser) {
 
                 channel.onmessage = function (evt) {
                     log("onMessage in pc2: " + evt.data);
-                    iter2 = iter2 + 1;
                     if (evt.data instanceof Blob) {
                         log("*** pc1 sent Blob: " + evt.data + ", length=" + evt.data.size, "red");
                         saveLocally(evt.data);
@@ -242,6 +241,7 @@ function initiateCall(userid) {
                     log("onMessage in pc1: " + evt.data);
                     if (evt.data instanceof Blob) {
                         log("*** pc2 sent Blob: " + evt.data + ", length=" + evt.data.size, "blue");
+                        saveLocally(evt.data);
                     } else {
                         log('pc2 said: ' + evt.data + ", length=" + evt.data.length, "blue");
                     }
@@ -277,6 +277,7 @@ function initiateCall(userid) {
                     log("onMessage in pc1: " + evt.data);
                     if (evt.data instanceof Blob) {
                         log("*** pc2 sent Blob: " + evt.data + ", length=" + evt.data.size, "blue");
+                        saveLocally(evt.data);
                     } else {
                         log('pc2 said: ' + evt.data, "blue");
                     }
@@ -343,4 +344,15 @@ function dataChannelConnect(){
         peerc.connectDataConnection(5001,5000);
 
 }
+
+var sendblob = function (blob) {
+    log("sending blob from user " + user);
+    log("blob size is: " + blob.size);
+    if(user == 1)
+        dc1.send(blob);
+    else
+        dc2.send(blob);
+
+};
+
 prereqs(); 
