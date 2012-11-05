@@ -15,7 +15,7 @@
             font-family: 'IM Fell English', serif;
             font-size: 5em;
         }
-        .drapdrop {
+        .dragdrop {
             border: dashed #000000;
             border-color: #000000;
             width: 900px;
@@ -36,7 +36,6 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </a>
-            <a class="brand" href="#">ShareFest</a>
 
             <div class="nav-collapse collapse">
                 <ul class="nav">
@@ -55,7 +54,13 @@
 
     <p>Just drag any file to start sharing it right now, no additional software needed! For more info on that, go to our
         <a href="http://github.com/peer5/sharefest">project page</a></p>
-    <div class='drapdrop'>drop files here...</div>
+    <div class="dragdrop" onClick="$('#files').click()" >
+        <div id="clicky"><br /><br /><br /><br />Loading..</div>
+        <div id="fileslist">
+
+        </div>
+    </div>
+    <input type="file" id="files" name="files[]" multiple style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;" />
 </div>
 <!-- /container -->
 </body>
