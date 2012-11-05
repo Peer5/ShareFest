@@ -1,26 +1,32 @@
+//$(document).ready(function () {
+window.onload  = function() {
+    document.querySelector('input[type="file"]').addEventListener('change', function (e) {
+        var blob = this.files[0];
 
-document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-  var blob = this.files[0];
+        const BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunk sizes.
+        const SIZE = blob.size;
 
-  const BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunk sizes.
-  const SIZE = blob.size;
+        var start = 0;
+        var end = BYTES_PER_CHUNK;
 
-  var start = 0;
-  var end = BYTES_PER_CHUNK;
+        while (start < SIZE) {
+            upload(blob.slice(start, end));
 
-  while(start < SIZE) {
-    upload(blob.slice(start, end));
-
-    start = end;
-    end = start + BYTES_PER_CHUNK;
-  }
-}, false);
-
-})();
+            start = end;
+            end = start + BYTES_PER_CHUNK;
+        }
+    }, false);
+};
 
 function upload(blob) {
-    alert(blob);
+    log('sending blob ' + blob.size);
+    if(user == 1) {
+        dc1.send(blob);
+    } else {
+        dc2.send(blob);
+    }
 }
+
 function saveLocally(blob) {
     if (!window.URL && window.webkitURL)
         window.URL = window.webkitURL;
@@ -29,7 +35,7 @@ function saveLocally(blob) {
 
     var a = document.createElement('a');
     a.setAttribute('download', 'file');
-    a.setAttribute('target','_blank');
+    a.setAttribute('target', '_blank');
     a.setAttribute('href', window.URL.createObjectURL(blob));
     document.body.appendChild(a);
     setTimeout(actuateLink, 1000, a);
