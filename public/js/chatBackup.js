@@ -120,9 +120,12 @@ function acceptCall(offer, fromUser) {
     log("Incoming call with offer " + offer);
     document.getElementById("main").style.display = "none";
     document.getElementById("call").style.display = "block";
-    navigator.mozGetUserMedia({video:true,fake:true}, function (vs) {
+    navigator.mozGetUserMedia({video:true}, function (vs) {
         document.getElementById("localvideo").mozSrcObject = vs;
         document.getElementById("localvideo").play();
+        navigator.mozGetUserMedia({audio:true}, function (as) {
+            document.getElementById("localaudio").mozSrcObject = as;
+            document.getElementById("localaudio").play();
             var pc = new mozRTCPeerConnection();
 
             pc.ondatachannel = function (channel) {
@@ -173,6 +176,7 @@ function acceptCall(offer, fromUser) {
 
 
             pc.addStream(vs);
+            pc.addStream(as);
             pc.onaddstream = function (obj) {
                 log("Got onaddstream of type " + obj.type);
                 if (obj.type == "video") {
@@ -209,17 +213,24 @@ function acceptCall(offer, fromUser) {
                     }, error);
                 }, error);
             }, error);
+
+
+        }, error);
     }, error);
 }
 function initiateCall(userid) {
     user=1;
     document.getElementById("main").style.display = "none";
     document.getElementById("call").style.display = "block";
-    navigator.mozGetUserMedia({video:true,fake:true}, function (vs) {
+    navigator.mozGetUserMedia({video:true}, function (vs) {
         document.getElementById("localvideo").mozSrcObject = vs;
         document.getElementById("localvideo").play();
+        navigator.mozGetUserMedia({audio:true}, function (as) {
+            document.getElementById("localaudio").mozSrcObject = as;
+            document.getElementById("localaudio").play();
             var pc = new mozRTCPeerConnection();
             pc.addStream(vs);
+            pc.addStream(as);
             pc.onaddstream = function (obj) {
                 log("Got onaddstream of type " + obj.type);
                 if (obj.type == "video") {
@@ -316,6 +327,7 @@ function initiateCall(userid) {
                     toUserSDP.set(toSend);
                 }, error);
             }, error);
+        }, error);
     }, error);
 }
 function endCall() {
