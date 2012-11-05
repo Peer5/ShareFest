@@ -121,8 +121,6 @@ function acceptCall(offer, fromUser) {
     document.getElementById("main").style.display = "none";
     document.getElementById("call").style.display = "block";
     navigator.mozGetUserMedia({video:true,fake:true}, function (vs) {
-        document.getElementById("localvideo").mozSrcObject = vs;
-        document.getElementById("localvideo").play();
             var pc = new mozRTCPeerConnection();
 
             pc.ondatachannel = function (channel) {
@@ -174,6 +172,7 @@ function acceptCall(offer, fromUser) {
 
             pc.addStream(vs);
             pc.onaddstream = function (obj) {
+                return;
                 log("Got onaddstream of type " + obj.type);
                 if (obj.type == "video") {
                     document.getElementById("remotevideo").mozSrcObject = obj.stream;
@@ -216,11 +215,10 @@ function initiateCall(userid) {
     document.getElementById("main").style.display = "none";
     document.getElementById("call").style.display = "block";
     navigator.mozGetUserMedia({video:true,fake:true}, function (vs) {
-        document.getElementById("localvideo").mozSrcObject = vs;
-        document.getElementById("localvideo").play();
             var pc = new mozRTCPeerConnection();
             pc.addStream(vs);
             pc.onaddstream = function (obj) {
+                return;
                 log("Got onaddstream of type " + obj.type);
                 if (obj.type == "video") {
                     document.getElementById("remotevideo").mozSrcObject = obj.stream;
@@ -285,7 +283,7 @@ function initiateCall(userid) {
                 }
                 channel.onopen = function () {
                     log("pc1 onopen fired for " + channel);
-                    channel.send("pc1 says Hello...");
+                    channel.send(a);
                     log("pc1 state: " + channel.state);
                 }
                 channel.onclose = function () {
