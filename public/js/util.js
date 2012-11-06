@@ -3,7 +3,7 @@ window.onload  = function() {
     document.querySelector('input[type="file"]').addEventListener('change', function (e) {
         var blob = this.files[0];
 
-        const BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunk sizes.
+        const BYTES_PER_CHUNK = 1024 * 1024 * 1024; // 1GB chunk sizes.
         const SIZE = blob.size;
 
         var start = 0;
