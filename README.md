@@ -1,4 +1,5 @@
 ![Sharefest](https://raw.github.com/Peer5/ShareFest/master/public/img/logo.png)
+
 One-To-Many sharing application. Serverless.
 Eliminates the need to fully upload your file to services such as Dropbox or Google Drive.
 Put your file and start sharing immidiately with anyone that enters the page.
