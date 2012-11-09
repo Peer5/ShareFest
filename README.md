@@ -14,10 +14,10 @@ ToDo:
 =====
 First version suppose to include a simple page that one user will drag a file to
 share, and a second user will enter the first user's url and start getting the file.
-*redirect to a dynamic url page
-*create a cool drag-n-drop mechanism for the file uploader
-*create a stand alone (non firefox) signaling server
-*merge chat.js to index.html
+* redirect to a dynamic url page
+* create a cool drag-n-drop mechanism for the file uploader
+* create a stand alone (non firefox) signaling server
+* merge chat.js to index.html
 
 History
 =======
