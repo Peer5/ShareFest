@@ -1,4 +1,4 @@
-![Logo](https://github.com/Peer5/ShareFest/tree/master/public/img/logo.png)
+![Sharefest](https://raw.github.com/Peer5/ShareFest/master/public/img/logo.png)
 
 Sharefest
 =========
