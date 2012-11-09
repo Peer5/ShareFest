@@ -1,3 +1,5 @@
+![Logo](https://github.com/Peer5/ShareFest/tree/master/public/img/logo.png)
+
 Sharefest
 =========
 One-To-Many sharing application.
