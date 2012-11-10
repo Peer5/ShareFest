@@ -4,27 +4,48 @@
     <title>ShareFest</title>
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=IM+Fell+English' rel='stylesheet' type='text/css'>
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Courgette' rel='stylesheet' type='text/css'>
+    <script src="js/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <style>
         body {
             padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+            font-family: "Courgette";
+        }
+        h3 {
+            font-size: 24px;
         }
         h1 {
             font-family: 'IM Fell English', serif;
             font-size: 5em;
         }
         .dragdrop {
-            border: dashed #000000;
-            border-color: #000000;
+            padding-top: 250px;
             width: 900px;
-            height: 600px;
+            height: 450px;
+            border: solid #000000;
+            line-height: 50px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #FFFFFF;
+            opacity: 0.8;
+
         }
+        .bg {
+            background-image: url('img/1.jpg');
+        }
+        .info {
+            right: 10px;
+            float: right;
+            clear: both;
+            bottom:10px;
+            position: absolute;
+        }
+
     </style>
     <script type="text/javascript" src="./js/dndimg.js"></script>
 </head>
-<body>
+<body class="bg">
 <a href="https://github.com/peer5/sharefest"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"
                                                   src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
                                                   alt="Fork me on GitHub"></a>
@@ -51,17 +72,24 @@
 </div>
 
 <div class="container">
-    <h1>Sharefest</h1>
+    <h1></h1>
 
-    <p>Just drag any file to start sharing it right now, no additional software needed! For more info on that, go to our
-        <a href="http://github.com/peer5/sharefest">project page</a></p>
+
     <div class="dragdrop" onClick="$('#files').click()" >
-        <div id="dropbox"><br /><br /><br /><br /></div>
+        <div id="dropbox"><img src="img/logo.png"/>
+            <h3>Just drag any file here, and start sharing immediately!</h3>
+        </div>
+
         <div id="progressbar">
 
         </div>
+
+        <!--<p class="info">For more info about Sharefest, go to our-->
+            <!--<a href="http://github.com/peer5/sharefest">project page</a></p>-->
     </div>
+
     <input type="file" id="files" name="files[]" multiple style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;" />
+
 </div>
 <!-- /container -->
 </body>
