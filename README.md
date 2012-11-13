@@ -22,7 +22,7 @@ share, and a second user will enter the first user's url and start getting the f
 * create a cool drag-n-drop mechanism for the file uploader
 * create a stand alone (non firefox) signaling server
 * merge chat.js to index.html
-* connect to a server coordinator
+* divide blob to chunks, and create progress bar for file transfer
 
 History
 =======
