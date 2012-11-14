@@ -1,6 +1,5 @@
 // an in memory placeholder for the rooms
 var rooms = {};
-var DICTIONARY = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('');
 
 function getRoom(id) {
     if (id in rooms) {

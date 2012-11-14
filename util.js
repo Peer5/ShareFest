@@ -1,3 +1,4 @@
+var DICTIONARY = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('');
 
 function generateID(seed) {
     /* Given a seed, this function will return a 'shortened' URL */
