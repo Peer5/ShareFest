@@ -21,10 +21,9 @@ function encode(i) {
 
     while (i > 0) {
         result += DICTIONARY[i % base];
-        i = i / base;
+        i = Math.floor(i / base);
     }
 
-    result = result.reverse();
     return result;
 }
 
