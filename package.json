@@ -1,10 +1,7 @@
 {
-  "name": "ShareFest",
-  "domains": [
-    "sharefest.jit.su"
-  ],
+  "name": "Sharefest",
   "description": "",
-  "version": "0.2.1-56",
+  "version": "0.1.0-2",
   "author": "",
   "dependencies": {
     "express": ">=3.0",
