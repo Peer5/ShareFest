@@ -6,9 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 var io = require('socket.io').listen(80);
-
 var users = {};
-
 
 io.sockets.on('connection', function (socket) {
     socket.emit('connectionReady', {});
