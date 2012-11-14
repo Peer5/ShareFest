@@ -11,17 +11,22 @@ var rooms = require('rooms.js');
 io.sockets.on('connection', function (socket) {
     socket.emit('connectionReady', {});
 
-    socket.on('join',function(msg){ //msg = {roomId:...,socketId...,data:....}
-        rooms.get(msg.roomId).add(socket.id);
+    socket.on('join',function(msg){
+        users[users.length-1] = socket.id;
     });
 
-    socket.on('offer', function (msg) { //msg = {socketId:...,data:...}
-        this.sendOffer(msg.socketId,msg.data);
+    socket.on('offer', function (msg) {
+        for(var i=0;i<users.length;++i){
+            if(users[i]!=socket.id){        //publishing the offer to all other users
+                this.sendOffer(socket.id,msg);
+            }
+        }
     });
 
-    socket.on('answer', function (msg) {    //msg = {socketId:...,data:...}
+    socket.on('answer', function (msg) {    //msg = {socketid:...,data:...}
         this.answer(msg.socketid,msg);
     });
+
 
     socket.on('disconnect', function (msg) {
 
@@ -49,10 +54,3 @@ this.answer = function (socketId, message) {
         s.emit('answer', message);
     }
 };
-
-this.createOffer = function(senderId,receiverId,message){
-    var s = io.sockets.sockets[senderId];
-    if (s) {
-        s.emit('createOffer', message);
-    }
-}

@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var server;
+var rooms = require('./rooms.js');
 
 var allowCrossDomain = function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -24,8 +25,8 @@ app.configure('production', function () {
 });
 
 app.get('/room/:id', function (req, res) {
-    var roomId = res.send(req.params.id);
-
-
-
+    var roomId = req.params.id;
+    var room = rooms.getRoom(roomId);
+//    displayRoom(room);
+    res.send(room);
 })
