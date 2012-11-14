@@ -11,11 +11,21 @@ var allowCrossDomain = function (req, res, next) {
 app.use(allowCrossDomain);
 app.use(express.static(__dirname + '/public'));
 
+
+
 app.configure('development', function () {
     app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
     server = app.listen(13337);
+    console.log('here I am');
 });
 
 app.configure('production', function () {
     server = app.listen(8000); //nodejitsu will map this to 80
 });
+
+app.get('/room/:id', function (req, res) {
+    var roomId = res.send(req.params.id);
+
+
+
+})
