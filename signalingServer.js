@@ -12,7 +12,7 @@ io.sockets.on('connection', function (socket) {
     socket.emit('connectionReady', {});
 
     socket.on('join',function(msg){
-        users[users.length-1] = socket.id;
+        users[users.length] = socket.id;
     });
 
     socket.on('offer', function (msg) {
@@ -26,7 +26,6 @@ io.sockets.on('connection', function (socket) {
     socket.on('answer', function (msg) {    //msg = {socketid:...,data:...}
         this.answer(msg.socketid,msg);
     });
-
 
     socket.on('disconnect', function (msg) {
 

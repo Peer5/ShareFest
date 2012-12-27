@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+    <title>WebRTC PeerConnection Manual Test</title>
+    <script type="text/javascript" src="../test_functions.js"></script>
+    <script type="text/javascript" src="../message_handling.js"></script>
+    <script type="text/javascript" src="../getusermedia.js"></script>
+    <script type="text/javascript" src="../jsep01_call.js"></script>
+    <script type="text/javascript" src="peerconnection.js"></script>
+    <link rel="StyleSheet" type="text/css" href="stylesheet.css">
+    <meta charset="utf-8">
+</head>
+<body>
+
+<div id="wrapper">
+    <div>
+        GetUserMedia <a href="http://goo.gl/V7cZg">MediaStreamConstraints</a>:
+        <input type="text" id="getusermedia-constraints" size="30">
+        Audio<input type="checkbox" id="audio" checked
+                    onclick="updateGetUserMediaConstraints();"/>
+        Video<input type="checkbox" id="video" checked
+                    onclick="updateGetUserMediaConstraints();"/>
+        <button id="re-request" onclick="getUserMediaFromHere();">
+            Request GetUserMedia</button>
+        Use <a href="constraints.html">constraints.html</a> to create more
+        advanced constraints (then paste them into the box to the left).
+    </div>
+    <a href="peerconnection-help.html" target="_blank">How does this page work?
+    </a>
+    <div id="container">
+
+        <div id="left-half">
+            <h2>Local Preview</h2>
+            <video width="320" height="240" id="local-view" autoplay="autoplay">
+            </video><br/>
+            <h2>Send on data channel</h2>
+            <input type="text" id="data-channel-send" size="10" />
+            <button onclick="sendDataFromHere();">Send data</button><br>
+            <input type="file" id="data-channel-blob" size="10" />
+            <button onclick="sendBlobFromHere();">Send data</button><br>
+
+            <h2>Settings</h2>
+            Server [<a href="https://src.chromium.org/viewvc/chrome/trunk/src/chrome/test/data/webrtc/manual/peerconnection.html" onclick="showServerHelp()">?</a>]:
+            <input type="text" id="server" size="30"
+                   value="http://localhost:8888" />
+            Peer ID: <input type="text" id="peer-id" size="10" />
+            <button id="connect" onclick="connectFromHere();">Connect</button><br/>
+            PeerConnection <a href="http://goo.gl/xVi12">createOffer MediaConstraints:
+        </a><br/>
+            <input type="text" id="pc-createoffer-constraints" rows="7" cols="40"/>
+            <br/>
+            PeerConnection <a href="http://goo.gl/0TjfX">createAnswer
+            MediaConstraints:</a><br/>
+            <input type="text" id="pc-createanswer-constraints" rows="7" cols="40"/>
+            <br/>
+            Call:
+            <button onclick="negotiateCallFromHere();">Negotiate</button>
+            <button onclick="hangUpFromHere();">Hang up</button><br/>
+            Local Stream:
+            <button onclick="addLocalStreamFromHere();">Add</button>
+            <button onclick="removeLocalStreamFromHere();">Remove</button>
+            <button onclick="stopLocalFromHere();">Stop</button>
+            <button onclick="toggleLocalVideoFromHere();">Toggle Video</button>
+            <button onclick="toggleLocalAudioFromHere();">Toggle Audio</button><br/>
+            Remote Stream:
+            <button onclick="toggleRemoteVideoFromHere();">Toggle Video</button>
+            <button onclick="toggleRemoteAudioFromHere();">Toggle Audio</button><br/>
+            Data Channel:
+            <button onclick="createDataChannelFromHere();">Create</button>
+            <button onclick="closeDataChannelFromHere();">Close</button>
+            status:
+            <input type="text" id="data-channel-status" size="10" value="not created"
+                   disabled="true" /><br/>
+            Options:
+            <input type="checkbox" id="force-opus" onclick="forceOpusChanged();"/>
+            Force Opus in Outgoing SDP<br/>
+            <button onclick="clearLog();">Clear Logs</button>
+            <h2>Messages</h2>
+            <pre id="messages"></pre>
+        </div>
+        <div id="right-half">
+            <h2>Remote Video</h2>
+            <video width="320" height="240" id="remote-view" autoplay="autoplay">
+            </video><br/>
+            <h2>Received on data channel</h2>
+            <textarea id="data-channel-receive" rows="7" cols="40" disabled="true">
+            </textarea>
+
+            <h2>Debug</h2>
+            <pre id="debug"></pre>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
