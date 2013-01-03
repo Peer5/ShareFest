@@ -5,11 +5,11 @@
  * Time: 22:10
  * To change this template use File | Settings | File Templates.
  */
-var io = require('socket.io').listen(80);
-var rooms = require('rooms.js');
+var io = require('socket.io').listen(8080);
+//var rooms = require('rooms.js');
 
 io.sockets.on('connection', function (socket) {
-    socket.emit('connectionReady', {});
+    socket.emit('connection', {});
 
     socket.on('join',function(msg){
         users[users.length] = socket.id;

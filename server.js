@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+require('./signalingServer.js');
 var server;
 var rooms = require('./rooms.js');
 

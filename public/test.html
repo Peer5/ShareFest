@@ -193,7 +193,6 @@ function step2() {
         if (channel.readyState != 0) {
             log("*** pc2 no onopen??! possible race");
         }
-
     };
     pc2.onconnection = function () {
         log("pc2 onConnection ");

@@ -198,8 +198,8 @@ function print_(message) {
  * @param {string} message Text to print.
  */
 function debug_(message) {
-    console.log(message);
-    $('debug').innerHTML += message + '<br>';
+//    console.log(message);
+//    $('debug').innerHTML += message + '<br>';
 }
 
 /**
@@ -276,6 +276,7 @@ function hookupDataChannelCallbacks_() {
             $('data-channel-status').value = status;
         },
         function(data_message) {
+            console.log("received message" + data_message);
             debug('Received ' + data_message.data);
             $('data-channel-receive').value =
                 data_message.data + '\n' + $('data-channel-receive').value;
