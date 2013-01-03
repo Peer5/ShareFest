@@ -173,7 +173,8 @@ function setLocalAndSendMessage_(session_description) {
         function() { success_('setLocalDescription'); },
         function() { failure_('setLocalDescription'); });
     debug("Sending SDP message:\n" + session_description.sdp);
-    sendToPeer(gRemotePeerId, JSON.stringify(session_description));
+    socket.sendSDP(JSON.stringify(session_description));
+//    sendToPeer(gRemotePeerId, JSON.stringify(session_description));
 }
 
 /** @private */

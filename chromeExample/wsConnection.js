@@ -23,11 +23,16 @@
                 });
                 this.socket.on('message',function(){
                 });
+                this.socket.on('sdp',function(message){
+
+                });
             });
         },
 
         sendSDP:function(message){
             this.socket.emit('SDP',message);
         }
+
+
     };
 })();
