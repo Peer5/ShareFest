@@ -11,18 +11,19 @@ var io;
 
 exports.start = function (server) {
     io = socketio.listen(server);
-    exports.createRoom('broadcast'); //
+    exports.createRoom('/broadcast'); //
 }
 
 exports.createRoom = function(roomId) {
     io.of(roomId).on('connection', function (socket) {
-        socket.emit('connection', {});
+//        socket.broadcast.emit('message','user connected');
+        socket.emit('message', 'm');
 
         socket.on('join', function (msg) {
             users[users.length] = socket.id;
         });
 
-        socket.on('  ', function (msg) {
+        socket.on('offer', function (msg) {
             socket.broadcast.to(roomId).emit('offer', msg);
 
 //            for (var i = 0; i < users.length; ++i) {

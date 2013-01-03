@@ -19,11 +19,12 @@
             this.socket = io.connect(wsServerUrl);
             console.log('new websocket');
             this.socket.on('connect',function(){
-                this.socket.on('disconnect', function () {
+                thi$.socket.on('disconnect', function () {
                 });
-                this.socket.on('message',function(){
+                thi$.socket.on('message',function(msg){
+                    console.log(msg)
                 });
-                this.socket.on('sdp',function(message){
+                thi$.socket.on('sdp',function(message){
 
                 });
             });
