@@ -15,7 +15,7 @@ exports.start = function (server) {
 }
 
 exports.createRoom = function(roomId) {
-    io.of(roomId).sockets.on('connection', function (socket) {
+    io.of(roomId).on('connection', function (socket) {
         socket.emit('connection', {});
 
         socket.on('join', function (msg) {
