@@ -19,12 +19,14 @@
             this.socket = io.connect(wsServerUrl);
             console.log('new websocket');
             this.socket.on('connect',function(){
+                console.log("websocket connected");
                 thi$.socket.on('disconnect', function () {
                 });
                 thi$.socket.on('message',function(msg){
                     console.log(msg)
                 });
                 thi$.socket.on('offer',function(message){
+                    console.log("got an offer");
                     setLocalAndSendMessage_(message)
                 });
             });
