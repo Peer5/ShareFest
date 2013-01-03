@@ -24,6 +24,10 @@
                 this.socket.on('message',function(){
                 });
             });
+        },
+
+        sendSDP:function(message){
+            this.socket.emit('SDP',message);
         }
     };
 })();
