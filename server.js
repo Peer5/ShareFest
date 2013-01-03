@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-require('./signalingServer.js');
+var signaling = require('./signalingServer.js');
 var server;
 var rooms = require('./rooms.js');
 
@@ -14,16 +14,16 @@ app.use(allowCrossDomain);
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/chromeExample'));
 
-
-
 app.configure('development', function () {
     app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
     server = app.listen(13337);
+    signaling.start(server);
     console.log('here I am');
 });
 
 app.configure('production', function () {
     server = app.listen(8000); //nodejitsu will map this to 80
+    signaling.start(server);
 });
 
 app.get('/room/:id', function (req, res) {
@@ -31,4 +31,5 @@ app.get('/room/:id', function (req, res) {
     var room = rooms.getRoom(roomId);
 //    displayRoom(room);
     res.send(room);
-})
+});
+

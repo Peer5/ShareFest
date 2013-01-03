@@ -1,7 +1,6 @@
 // an in memory placeholder for the rooms
 var rooms = {};
 
-
 function Room(id) {
     this.id = id;
     this.count = 0;
