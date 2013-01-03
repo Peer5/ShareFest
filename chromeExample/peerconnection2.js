@@ -25,7 +25,7 @@ function connectFromHere() {
         debug('Our name from now on will be ' + $('peer-id').value);
     }
     var socket = new WsConnection('http://localhost:8080',$('peer-id').value)
-    connect(server, $('peer-id').value);
+//    connect(server, $('peer-id').value);
 }
 
 function negotiateCallFromHere() {

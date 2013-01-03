@@ -5,53 +5,51 @@
  * Time: 22:10
  * To change this template use File | Settings | File Templates.
  */
-var io = require('socket.io');
+var io = require('socket.io').listen(8080);
 //var rooms = require('rooms.js');
 
-exports.start = function (server) {
-    io.listen(server);
-    io.sockets.on('connection', function (socket) { /*of('room').*/
-        socket.emit('connection', {});
+io.sockets.on('connection', function (socket) {
+    socket.emit('connection', {});
 
-        socket.on('join', function (msg) {
-            users[users.length] = socket.id;
-        });
-
-        socket.on('offer', function (msg) {
-            socket.broadcast.emit('offer', message);
-
-//            for (var i = 0; i < users.length; ++i) {
-//                if (users[i] != socket.id) {        //publishing the offer to all other users
-//                    this.sendOffer(socket.id, msg);
-//                }
-//            }
-        });
-
-        socket.on('answer', function (msg) {    //msg = {socketid:...,data:...}
-            this.answer(msg.socketid, msg);
-        });
-
-        socket.on('disconnect', function (msg) {
-
-
-        });
+    socket.on('join',function(msg){
+        users[users.length] = socket.id;
     });
-}
-exports.send = function (socketId, message) {
+
+    socket.on('offer', function (msg) {
+        for(var i=0;i<users.length;++i){
+            if(users[i]!=socket.id){        //publishing the offer to all other users
+                this.sendOffer(socket.id,msg);
+            }
+        }
+    });
+
+    socket.on('answer', function (msg) {    //msg = {socketid:...,data:...}
+        this.answer(msg.socketid,msg);
+    });
+
+    socket.on('disconnect', function (msg) {
+    });
+
+    socket.on('sdp',function(msg){
+
+    });
+});
+
+this.send = function (socketId, message) {
     var s = io.sockets.sockets[socketId];
     if (s) {
         s.emit('send', message);
     }
 };
 
-exports.sendOffer = function (socketId, message) {
+this.sendOffer = function (socketId, message) {
     var s = io.sockets.sockets[socketId];
     if (s) {
         s.emit('offer', message);
     }
 };
 
-exports.answer = function (socketId, message) {
+this.answer = function (socketId, message) {
     var s = io.sockets.sockets[socketId];
     if (s) {
         s.emit('answer', message);
