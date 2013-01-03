@@ -22,8 +22,8 @@ exports.createRoom = function(roomId) {
             users[users.length] = socket.id;
         });
 
-        socket.on('offer', function (msg) {
-            socket.broadcast.emit('offer', message);
+        socket.on('  ', function (msg) {
+            socket.broadcast.to(roomId).emit('offer', msg);
 
 //            for (var i = 0; i < users.length; ++i) {
 //                if (users[i] != socket.id) {        //publishing the offer to all other users
