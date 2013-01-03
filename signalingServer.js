@@ -17,14 +17,14 @@ exports.start = function (server) {
 exports.createRoom = function(roomId) {
     io.of(roomId).on('connection', function (socket) {
 //        socket.broadcast.emit('message','user connected');
-        socket.emit('message', 'm');
+        socket.emit('message', 'hi');
 
         socket.on('join', function (msg) {
             users[users.length] = socket.id;
         });
 
         socket.on('offer', function (msg) {
-            socket.broadcast.to(roomId).emit('offer', msg);
+            socket.broadcast.emit('offer', msg);
 
 //            for (var i = 0; i < users.length; ++i) {
 //                if (users[i] != socket.id) {        //publishing the offer to all other users

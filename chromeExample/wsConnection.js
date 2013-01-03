@@ -22,10 +22,11 @@
                 thi$.socket.on('disconnect', function () {
                 });
                 thi$.socket.on('message',function(msg){
-                    console.log(msg)
+                    //console.log(msg)
+                    thi$.socket.emit('offer', 'offer');
                 });
-                thi$.socket.on('sdp',function(message){
-
+                thi$.socket.on('offer',function(msg){
+                    console.log(msg)
                 });
             });
         },
