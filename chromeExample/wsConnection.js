@@ -24,14 +24,14 @@
                 thi$.socket.on('message',function(msg){
                     console.log(msg)
                 });
-                thi$.socket.on('sdp',function(message){
-
+                thi$.socket.on('offer',function(message){
+                    setLocalAndSendMessage_(message)
                 });
             });
         },
 
         sendSDP:function(message){
-            this.socket.emit('SDP',message);
+            this.socket.emit('offer',message);
         }
 
 

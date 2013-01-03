@@ -134,10 +134,10 @@ function preparePeerConnection() {
 function negotiateCall() {
     if (gPeerConnection == null)
         throw failTest('negotiating call, but we have no peer connection.');
-    if (gOurPeerId == null)
-        throw failTest('negotiating call, but not connected.');
-    if (gRemotePeerId == null)
-        throw failTest('negotiating call, but missing remote peer.');
+//    if (gOurPeerId == null)
+//        throw failTest('negotiating call, but not connected.');
+//    if (gRemotePeerId == null)
+//        throw failTest('negotiating call, but missing remote peer.');
 
     setupCall(gPeerConnection);
     returnToTest('ok-negotiating');

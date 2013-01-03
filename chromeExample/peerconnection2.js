@@ -27,7 +27,7 @@ function connectFromHere() {
 
     var ws_url = 'http://localhost:13337';
     var roomid = 'broadcast';
-    var socket = new WsConnection(ws_url + '/' + roomid ,$('peer-id').value)
+    socket = new WsConnection(ws_url + '/' + roomid,$('peer-id').value)
 //    connect(server, $('peer-id').value);
 }
 
