@@ -22,17 +22,16 @@
                 thi$.socket.on('disconnect', function () {
                 });
                 thi$.socket.on('message',function(msg){
-                    //console.log(msg)
-                    thi$.socket.emit('offer', 'offer');
-                });
-                thi$.socket.on('offer',function(msg){
                     console.log(msg)
+                });
+                thi$.socket.on('offer',function(message){
+                    setLocalAndSendMessage_(message)
                 });
             });
         },
 
         sendSDP:function(message){
-            this.socket.emit('SDP',message);
+            this.socket.emit('offer',message);
         }
 
 
