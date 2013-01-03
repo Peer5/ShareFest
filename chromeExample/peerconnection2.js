@@ -24,7 +24,10 @@ function connectFromHere() {
         $('peer-id').value = 'peer_' + Math.floor(Math.random() * 10000);
         debug('Our name from now on will be ' + $('peer-id').value);
     }
-    var socket = new WsConnection('http://localhost:8080',$('peer-id').value)
+
+    var ws_url = 'http://localhost:13337';
+    var roomid = 'broadcast';
+    var socket = new WsConnection(ws_url + '/' + roomid ,$('peer-id').value)
 //    connect(server, $('peer-id').value);
 }
 

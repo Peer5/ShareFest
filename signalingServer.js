@@ -10,8 +10,12 @@ var io;
 //var rooms = require('rooms.js');
 
 exports.start = function (server) {
-    var io = socketio.listen(server);
-    io.sockets.on('connection', function (socket) { /*of('room').*/
+    io = socketio.listen(server);
+    exports.createRoom('broadcast'); //
+}
+
+exports.createRoom = function(roomId) {
+    io.of(roomId).sockets.on('connection', function (socket) {
         socket.emit('connection', {});
 
         socket.on('join', function (msg) {
@@ -34,9 +38,9 @@ exports.start = function (server) {
 
         socket.on('disconnect', function (msg) {
 
-
         });
     });
+
 }
 exports.send = function (socketId, message) {
     var s = io.sockets.sockets[socketId];
