@@ -27,6 +27,7 @@ function connectFromHere() {
 
     var ws_url = 'http://localhost:13337';
     var roomid = 'broadcast';
+    gOurClientName = $('peer-id').value;
     socket = new WsConnection(ws_url + '/' + roomid,$('peer-id').value)
 //    connect(server, $('peer-id').value);
 }
@@ -277,6 +278,7 @@ function dontTouchSdp_() {
 /** @private */
 function hookupDataChannelCallbacks_() {
     setDataCallbacks(function(status) {
+            console.log('data-channel-status: ' + status);
             $('data-channel-status').value = status;
         },
         function(data_message) {

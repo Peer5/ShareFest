@@ -78,6 +78,7 @@ function sendDataOnChannel(data) {
 // message_handling.js.
 
 function handleMessage(peerConnection, message) {
+    console.log('handling message ' + message);
     var parsed_msg = JSON.parse(message);
     if (parsed_msg.type) {
         var session_description = new RTCSessionDescription(parsed_msg);

@@ -27,7 +27,9 @@
                 });
                 thi$.socket.on('offer',function(message){
                     console.log("got an offer");
-                    setLocalAndSendMessage_(message)
+                    if(!gPeerConnection)
+                        gPeerConnection = createPeerConnection(STUN_SERVER);
+                    handleMessage(gPeerConnection,message);
                 });
             });
         },
