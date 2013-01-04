@@ -12,7 +12,7 @@ var allowCrossDomain = function (req, res, next) {
 
 app.use(allowCrossDomain);
 app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/chromeExample'));
+app.use(express.static(__dirname + '/chromeExample/public'));
 
 app.configure('development', function () {
     app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
