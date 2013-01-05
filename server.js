@@ -26,10 +26,13 @@ app.configure('production', function () {
     signaling.start(server);
 });
 
-app.get('/room/:id', function (req, res) {
+app.get('/:id', function (req, res) {
     var roomId = req.params.id;
     var room = rooms.getRoom(roomId);
 //    displayRoom(room);
-    res.send(room);
+
+    //todo: bind the room info to the page and output
+    res.sendfile(__dirname + '/public/index.html');
+    //res.send(room);
 });
 
