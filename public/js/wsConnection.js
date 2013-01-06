@@ -26,8 +26,13 @@
                         gPeerConnection = createPeerConnection(STUN_SERVER);
                     handleMessage(gPeerConnection,message);
                 });
+                thi$.socket.on('match',function(message){
+                    var clientIds = message.clientIds;
+
+                });
 
                 thi$.socket.emit('message', 'hi from a new peer');
+
             });
         },
 
