@@ -72,13 +72,13 @@ function showServerHelp() {
  * Prepopulate constraints from JS to the UI and setup callbacks in the scripts
  * shared with PyAuto tests.
  */
-window.onload = function() {
-    replaceReturnCallback(print_);
-    replaceDebugCallback(debug_);
-    doNotAutoAddLocalStreamWhenCalled();
-    hookupDataChannelCallbacks_();
-    document.getElementById('data-channel-blob').addEventListener('change', handleFileSelect, false);
-};
+//window.onload = function() {
+//    replaceReturnCallback(print_);
+//    replaceDebugCallback(debug_);
+//    doNotAutoAddLocalStreamWhenCalled();
+//    hookupDataChannelCallbacks_();
+//    document.getElementById('data-channel-blob').addEventListener('change', handleFileSelect, false);
+//};
 
 /**
  * Disconnect before the tab is closed.
@@ -174,6 +174,6 @@ function hookupDataChannelCallbacks_() {
         });
 }
 
-$ = function(id) {
-    return document.getElementById(id);
-};
+//$ = function(id) {
+//    return document.getElementById(id);
+//};

@@ -2,12 +2,13 @@
     client = function (wsServerUrl) {
         this.clientId;
         this.ws;
+        this.initiateClient(wsServerUrl);
     };
 
     client.prototype = {
         initiateClient:function (wsServerUrl) {
             var thi$ = this;
-            this.ws = new WsConnection(ws_url);
+            this.ws = new WsConnection(wsServerUrl);
             this.clientId; //either randomly create or get it from WsConnection
             this.peerConnections = {};
             this.initiatePeerConnectionCallbacks();

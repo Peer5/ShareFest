@@ -7,28 +7,28 @@
     <link href='http://fonts.googleapis.com/css?family=Courgette' rel='stylesheet' type='text/css'>
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/client.js"></script>
+    <script src="js/peerconnection2.js"></script>
+    <script src="js/jsep01_call2.js"></script>
+    <script src="js/message_handling.js"></script>
+    <script src="js/test_functions.js"></script>
+    <script src="shared/radio.min.js"></script>
     <script type="text/javascript" src="./socket.io/socket.io.js"></script>
     <script src="js/wsConnection.js"></script>
     <script type="text/javascript">
         var ws;
-        $(document).ready(function () {
-            var ws_url_base = 'ws://' + window.location.hostname;
-            ws = new WsConnection(ws_url_base/* + window.location.pathname*/); //connect to appropiate room
+        $(document).ready(function(){
+            new client('ws://' + window.location.hostname)
         });
-
-
-
     </script>
     <style>
         body {
             padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
             font-family: "Courgette";
         }
-
         h3 {
             font-size: 24px;
         }
-
         h1 {
             font-family: 'IM Fell English', serif;
             font-size: 5em;
