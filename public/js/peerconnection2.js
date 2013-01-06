@@ -154,7 +154,6 @@ function dontTouchSdp_() {
 function hookupDataChannelCallbacks_() {
     setDataCallbacks(function(status) {
             console.log('data-channel-status: ' + status);
-            $('data-channel-status').value = status;
         },
         function(data_message) {
             console.log("received message" + data_message);
@@ -162,8 +161,7 @@ function hookupDataChannelCallbacks_() {
             var header = data_message.data.slice(0,4);
             var body = data_message.data.slice(4);
             if(header=='text'){
-                $('data-channel-receive').value =
-                    body + '\n' + $('data-channel-receive').value;
+                console.log("received text message");
             }else if(header = 'blob'){
                 var splitAns = body.split(',');
                 var meta = splitAns[0].split(':')[1].split(';')[0];
@@ -171,7 +169,6 @@ function hookupDataChannelCallbacks_() {
                 var data = base64.decode(splitAns[1]);
                 var blob = new Blob([data],{type:meta});
                 saveLocally(blob);
-
             }
 
         });

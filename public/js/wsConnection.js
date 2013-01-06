@@ -22,16 +22,13 @@
                 });
                 thi$.socket.on('offer',function(message){
                     console.log("got an offer");
-                    if(!gPeerConnection)
-                        gPeerConnection = createPeerConnection(STUN_SERVER);
-                    handleMessage(gPeerConnection,message);
+                    radio('receivedOffer').broadcast(message);
                 });
                 thi$.socket.on('match',function(message){
-                    var clientIds = message.clientIds;
-
+                    radio('receivedMatch').broadcast(message);
                 });
-
                 thi$.socket.emit('message', 'hi from a new peer');
+                radio('socketConnected').broadcast();
 
             });
         },
