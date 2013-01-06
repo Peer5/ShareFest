@@ -1,3 +1,14 @@
+window.addEventListener("dragover",function(e){
+    e = e || event;
+    e.dataTransfer.dropEffect = 'none';
+    e.preventDefault();
+},false);
+window.addEventListener("drop",function(e){
+    e = e || event;
+    e.dataTransfer.dropEffect = 'none';
+    e.preventDefault();
+},false);
+
 $(document).ready(function() {
 	var dropbox = document.getElementById("dropbox")
 
@@ -29,7 +40,6 @@ function dragOver(evt) {
 }
 
 function drop(evt) {
-    debugger;
 	evt.stopPropagation();
 	evt.preventDefault();
 
@@ -38,7 +48,7 @@ function drop(evt) {
 
 	// Only call the handler if 1 or more files was dropped.
     $('.dragdrop')[0].style.opacity = 1;
-    console.log(files);
+    addFiles(files);
 
     if (count > 0)
 		handleFiles(files);
