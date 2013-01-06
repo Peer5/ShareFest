@@ -1,25 +1,25 @@
 //$(document).ready(function () {
-window.onload  = function() {
-    document.querySelector('input[type="file"]').addEventListener('change', function (e) {
-        var blob = this.files[0];
-
-        const BYTES_PER_CHUNK = 1024 * 1024 * 1024; // 1GB chunk sizes.
-        const SIZE = blob.size;
-
-        var start = 0;
-        var end = BYTES_PER_CHUNK;
-
-        while (start < SIZE) {
-            upload(blob.slice(start, end));
-
-            start = end;
-            end = start + BYTES_PER_CHUNK;
-        }
-    }, false);
-};
+//window.onload  = function() {
+//    document.querySelector('input[type="file"]').addEventListener('change', function (e) {
+//        var blob = this.files[0];
+//
+//        const BYTES_PER_CHUNK = 1024 * 1024 * 1024; // 1GB chunk sizes.
+//        const SIZE = blob.size;
+//
+//        var start = 0;
+//        var end = BYTES_PER_CHUNK;
+//
+//        while (start < SIZE) {
+//            upload(blob.slice(start, end));
+//
+//            start = end;
+//            end = start + BYTES_PER_CHUNK;
+//        }
+//    }, false);
+//};
 
 function upload(blob) {
-    log('sending blob ' + blob.size);
+    console.log('sending blob ' + blob.size);
     if(user == 1) {
         dc1.send(blob);
     } else {

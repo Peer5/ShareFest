@@ -4,11 +4,13 @@
     <title>WebRTC PeerConnection Manual Test</title>
     <script type="text/javascript" src="js/test_functions.js"></script>
     <script type="text/javascript" src="js/message_handling.js"></script>
-    <script type="text/javascript" src="js/getusermedia.js"></script>
     <script type="text/javascript" src="js/jsep01_call2.js"></script>
     <script type="text/javascript" src="js/peerconnection2.js"></script>
     <script type="text/javascript" src="js/wsConnection.js"></script>
     <script type="text/javascript" src="./socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="js/base64-arraybuffer.js"></script>
+    <script type="text/javascript" src="js/fileHandle.js"></script>
+    <script type="text/javascript" src="./js/util.js"></script>
     <link rel="StyleSheet" type="text/css" href="css/stylesheet.css">
     <meta charset="utf-8">
 </head>
@@ -23,7 +25,7 @@
             <button onclick="sendDataFromHere();">Send data</button><br>
             <input type="file" id="data-channel-blob" size="10" />
             <button onclick="sendBlobFromHere();">Send data</button><br>
-
+            <output id="list"></output>
             <h2>Settings</h2>
             Server [<a href="https://src.chromium.org/viewvc/chrome/trunk/src/chrome/test/data/webrtc/manual/peerconnection.html" onclick="showServerHelp()">?</a>]:
             <input type="text" id="server" size="30"

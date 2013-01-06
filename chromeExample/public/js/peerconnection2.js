@@ -26,7 +26,7 @@ function connectFromHere() {
     }
     var roomid = 'broadcast';
     gOurClientName = $('peer-id').value;
-    socket = new WsConnection(ws_url + '/' + roomid,$('peer-id').value)
+    socket = new WsConnection(ws_url,$('peer-id').value)
 }
 
 function negotiateCallFromHere() {
@@ -87,12 +87,12 @@ function closeDataChannelFromHere() {
 }
 
 function sendDataFromHere() {
-    var data = $('data-channel-send').value;
+    var data = 'text' + $('data-channel-send').value;
     sendDataOnChannel(data);
 }
 
 function sendBlobFromHere() {
-    var data = $('data-channel-blob').files[0];
+    var data = 'blob' + $('data-channel-blob').toSend;
     sendDataOnChannel(data);
 }
 
@@ -149,6 +149,7 @@ window.onload = function() {
     replaceDebugCallback(debug_);
     doNotAutoAddLocalStreamWhenCalled();
     hookupDataChannelCallbacks_();
+    document.getElementById('data-channel-blob').addEventListener('change', handleFileSelect, false);
 };
 
 /**
@@ -270,8 +271,21 @@ function hookupDataChannelCallbacks_() {
         function(data_message) {
             console.log("received message" + data_message);
             debug('Received ' + data_message.data);
-            $('data-channel-receive').value =
-                data_message.data + '\n' + $('data-channel-receive').value;
+            var header = data_message.data.slice(0,4);
+            var body = data_message.data.slice(4);
+            if(header=='text'){
+                $('data-channel-receive').value =
+                    body + '\n' + $('data-channel-receive').value;
+            }else if(header = 'blob'){
+                var splitAns = body.split(',');
+                var meta = splitAns[0].split(':')[1].split(';')[0];
+                console.log(meta);
+                var data = base64.decode(splitAns[1]);
+                var blob = new Blob([data],{type:meta});
+                saveLocally(blob);
+
+            }
+
         });
 }
 
