@@ -91,6 +91,15 @@ function sendDataFromHere() {
     sendDataOnChannel(data);
 }
 
+function sendDataFromLoop() {
+    var s='';
+    for (var i=0;i<100000;i++) {
+        console.log('sending text in length ' + i);
+        sendDataOnChannel(s);
+        s+='+';
+    }
+}
+
 function sendBlobFromHere() {
     var data = 'blob' + $('data-channel-blob').toSend;
     sendDataOnChannel(data);
