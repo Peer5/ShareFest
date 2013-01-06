@@ -11,23 +11,29 @@
     <script src="js/wsConnection.js"></script>
     <script type="text/javascript">
         var ws;
-        $(document).ready(function(){
+        $(document).ready(function () {
             var ws_url_base = 'ws://' + window.location.hostname;
             ws = new WsConnection(ws_url_base/* + window.location.pathname*/); //connect to appropiate room
         });
+
+
+
     </script>
     <style>
         body {
             padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
             font-family: "Courgette";
         }
+
         h3 {
             font-size: 24px;
         }
+
         h1 {
             font-family: 'IM Fell English', serif;
             font-size: 5em;
         }
+
         .dragdrop {
             padding-top: 250px;
             width: 900px;
@@ -40,19 +46,21 @@
             opacity: 0.8;
 
         }
+
         .bg {
             background-image: url('img/1.jpg');
         }
+
         .info {
             right: 10px;
             float: right;
             clear: both;
-            bottom:10px;
+            bottom: 10px;
             position: absolute;
         }
 
     </style>
-    <script type="text/javascript" src="./js/dndimg.js"></script>
+    <script type="text/javascript" src="js/dnd.js"></script>
 </head>
 <body class="bg">
 <a href="https://github.com/peer5/sharefest"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"
@@ -83,9 +91,9 @@
 <div class="container">
     <h1></h1>
 
-
-    <div class="dragdrop" onClick="$('#files').click()" >
+    <div class="dragdrop" onClick="$('#files').click()">
         <div id="dropbox"><img src="img/logo.png"/>
+
             <h3>Just drag any file here, and start sharing immediately!</h3>
         </div>
 
@@ -94,10 +102,11 @@
         </div>
 
         <!--<p class="info">For more info about Sharefest, go to our-->
-            <!--<a href="http://github.com/peer5/sharefest">project page</a></p>-->
+        <!--<a href="http://github.com/peer5/sharefest">project page</a></p>-->
     </div>
 
-    <input type="file" id="files" name="files[]" multiple style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;" />
+    <input type="file" id="files" name="files[]" multiple
+           style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;"/>
 
 </div>
 <!-- /container -->

@@ -14,11 +14,13 @@ $(document).ready(function() {
 function dragEnter(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
+    $('.dragdrop')[0].style.opacity = 0.9;
 }
 
 function dragExit(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
+    $('.dragdrop')[0].style.opacity = 0.8;
 }
 
 function dragOver(evt) {
@@ -27,6 +29,7 @@ function dragOver(evt) {
 }
 
 function drop(evt) {
+    debugger;
 	evt.stopPropagation();
 	evt.preventDefault();
 
@@ -34,24 +37,26 @@ function drop(evt) {
 	var count = files.length;
 
 	// Only call the handler if 1 or more files was dropped.
-	if (count > 0)
+    $('.dragdrop')[0].style.opacity = 1;
+    console.log(files);
+
+    if (count > 0)
 		handleFiles(files);
 }
 
 
 function handleFiles(files) {
-	var file = files[0];
 
-	document.getElementById("droplabel").innerHTML = "Processing " + file.name;
-
-	var reader = new FileReader();
-
-	// init the reader event handlers
-	reader.onprogress = handleReaderProgress;
-	reader.onloadend = handleReaderLoadEnd;
-
-	// begin the read operation
-	reader.readAsDataURL(file);
+//	var file = files[0];
+//
+//	var reader = new FileReader();
+//
+//	// init the reader event handlers
+//	reader.onprogress = handleReaderProgress;
+//	reader.onloadend = handleReaderLoadEnd;
+//
+//	// begin the read operation
+//	reader.readAsDataURL(file);
 }
 
 function handleReaderProgress(evt) {
