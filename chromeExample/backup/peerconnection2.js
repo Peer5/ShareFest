@@ -279,7 +279,6 @@ function dontTouchSdp_() {
 function hookupDataChannelCallbacks_() {
     setDataCallbacks(function(status) {
             console.log('data-channel-status: ' + status);
-            $('data-channel-status').value = status;
         },
         function(data_message) {
             console.log("received message" + data_message);

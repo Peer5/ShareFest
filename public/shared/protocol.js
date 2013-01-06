@@ -4,7 +4,8 @@
         this.clientIds = clientIds; //array of Id's
     }
 
-    function Offer(sdp,targetId){
+    function Offer(sdp,targetId,originId){
+        this.originId = originId;
         this.targetId = targetId;
         this.sdp = sdp;
     }
