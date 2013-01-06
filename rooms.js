@@ -1,16 +1,26 @@
+var util = require('./util.js');
 // an in memory placeholder for the rooms
 var rooms = {};
 
 function Room(id) {
     this.id = id;
     this.count = 0;
-    peers = {};
+    this.peers = {};
 }
 
 Room.prototype = {
+    getRandomK: function(k) {
+        return util.getRandomK(Object.keys(this.peers),k);
+    },
+
     addPeer: function(id) {
-        count++;
-        peers[id] = "placeholder";
+        this.count++;
+        this.peers[id] = "placeholder";
+    },
+
+    removePeer:function(id) {
+        delete this.peers[id];
+        this.count--;
     }
 };
 

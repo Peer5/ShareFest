@@ -1,13 +1,8 @@
-/**
- * Created with JetBrains WebStorm.
- * User: Shachar
- * Date: 13/11/12
- * Time: 22:10
- * To change this template use File | Settings | File Templates.
- */
 var socketio = require('socket.io');
 var io;
 var url = require('url');
+var matcher = require('./matcher.js');
+var proto = require('./public/shared/protocol.js');
 //var rooms = require('rooms.js');
 
 exports.start = function (server) {
@@ -16,10 +11,19 @@ exports.start = function (server) {
 
         socket.room = url.parse(socket.handshake.headers.referer).pathname;
         socket.join(socket.room);
+
+        var peers = matcher.join(socket.room,socket.id);
+        socket.emit('match', new proto.Match(peers))
+
+        //TODO: notify other peers about this match (more secured)
 //        socket.broadcast.emit('message','user connected');
 
         socket.on('join', function (msg) {
             users[users.length] = socket.id;
+        });
+
+        socket.on('sdp',function(sdp){
+
         });
 
 
@@ -46,44 +50,12 @@ exports.start = function (server) {
         });
 
         socket.on('disconnect', function (msg) {
+            matcher.leave(socket.room, socket.id);
             socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);
         });
     });
 }
 
-//exports.createRoom = function (roomId) {
-//    io.of(roomId).on('connection', function (socket) {
-////        socket.broadcast.emit('message','user connected');
-//
-//        socket.on('join', function (msg) {
-//            users[users.length] = socket.id;
-//        });
-//
-//
-//        socket.on('message', function (msg) {
-//            socket.broadcast.emit('message', msg);
-//        });
-//
-//        socket.on('offer', function (msg) {
-//            socket.broadcast.emit('offer', msg);
-//
-////            for (var i = 0; i < users.length; ++i) {
-////                if (users[i] != socket.id) {        //publishing the offer to all other users
-////                    this.sendOffer(socket.id, msg);
-////                }
-////            }
-//        });
-//
-//        socket.on('answer', function (msg) {    //msg = {socketid:...,data:...}
-//            this.answer(msg.socketid, msg);
-//        });
-//
-//        socket.on('disconnect', function (msg) {
-//
-//        });
-//    });
-//
-//}
 exports.send = function (socketId, message) {
     var s = io.sockets.sockets[socketId];
     if (s) {
@@ -91,7 +63,7 @@ exports.send = function (socketId, message) {
     }
 };
 
-exports.sendOffer = function (socketId, message) {
+exports.offer = function (socketId, message) {
     var s = io.sockets.sockets[socketId];
     if (s) {
         s.emit('offer', message);
