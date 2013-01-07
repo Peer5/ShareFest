@@ -1,10 +1,11 @@
 (function () {
-    client = function (wsServerUrl) {
+    client = function (wsServerUrl,chunkArray) {
         this.clientId;
         this.peerConnections = {};
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
         this.registerEvents();
+        this.chunkArray = chunkArray;
     };
 
     client.prototype = {
@@ -46,6 +47,14 @@
             this.ensureHasPeerConnection(remotePeerId);
             createDataChannel(this.peerConnections[remotePeerId],this.clientId);
 //            createDataChannelOnPeerConnection(this.peerConnections[remotePeerId],this.clientId);
+        },
+
+        sendCommand:function(dataChannel,message){
+            if(dataChannel.readyState == 'open'){
+                dataChannel.send(message);
+            }else{
+                console.log('couldnt send message, dataChannel wasnt ready');
+            }
         },
 
         registerEvents:function () {
