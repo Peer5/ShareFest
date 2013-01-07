@@ -14,10 +14,10 @@
                 thi$.socket.on('disconnect', function () {
                 });
                 thi$.socket.on('created', function (msg) {
-                    history.pushState({},msg,msg)
+                    history.pushState({}, msg, msg)
                 });
-                thi$.socket.on('files', function (msg) {
-                    console.log(msg);
+                thi$.socket.on('files', function (files) {
+                    updateList(files);
                 });
                 thi$.socket.on('message', function (msg) {
                     console.log(msg);

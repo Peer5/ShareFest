@@ -47,7 +47,6 @@ function drop(evt) {
 	var count = files.length;
 
 	// Only call the handler if 1 or more files was dropped.
-    $('.dragdrop')[0].style.opacity = 1;
     addFiles(files);
 
     if (count > 0)

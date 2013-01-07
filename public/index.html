@@ -12,6 +12,7 @@
     <script src="js/jsep01_call2.js"></script>
     <script src="js/message_handling.js"></script>
     <script src="js/test_functions.js"></script>
+    <script src="js/util.js"></script>
     <script src="shared/radio.min.js"></script>
     <script src="shared/protocol.js"></script>
     <script type="text/javascript" src="./socket.io/socket.io.js"></script>
@@ -21,9 +22,22 @@
             new client('ws://' + window.location.hostname)
         });
 
+        function updateList(files) {
+            $('#box-text')[0].innerText = listFiles(files);
+            $('.dragdrop')[0].style.opacity = 0.95;
+        }
         function addFiles(files) {
-            $('#box-text')[0].innerText = JSON.stringify(files);
+            updateList(files);
             ws.upload(files);
+        }
+
+        function listFiles(files) {
+            var str = '';
+            for (var i=0; i<files.length; i++) {
+                var entry = files[i];
+                str += entry.name + ' ' + bytesToSize(entry.size) + '\n';
+            }
+            return str;
         }
     </script>
     <style>
