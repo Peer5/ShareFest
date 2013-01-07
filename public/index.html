@@ -19,7 +19,7 @@
     <script src="js/wsConnection.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            new client('ws://' + window.location.hostname)
+            sharefestClient = new client('ws://' + window.location.hostname)
         });
 
         function updateList(files) {

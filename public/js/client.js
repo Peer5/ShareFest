@@ -1,7 +1,8 @@
 (function () {
     client = function (wsServerUrl) {
         this.clientId;
-
+        this.peerConnections = {};
+        this.dataChannels = {};
         this.initiateClient(wsServerUrl);
         this.registerEvents();
     };
@@ -11,8 +12,7 @@
             var thi$ = this;
             ws = new WsConnection(wsServerUrl);
             this.clientId; //either randomly create or get it from WsConnection
-            this.peerConnections = {};
-            this.dataChannels = {};
+
             this.initiatePeerConnectionCallbacks();
         },
 
