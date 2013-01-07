@@ -162,13 +162,17 @@ function hookupDataChannelCallbacks_() {
             var body = data_message.data.slice(4);
             if(header=='text'){
                 console.log("received text message");
-            }else if(header = 'blob'){
+            }else if(header == 'blob'){
                 var splitAns = body.split(',');
                 var meta = splitAns[0].split(':')[1].split(';')[0];
                 console.log(meta);
                 var data = base64.decode(splitAns[1]);
                 var blob = new Blob([data],{type:meta});
                 saveLocally(blob);
+            } else if (header == 'cmnd') {
+                var cmd = proto64.decode(body);
+                radio('commandArrived').broadcast(cmd);
+
             }
 
         });

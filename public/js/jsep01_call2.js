@@ -217,4 +217,5 @@ function onDataChannelReadyStateChange_(event) {
     var readyState = event.target.readyState;
     debug('DataChannel state:' + readyState);
     gDataStatusCallback(readyState);
+    radio('connectionReady').broadcast(event.target);
 }

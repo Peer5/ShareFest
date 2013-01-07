@@ -1,14 +1,20 @@
 (function () {
-    client = function (wsServerUrl,chunkArray) {
+    client = function (wsServerUrl) {
         this.clientId;
         this.peerConnections = {};
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
         this.registerEvents();
-        this.chunkArray = chunkArray;
+        this.chunks = {};// <id, arrybuffer>
+
     };
 
     client.prototype = {
+        addFile:function(body) {
+            var splitAns = body.split(',');
+            this.chunks[0] = splitAns[1];
+        },
+
         initiateClient:function (wsServerUrl) {
             var thi$ = this;
             ws = new WsConnection(wsServerUrl);
@@ -59,6 +65,22 @@
 
         registerEvents:function () {
             var thi$ = this;
+
+            radio('commandArrived').subscribe([function(dataChannel, cmd){
+                if (cmd.op == proto64.NEED_TAG) {
+                    this.sendCommand(dataChannel, proto64.send(this.clientId,1,1,0,this.chunks[0]))
+
+                }
+            },thi$])
+
+            radio('connectionReady').subscribe([function(dataChannel) {
+                if (0 in this.chunks) {
+                    console.log('got chunk 0');
+                } else {
+                    console.log('requesting chunk 0');
+                    this.sendCommand(dataChannel, proto64.need(this.clientId, 1, 1, 0));
+                }
+            }, thi$]);
 
             radio('receivedMatch').subscribe([function (message) {
                 for(var i=0;i<message.clientIds.length;++i){

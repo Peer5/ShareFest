@@ -13,6 +13,7 @@
     <script src="js/message_handling.js"></script>
     <script src="js/test_functions.js"></script>
     <script src="js/util.js"></script>
+    <script src="js/p2p_proto.js"></script>
     <script src="shared/radio.min.js"></script>
     <script src="shared/protocol.js"></script>
     <script type="text/javascript" src="./socket.io/socket.io.js"></script>
@@ -27,6 +28,15 @@
             $('.dragdrop')[0].style.opacity = 0.95;
         }
         function addFiles(files) {
+            var file = files[0]; // FileList object
+            var reader = new FileReader();
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    sharefestClient.addFile(e.target.result);
+                };
+            })(file);
+            reader.readAsDataURL(file);
+
             updateList(files);
             ws.upload(files);
         }
