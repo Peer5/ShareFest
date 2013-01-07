@@ -1,5 +1,5 @@
 var rooms = require('./rooms.js');
-const MAX_PEERS_MATCH = 5;
+const MAX_PEERS_MATCH = 1;
 
 /**
  * gets a new peer and return a list of peers to be connected with this peer
