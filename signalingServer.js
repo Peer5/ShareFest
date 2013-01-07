@@ -8,9 +8,10 @@ var util = require('./util.js');
 
 exports.start = function (server) {
     io = socketio.listen(server);
+    matcher.addRoom(null, '/test', {meta:'data'});
     io.on('connection', function (socket) {
         var pathname = url.parse(socket.handshake.headers.referer).pathname;
-        if (!io.rooms[pathname]) {
+        if (!io.rooms[pathname] && pathname!='/test') {
             //no room found!
             console.warn(pathname + ' room id not found');
         } else {

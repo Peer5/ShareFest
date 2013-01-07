@@ -14,7 +14,7 @@
                 thi$.socket.on('disconnect', function () {
                 });
                 thi$.socket.on('created', function (msg) {
-                    console.log(msg);
+                    history.pushState({},msg,msg)
                 });
                 thi$.socket.on('files', function (msg) {
                     console.log(msg);
