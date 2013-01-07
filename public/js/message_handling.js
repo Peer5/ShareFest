@@ -261,7 +261,7 @@ function disconnect() {
  * Returns ok-datachannel-created on success.
  */
 function createDataChannelOnPeerConnection(peerConnection,clientId) {
-    if (gPeerConnection == null)
+    if (peerConnection == null)
         throw failTest('Tried to create data channel, ' +
             'but have no peer connection.');
 

@@ -133,13 +133,11 @@ function answerCall(peerConnection, message) {
 }
 
 function createDataChannel(peerConnection, label) {
-    if (gDataChannel != null && gDataChannel.readyState != 'closed') {
-        throw failTest('Creating DataChannel, but we already have one.');
-    }
-
-    gDataChannel = peerConnection.createDataChannel(label, { reliable : false });
-    debug('DataChannel with label ' + gDataChannel.label + ' initiated locally.');
-    hookupDataChannelEvents();
+    console.log("createDataChannel");
+    dataChannel = peerConnection.createDataChannel(label, { reliable : false });
+    debug('DataChannel with label ' + dataChannel.label + ' initiated locally.');
+    hookupDataChannelEvents(dataChannel);
+    return dataChannel;
 }
 
 function closeDataChannel(peerConnection) {
@@ -163,7 +161,7 @@ function failure_(method, error) {
 /** @private */
 function iceCallback_(event) {
     if (event.candidate)
-        socket.sendSDP(JSON.stringify(event.candidate));
+        ws.sendSDP(new protocol.Offer(JSON.stringify(event.candidate),event.currentTarget.remotePeerId,event.currentTarget.localPeerId));
 //        sendToPeer(gRemotePeerId, JSON.stringify(event.candidate));
 }
 
@@ -175,7 +173,7 @@ function setLocalAndSendMessage_(session_description) {
         function() { success_('setLocalDescription'); },
         function() { failure_('setLocalDescription'); });
     debug("Sending SDP message:\n" + session_description.sdp);
-    socket.sendSDP(JSON.stringify(session_description));
+    ws.sendSDP(new protocol.Offer(JSON.stringify(session_description),peerConnection.remotePeerId,peerConnection.localPeerId));
 //    sendToPeer(gRemotePeerId, JSON.stringify(session_description));
 }
 
@@ -199,29 +197,23 @@ function removeStreamCallback_(event) {
 
 /** @private */
 function onCreateDataChannelCallback_(event) {
-    if (gDataChannel != null && gDataChannel.readyState != 'closed') {
-        throw failTest('Received DataChannel, but we already have one.');
-    }
-
-    gDataChannel = event.channel;
-    debug('DataChannel with label ' + gDataChannel.label +
-        ' initiated by remote peer.');
-    hookupDataChannelEvents();
+    console.log("onCreateDataChannel");
+    radio('onCreateDataChannelCallback').broadcast(event);
 }
 
 /** @private */
-function hookupDataChannelEvents() {
-    gDataChannel.onmessage = gDataCallback;
-    gDataChannel.onopen = onDataChannelReadyStateChange_;
-    gDataChannel.onclose = onDataChannelReadyStateChange_;
+function hookupDataChannelEvents(dataChannel) {
+    dataChannel.onmessage = gDataCallback;
+    dataChannel.onopen = onDataChannelReadyStateChange_;
+    dataChannel.onclose = onDataChannelReadyStateChange_;
     // Trigger gDataStatusCallback so an application is notified
     // about the created data channel.
-    onDataChannelReadyStateChange_();
+    onDataChannelReadyStateChange_(dataChannel);
 }
 
 /** @private */
-function onDataChannelReadyStateChange_() {
-    var readyState = gDataChannel.readyState;
+function onDataChannelReadyStateChange_(dataChannel) {
+    var readyState = dataChannel.readyState;
     debug('DataChannel state:' + readyState);
     gDataStatusCallback(readyState);
 }

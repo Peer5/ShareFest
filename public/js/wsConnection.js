@@ -25,12 +25,12 @@
                     radio('receivedOffer').broadcast(message);
                 });
                 thi$.socket.on('match',function(message){
+                    console.log('received a match');
                     radio('receivedMatch').broadcast(message);
                 });
 
                 thi$.socket.emit('message', 'hi from a new peer');
                 radio('socketConnected').broadcast();
-
             });
         },
 
