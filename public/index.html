@@ -21,6 +21,10 @@
         $(document).ready(function(){
             new client('ws://' + window.location.hostname)
         });
+
+        function addFiles(files) {
+            $('#box-text')[0].innerText = JSON.stringify(files);
+        }
     </script>
     <style>
         body {
@@ -92,10 +96,10 @@
 <div class="container">
     <h1></h1>
 
-    <div class="dragdrop" onClick="$('#files').click()">
-        <div id="dropbox"><img src="img/logo.png"/>
+    <div class="dragdrop" id="dropbox" onClick="$('#files').click()">
+        <div ><img src="img/logo.png"/>
 
-            <h3>Just drag any file here, and start sharing immediately!</h3>
+            <h3 id='box-text'>Just drag any file here, and start sharing immediately!</h3>
         </div>
 
         <div id="progressbar">
@@ -106,7 +110,7 @@
         <!--<a href="http://github.com/peer5/sharefest">project page</a></p>-->
     </div>
 
-    <input type="file" id="files" name="files[]" multiple
+    <input onchange="addFiles(this.files)" type="file" id="files" name="files[]" multiple
            style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;"/>
 
 </div>
