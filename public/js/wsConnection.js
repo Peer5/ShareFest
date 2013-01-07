@@ -35,6 +35,7 @@
         },
 
         sendSDP:function (message) {
+            console.log("sending offer: " + message);
             this.socket.emit('offer', message);
         }
 

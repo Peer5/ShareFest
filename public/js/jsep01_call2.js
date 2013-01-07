@@ -208,12 +208,13 @@ function hookupDataChannelEvents(dataChannel) {
     dataChannel.onclose = onDataChannelReadyStateChange_;
     // Trigger gDataStatusCallback so an application is notified
     // about the created data channel.
-    onDataChannelReadyStateChange_(dataChannel);
+    console.log('data-channel-status: ' + dataChannel.readyState);
+//    onDataChannelReadyStateChange_(dataChannel);
 }
 
 /** @private */
-function onDataChannelReadyStateChange_(dataChannel) {
-    var readyState = dataChannel.readyState;
+function onDataChannelReadyStateChange_(event) {
+    var readyState = event.target.readyState;
     debug('DataChannel state:' + readyState);
     gDataStatusCallback(readyState);
 }
