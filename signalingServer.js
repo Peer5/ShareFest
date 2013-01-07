@@ -35,14 +35,8 @@ exports.start = function (server) {
             socket.broadcast.to(socket.room).emit('message', msg + ' from ' + socket.id);
         });
 
-        socket.on('offer', function (msg) {
-            socket.broadcast.to(socket.room).emit('offer', msg);
-
-//            for (var i = 0; i < users.length; ++i) {
-//                if (users[i] != socket.id) {        //publishing the offer to all other users
-//                    this.sendOffer(socket.id, msg);
-//                }
-//            }
+        socket.on('offer', function (offer) {
+            exports.offer(offer.targetId, offer);
         });
 
         socket.on('answer', function (msg) {    //msg = {socketid:...,data:...}
