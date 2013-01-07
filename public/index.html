@@ -17,13 +17,13 @@
     <script type="text/javascript" src="./socket.io/socket.io.js"></script>
     <script src="js/wsConnection.js"></script>
     <script type="text/javascript">
-        var ws;
         $(document).ready(function(){
             new client('ws://' + window.location.hostname)
         });
 
         function addFiles(files) {
             $('#box-text')[0].innerText = JSON.stringify(files);
+            ws.upload(files);
         }
     </script>
     <style>

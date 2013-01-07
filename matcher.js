@@ -6,14 +6,21 @@ const MAX_PEERS_MATCH = 5;
  * @param swarmId
  * @param peerId
  */
-exports.join = function(swarmId, peerId) {
+exports.join = function (swarmId, peerId) {
     var room = rooms.getRoom(swarmId);
+    if (!room) return;
     var peers = room.getRandomK(MAX_PEERS_MATCH);
     room.addPeer(peerId);
-    return peers;
+    return {peers:peers, metadata:room.getMetadata()};
 }
 
-exports.leave = function(swarmId, peerId) {
+exports.addRoom = function (firstPeerId, swarmId, metadata) {
+    rooms.addRoom(swarmId, metadata).addPeer(firstPeerId);
+}
+
+exports.leave = function (swarmId, peerId) {
     var room = rooms.getRoom(swarmId);
-    room.removePeer(peerId);
+    if (room) {
+        room.removePeer(peerId);
+    }
 }

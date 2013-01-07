@@ -9,22 +9,28 @@
             var thi$ = this;
             this.socket = io.connect(wsServerUrl);
             console.log('new websocket');
-            this.socket.on('connect',function(){
+            this.socket.on('connect', function () {
                 console.log("websocket connected");
                 thi$.socket.on('disconnect', function () {
                 });
-                thi$.socket.on('message',function(msg){
+                thi$.socket.on('created', function (msg) {
+                    console.log(msg);
+                });
+                thi$.socket.on('files', function (msg) {
+                    console.log(msg);
+                });
+                thi$.socket.on('message', function (msg) {
                     console.log(msg);
 //                    var arr = Uint8Array(10);
 //                    arr[5] = 5;
 //
 //                    thi$.socket.emit()
                 });
-                thi$.socket.on('offer',function(message){
+                thi$.socket.on('offer', function (message) {
                     console.log("got an offer");
                     radio('receivedOffer').broadcast(message);
                 });
-                thi$.socket.on('match',function(message){
+                thi$.socket.on('match', function (message) {
                     console.log('received a match');
                     radio('receivedMatch').broadcast(message);
                 });
@@ -36,8 +42,11 @@
 
         sendSDP:function (message) {
             this.socket.emit('offer', message);
-        }
+        },
 
+        upload:function (files) {
+            this.socket.emit('upload', files);
+        }
 
     };
 })();

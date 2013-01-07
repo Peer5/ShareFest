@@ -36,7 +36,7 @@
 
         sendSDP:function(message){
             this.socket.emit('offer',message);
-        }
+        },
 
 
     };

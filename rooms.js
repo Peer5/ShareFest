@@ -2,13 +2,18 @@ var util = require('./util.js');
 // an in memory placeholder for the rooms
 var rooms = {};
 
-function Room(id) {
+function Room(id,metadata) {
     this.id = id;
     this.count = 0;
     this.peers = {};
+    this.metadata = metadata;
 }
 
 Room.prototype = {
+    getMetadata:function() {
+        return this.metadata;
+    },
+
     getRandomK: function(k) {
         return util.getRandomK(Object.keys(this.peers),k);
     },
@@ -24,17 +29,10 @@ Room.prototype = {
     }
 };
 
-function getRoom(id)
-{
-    if (id in rooms) {
-        console.log('existing room ' + id);
-        rooms[id].count++;
-
-    } else {
-        var room = new Room(id);
-        rooms[id] = room;
-    }
+exports.getRoom = function getRoom(id) {
     return rooms[id];
 }
 
-exports.getRoom = getRoom;
+exports.addRoom = function(id,metadata) {
+    return rooms[id] = new Room(id,metadata);
+}
