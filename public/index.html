@@ -34,13 +34,12 @@
             reader.onload = (function(theFile) {
                 return function(e) {
                     sharefestClient.addFile(e.target.result);
+                    updateList(files);
+                    files[0].numOfChunks = sharefestClient.numOfChunksInFile;
+                    ws.upload(files);
                 };
             })(file);
             reader.readAsDataURL(file);
-
-            sharefestClient.updateMetadata(files)
-//            updateList(files);
-            ws.upload(files);
         }
 
         function listFiles(files) {

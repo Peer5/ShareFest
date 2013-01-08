@@ -14,13 +14,22 @@
     client.prototype = {
 
         updateMetadata:function(files){
-            updateList(files);
-            this.numOfChunksInFile = Math.ceil(files[0].size/this.CHUNK_SIZE)
+            this.numOfChunksInFile = files[0].numOfChunks;
+        },
+
+        chunkFile:function(base64file) {
+            this.numOfChunksInFile = Math.ceil(base64file.length/this.CHUNK_SIZE)
+            for (var i=0;i<this.numOfChunksInFile;i++) {
+                var start = i*this.CHUNK_SIZE;
+                this.chunks[i] = base64file.slice(start, start+this.CHUNK_SIZE);
+            }
         },
 
         addFile:function(body) {
+            debugger;
             var splitAns = body.split(',');
-            this.chunks[0] = splitAns[1];
+            var base64file = splitAns[1];
+            this.chunkFile(base64file);
             this.hasEntireFile = true;
         },
 
@@ -96,7 +105,7 @@
         sendCommand:function(dataChannel,message){
             var thi$=this;
             if(dataChannel.readyState == 'open'){
-                dataChannel.send(message);
+                setTimeout(function(message) {dataChannel.send(message)},500,message);
             }else{
                 console.log('dataChannel wasnt ready, seting timeout');
                 setTimeout(function(dataChannel,message){
@@ -114,13 +123,17 @@
 
             radio('commandArrived').subscribe([function(dataChannel, cmd){
                 if (cmd.op == proto64.NEED_CHUNK) {
-                    console.log("received NEED_CHUNK command");
-                    this.sendCommand(dataChannel, proto64.send(this.clientId,1,1,0,this.chunks[0]))
+                    console.log("received NEED_CHUNK command " + cmd.chunkId);
+                    if (cmd.chunkId in this.chunks) {
+                    this.sendCommand(dataChannel, proto64.send(this.clientId,1,1,cmd.chunkId,this.chunks[cmd.chunkId]))
+                    } else {
+                        console.warn('I dont have this chunk' + cmd.chunkId);
+                    }
                 }else if(cmd.op == proto64.DATA_TAG){
-                    console.log("received DATA_TAG command");
+                    console.log("received DATA_TAG command with chunk id " + cmd.chunkId);
                     this.receiveChunk(cmd.chunkId,cmd.data);
                     if(!this.hasEntireFile)
-                        this.requestChunk(dataChannel,cmd.chunkId+1);
+                        this.requestChunks(dataChannel,cmd.chunkId+1);
                 }
             },thi$]);
 
