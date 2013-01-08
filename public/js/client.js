@@ -8,6 +8,7 @@
         this.registerEvents();
         this.chunks = {};// <id, arrybuffer>
         this.numOfChunksInFile;
+        this.hasEntireFile = false;
     };
 
     client.prototype = {
@@ -20,6 +21,7 @@
         addFile:function(body) {
             var splitAns = body.split(',');
             this.chunks[0] = splitAns[1];
+            this.hasEntireFile = true;
         },
 
         receiveChunk:function(chunkId,chunkData){
@@ -27,10 +29,17 @@
             this.checkHasEntireFile();
         },
 
+        requestChunks:function(dataChannel,chunkNum){
+            this.sendCommand(dataChannel, proto64.need(this.clientId, 1, 1, chunkNum));
+        },
+
+
+
         checkHasEntireFile:function(){
             if(Object.keys(this.chunks).length == this.numOfChunksInFile){
                 //ToDo: anounce has file base64.decode the strings and open it
                 console.log("I have the entire file");
+                this.hasEntireFile = true;
                 ws.sendDownloadCompleted();
                 this.saveFileLocally();
             }
@@ -110,6 +119,8 @@
                 }else if(cmd.op == proto64.DATA_TAG){
                     console.log("received DATA_TAG command");
                     this.receiveChunk(cmd.chunkId,cmd.data);
+                    if(!this.hasEntireFile)
+                        this.requestChunk(dataChannel,cmd.chunkId+1);
                 }
             },thi$]);
 
@@ -118,7 +129,7 @@
                     console.log('got chunk 0');
                 } else {
                     console.log('requesting chunk 0');
-                    this.sendCommand(dataChannel, proto64.need(this.clientId, 1, 1, 0));
+                    this.requestChunks(dataChannel,0);
                 }
             }, thi$]);
 
