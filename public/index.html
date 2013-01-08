@@ -38,7 +38,8 @@
             })(file);
             reader.readAsDataURL(file);
 
-            updateList(files);
+            sharefestClient.updateMetadata(files)
+//            updateList(files);
             ws.upload(files);
         }
 

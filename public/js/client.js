@@ -37,16 +37,11 @@
         },
 
         saveFileLocally:function(){
-            var stringFile;
+            var stringFile = '';
             for(var i=0;i<this.numOfChunksInFile;++i){
-                if(!file){
-                    file = base64.decode(this.chunks[i])
-                }else{
-
-                    //ToDo: concat the rest of the chunks
-                }
+                stringFile += this.chunks[i];
             }
-            var blob = new Blob([file]);
+            var blob = new Blob([base64.decode(stringFile)]);
             saveLocally(blob);
         },
 
@@ -86,8 +81,7 @@
 
         createDataChannel:function(remotePeerId){
             this.ensureHasPeerConnection(remotePeerId);
-            createDataChannel(this.peerConnections[remotePeerId],this.clientId);
-//            createDataChannelOnPeerConnection(this.peerConnections[remotePeerId],this.clientId);
+            this.ensureHasDataChannel(this.peerConnections[remotePeerId],remotePeerId);
         },
 
         sendCommand:function(dataChannel,message){
