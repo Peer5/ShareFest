@@ -12,17 +12,19 @@ The main difference is that currently the peers are coordinated using an intelle
 This coordinator controls which parts are sent from A to B and who shall talk with whom.
 Peer5 Coordinator (or any other solution) is used to accomplish this.
 Each peer will connect to few other peers in order to maximize the distribution of the file.
-Right now the first browser that supports this is firefox - http://nightly.mozilla.org/
+Right now the first browser that this project supports is chrome canary.
+
+First version includes a simple page that one user will drag a file to
+share, and a other users will enter the first user's url and start downloading the file.
+
+test it out at: sharefest.peer5.com
 
 TODO:
 =====
-First version supposed to include a simple page that one user will drag a file to
-share, and a second user will enter the first user's url and start downloading the file.
-* redirect to a dynamic url page
-* create a cool drag-n-drop mechanism for the file uploader
-* create a stand alone (non firefox) signaling server
-* merge chat.js to index.html
-* divide blob to chunks, and create progress bar for file transfer
+* add file type when saving the file
+* add support for firefox nightly 19.0a+
+* add a download progress gauge
+* server should match only with peers that have the file
 
 History
 =======
