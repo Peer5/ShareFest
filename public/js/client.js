@@ -105,7 +105,7 @@
         sendCommand:function(dataChannel,message){
             var thi$=this;
             if(dataChannel.readyState == 'open'){
-                setTimeout(function(message) {dataChannel.send(message)},500,message);
+                setTimeout(function(message) {dataChannel.send(message)},150,message);
             }else{
                 console.log('dataChannel wasnt ready, seting timeout');
                 setTimeout(function(dataChannel,message){

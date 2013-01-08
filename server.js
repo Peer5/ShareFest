@@ -21,7 +21,7 @@ app.configure('development', function () {
 });
 
 app.configure('production', function () {
-    server = app.listen(8000); //nodejitsu will map this to 80
+    server = app.listen(80); //nodejitsu will map this to 80
     signaling.start(server);
 });
 
