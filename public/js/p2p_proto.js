@@ -1,11 +1,4 @@
 (function () {
-    var ORIGINID_TAG = 0; //string
-    var DESTID_TAG = 1;
-    var SWARMID_TAG = 2; // string
-    var CHUNKID_TAG = 3; // uint32
-    var DATA_TAG = 4; // UInt8array
-    var SDP_TAG = 5; // UInt8array
-    var NEED_CHUNK = 6; // uint32
 
     function cmd(op,originId, destId, swarmId, chunkId,data) {
         this.op = op;
@@ -22,13 +15,22 @@
 
     proto64 = {};
 
+    proto64.ORIGINID_TAG = 0; //string
+    proto64.DESTID_TAG = 1;
+    proto64.SWARMID_TAG = 2; // string
+    proto64.CHUNKID_TAG = 3; // uint32
+    proto64.DATA_TAG = 4; // UInt8array
+    proto64.SDP_TAG = 5; // UInt8array
+    proto64.NEED_CHUNK = 6; // uint32
+
+
     proto64.need = function (originId, destId, swarmId, chunkId) {
-        cmdObj = new cmd(NEED_CHUNK, originId, destId, swarmId, chunkId, null);
+        cmdObj = new cmd(this.NEED_CHUNK, originId, destId, swarmId, chunkId, null);
         return encode(cmdObj);
     }
 
     proto64.send = function (originId, destId, swarmId, chunkId, data) {
-        cmdObj = new cmd(DATA_TAG, originId, destId, swarmId, chunkId, data);
+        cmdObj = new cmd(this.DATA_TAG, originId, destId, swarmId, chunkId, data);
         return encode(cmdObj);
     }
 

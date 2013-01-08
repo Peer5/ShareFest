@@ -1,18 +1,52 @@
 (function () {
     client = function (wsServerUrl) {
+        this.CHUNK_SIZE = 500; //bytes
         this.clientId;
         this.peerConnections = {};
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
         this.registerEvents();
         this.chunks = {};// <id, arrybuffer>
-
+        this.numOfChunksInFile;
     };
 
     client.prototype = {
+
+        updateMetadata:function(files){
+            updateList(files);
+            this.numOfChunksInFile = Math.ceil(files[0].size/this.CHUNK_SIZE)
+        },
+
         addFile:function(body) {
             var splitAns = body.split(',');
             this.chunks[0] = splitAns[1];
+        },
+
+        receiveChunk:function(chunkId,chunkData){
+            this.chunks[chunkId] = chunkData;
+            this.checkHasEntireFile();
+        },
+
+        checkHasEntireFile:function(){
+            if(Object.keys(this.chunks).length == this.numOfChunksInFile){
+                //ToDo: anounce has file base64.decode the strings and open it
+                console.log("I have the entire file");
+                ws.sendDownloadCompleted();
+                this.saveFileLocally();
+            }
+        },
+
+        saveFileLocally:function(){
+            var file;
+            for(var i=0;i<this.numOfChunksInFile;++i){
+                if(!file){
+                    file = base64.decode(this.chunks[i])
+                }else{
+                    //ToDo: concat the rest of the chunks
+                }
+            }
+            var blob = new Blob([file]);
+            saveLocally(blob);
         },
 
         initiateClient:function (wsServerUrl) {
@@ -66,12 +100,19 @@
         registerEvents:function () {
             var thi$ = this;
 
-            radio('commandArrived').subscribe([function(dataChannel, cmd){
-                if (cmd.op == proto64.NEED_TAG) {
-                    this.sendCommand(dataChannel, proto64.send(this.clientId,1,1,0,this.chunks[0]))
+            radio('receivedRoomMetadata').subscribe([function(files){
+                this.updateMetadata(files);
+            },this]);
 
+            radio('commandArrived').subscribe([function(dataChannel, cmd){
+                if (cmd.op == proto64.NEED_CHUNK) {
+                    console.log("received NEED_CHUNK command");
+                    this.sendCommand(dataChannel, proto64.send(this.clientId,1,1,0,this.chunks[0]))
+                }else if(cmd.op == proto64.DATA_TAG){
+                    console.log("received DATA_TAG command");
+                    this.receiveChunk(cmd.chunkId,cmd.data);
                 }
-            },thi$])
+            },thi$]);
 
             radio('connectionReady').subscribe([function(dataChannel) {
                 if (0 in this.chunks) {

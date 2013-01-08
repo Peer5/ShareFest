@@ -17,7 +17,7 @@
                     history.pushState({}, msg, msg)
                 });
                 thi$.socket.on('files', function (files) {
-                    updateList(files);
+                    radio('receivedRoomMetadata').broadcast(files);
                 });
                 thi$.socket.on('message', function (msg) {
                     console.log(msg);
@@ -47,6 +47,10 @@
 
         upload:function (files) {
             this.socket.emit('upload', files);
+        },
+
+        sendDownloadCompleted:function(){
+            this.socket.emit('downloadCompleted');
         }
 
     };
