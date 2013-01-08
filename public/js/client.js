@@ -37,11 +37,12 @@
         },
 
         saveFileLocally:function(){
-            var file;
+            var stringFile;
             for(var i=0;i<this.numOfChunksInFile;++i){
                 if(!file){
                     file = base64.decode(this.chunks[i])
                 }else{
+
                     //ToDo: concat the rest of the chunks
                 }
             }
@@ -90,10 +91,14 @@
         },
 
         sendCommand:function(dataChannel,message){
+            var thi$=this;
             if(dataChannel.readyState == 'open'){
                 dataChannel.send(message);
             }else{
-                console.log('couldnt send message, dataChannel wasnt ready');
+                console.log('dataChannel wasnt ready, seting timeout');
+                setTimeout(function(dataChannel,message){
+                    thi$.sendCommand(dataChannel,message);
+                },1000,dataChannel,message);
             }
         },
 
