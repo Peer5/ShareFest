@@ -3,7 +3,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+var STUN_SERVER = 'stun.l.google.com:19302';
 /** @private */
 var gTransformOutgoingSdp = function(sdp) { return sdp; }
 
@@ -218,4 +218,24 @@ function onDataChannelReadyStateChange_(event) {
     debug('DataChannel state:' + readyState);
     gDataStatusCallback(readyState);
     radio('connectionReady').broadcast(event.target);
+}
+
+
+
+
+window.onunload = function() {
+    if (!isDisconnected())
+        disconnect();
+};
+
+/** @private */
+function hookupDataChannelCallbacks_() {
+    setDataCallbacks(function(status) {
+            console.log('data-channel-status: ' + status);
+        },
+        function(data_message) {
+            console.log("received message" + data_message);
+            var cmd = proto64.decode(data_message.data);
+            radio('commandArrived').broadcast(data_message.currentTarget,cmd);
+        });
 }

@@ -42,8 +42,6 @@
             this.sendCommand(dataChannel, proto64.need(this.clientId, 1, 1, chunkNum));
         },
 
-
-
         checkHasEntireFile:function(){
             if(Object.keys(this.chunks).length == this.numOfChunksInFile){
                 //ToDo: anounce has file base64.decode the strings and open it
@@ -72,9 +70,12 @@
         },
 
         initiatePeerConnectionCallbacks:function(){
-            replaceReturnCallback(print_);
-            replaceDebugCallback(debug_);
-            doNotAutoAddLocalStreamWhenCalled();
+            replaceReturnCallback(function(msg){
+                console.log("return log: " + msg);
+            });
+            replaceDebugCallback(function(msg){
+                console.log("return debug: " + msg);
+            });
             hookupDataChannelCallbacks_();
         },
 
@@ -105,7 +106,7 @@
         sendCommand:function(dataChannel,message){
             var thi$=this;
             if(dataChannel.readyState == 'open'){
-                setTimeout(function(message) {dataChannel.send(message)},150,message);
+                setTimeout(function(message) {dataChannel.send(message)},50,message);
             }else{
                 console.log('dataChannel wasnt ready, seting timeout');
                 setTimeout(function(dataChannel,message){
