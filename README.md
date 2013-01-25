@@ -17,7 +17,7 @@ Right now the first browser that this project supports is chrome canary.
 First version includes a simple page that one user will drag a file to
 share, and a other users will enter the first user's url and start downloading the file.
 
-test it out at: sharefest.peer5.com
+test it out at: http://sharefest.peer5.com
 
 TODO:
 =====

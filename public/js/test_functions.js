@@ -68,10 +68,11 @@ function replaceDebugCallback(callback) {
  * Prints a debug message on the webpage itself.
  */
 function debug(txt) {
-    if (gOurClientName == null)
-        prefix = '';
-    else
-        prefix = gOurClientName + ' says: ';
+//    if (gOurClientName == null)
+//        prefix = '';
+//    else
+//        prefix = gOurClientName + ' says: ';
+    prefix = "says: ";
 
     gDebugCallback(prefix + txt);
 }
