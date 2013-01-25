@@ -21,7 +21,11 @@
     <script src="js/base64-arraybuffer.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            sharefestClient = new client('ws://' + window.location.hostname)
+            sharefestClient = new client('ws://' + window.location.hostname);
+
+            radio('receivedRoomMetadata').subscribe([function(files){
+                updateList(files);
+            },null]);
         });
 
         function updateList(files) {
@@ -60,7 +64,7 @@
             font-size: 24px;
         }
         h1 {
-            font-family: 'IM Fell English', serif;
+            font-family: 'Courgette', 'IM Fell English', serif;
             font-size: 5em;
         }
 
@@ -108,7 +112,7 @@
 
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li class="active"><a href="#">Home</a></li>
+                    <li class="active"><a href="#">Sharefest</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
