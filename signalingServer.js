@@ -15,7 +15,7 @@ exports.start = function (server) {
             //no room found!
             console.warn(pathname + ' room id not found');
         } else {
-            socket.room = pathname;
+            socket.room = pathname.substr(1);
             socket.join(socket.room);
 
             var result = matcher.join(socket.room, socket.id);
@@ -26,7 +26,7 @@ exports.start = function (server) {
         //TODO: notify other peers about this match (more secured)
 //        socket.broadcast.emit('message','user connected');
 
-        socket.on('join', function (msg) {
+        socket.on('join', function () {
             users[users.length] = socket.id;
         });
 
@@ -42,9 +42,8 @@ exports.start = function (server) {
                 newId = util.makeid();
                 idFound = (!io.rooms[newId]);
             }
-
-            matcher.addRoom(socket.id, '/' + newId, files);
             socket.room = newId;
+            matcher.addRoom(socket.id, socket.room, files);
             socket.join(socket.room);
             socket.emit('created', newId);
         });
@@ -71,7 +70,7 @@ exports.start = function (server) {
             socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);
         });
     });
-}
+};
 
 exports.send = function (socketId, message) {
     var s = io.sockets.sockets[socketId];
