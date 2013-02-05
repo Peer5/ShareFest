@@ -19,12 +19,25 @@
     <script src="js/wsConnection.js"></script>
     <script src="js/base64-arraybuffer.js"></script>
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function () {
             sharefestClient = new client('ws://' + window.location.hostname);
 
-            radio('receivedRoomMetadata').subscribe([function(files){
+            radio('receivedRoomMetadata').subscribe([function (files) {
                 updateList(files);
-            },null]);
+            }, null]);
+
+            radio('downloadProgress').subscribe([function (percent) {
+                var prog = document.getElementById('progress');
+                var per = document.getElementById('percent');
+
+                if (prog.hidden) {
+                    prog.hidden = false;
+                }
+
+                prog.value = percent;
+                per.innerText = Math.floor(percent.toString()) + '%';
+
+            }, null]);
         });
 
         function updateList(files) {
@@ -34,8 +47,8 @@
         function addFiles(files) {
             var file = files[0]; // FileList object
             var reader = new FileReader();
-            reader.onload = (function(theFile) {
-                return function(e) {
+            reader.onload = (function (theFile) {
+                return function (e) {
                     sharefestClient.addFile(e.target.result);
                     updateList(files);
                     files[0].numOfChunks = sharefestClient.numOfChunksInFile;
@@ -47,7 +60,7 @@
 
         function listFiles(files) {
             var str = '';
-            for (var i=0; i<files.length; i++) {
+            for (var i = 0; i < files.length; i++) {
                 var entry = files[i];
                 str += entry.name + ' ' + bytesToSize(entry.size) + '\n';
             }
@@ -59,9 +72,11 @@
             padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
             font-family: "Courgette";
         }
+
         h3 {
             font-size: 24px;
         }
+
         h1 {
             font-family: 'Courgette', 'IM Fell English', serif;
             font-size: 5em;
@@ -125,13 +140,15 @@
     <h1></h1>
 
     <div class="dragdrop" id="dropbox" onClick="$('#files').click()">
-        <div ><img src="img/logo.png"/>
+        <div><img src="img/logo.png"/>
 
             <h3 id='box-text'>Just drag any file here, and start sharing immediately!</h3>
         </div>
 
         <div id="progressbar">
-
+            Downloading:
+            <progress id="progress" hidden="true" value="0" max="100"></progress>
+            <p id="percent" style="display: inline;"></p>
         </div>
 
         <!--<p class="info">For more info about Sharefest, go to our-->

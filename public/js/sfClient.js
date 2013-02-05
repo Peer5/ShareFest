@@ -35,7 +35,13 @@
 
         receiveChunk:function (chunkId, chunkData) {
             this.chunks[chunkId] = chunkData;
+            this.updateProgress();
             this.checkHasEntireFile();
+        },
+
+        updateProgress:function(){
+            var percentage = Object.keys(this.chunks).length/this.numOfChunksInFile;
+            radio('downloadProgress').broadcast(percentage*100);
         },
 
         requestChunks:function (dataChannel, chunkNum) {
@@ -78,7 +84,7 @@
             if (dataChannel.readyState == 'open') {
                 setTimeout(function (message) {
                     dataChannel.send(message)
-                }, 50, message);
+                }, 200, message);
             } else {
                 console.log('dataChannel wasnt ready, seting timeout');
                 setTimeout(function (dataChannel, message) {
