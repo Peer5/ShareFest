@@ -28,10 +28,12 @@
 
             radio('downloadProgress').subscribe([function (percent) {
                 var prog = document.getElementById('progress');
+                var progDiv = document.getElementById('progressbar');
                 var per = document.getElementById('percent');
 
                 if (prog.hidden) {
                     prog.hidden = false;
+                    progDiv.hidden = false;
                 }
 
                 prog.value = percent;
@@ -145,7 +147,7 @@
             <h3 id='box-text'>Just drag any file here, and start sharing immediately!</h3>
         </div>
 
-        <div id="progressbar">
+        <div id="progressbar" hidden="true" >
             Downloading:
             <progress id="progress" hidden="true" value="0" max="100"></progress>
             <p id="percent" style="display: inline;"></p>
