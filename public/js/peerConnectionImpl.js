@@ -30,30 +30,10 @@
         },
 
         registerEvents:function () {
-            radio('onCreateDataChannelCallback' + this.label).subscribe([function (event) {
-                if (this.dataChannel != null && this.dataChannel.readyState != 'closed') {
-                    throw failTest('Received DataChannel, but we already have one.');
-                }
-                this.dataChannel = event.channel;
-                debug('DataChannel with label ' + this.label +
-                    ' initiated by remote peer.');
-                this.hookupDataChannelEvents();
-            }, this]);
-
-            radio('onDataChannelReadyStateChange' + this.label).subscribe([function (event) {
-                var readyState = event.target.readyState;
-                debug('DataChannel state:' + readyState);
-                radio('connectionReady').broadcast(event.target);
-            }, this]);
-
-            radio('receivedMessage' + this.label).subscribe([function (data_message) {
-                console.log("received message" + data_message);
-                radio('commandArrived').broadcast(data_message.currentTarget,data_message);
-            }, this]);
-
-            radio('setLocalAndSendMessage' + this.label).subscribe([function (session_description) {
-                session_description.sdp = this.transformOutgoingSdp(session_description.sdp);
-                this.peerConnection.setLocalDescription(
+            var thi$ = this;
+            this.setLocalAndSendMessage_ = function (session_description) {
+                session_description.sdp = thi$.transformOutgoingSdp(session_description.sdp);
+                thi$.peerConnection.setLocalDescription(
                     session_description,
                     function () {
                         debug('setLocalDescription(): success.');
@@ -62,8 +42,34 @@
                         debug('setLocalDescription(): failed' + err)
                     });
                 debug("Sending SDP message:\n" + session_description.sdp);
-                ws.sendSDP(new protocol.Offer(JSON.stringify(session_description), this.peerConnection.targetId, this.peerConnection.originId));
-            }, this]);
+                ws.sendSDP(new protocol.Offer(JSON.stringify(session_description), thi$.targetId, thi$.originId));
+            };
+
+            this.iceCallback_ = function (event) {
+                if (event.candidate)
+                    ws.sendSDP(new protocol.Offer(JSON.stringify(event.candidate), thi$.targetId, thi$.originId));
+            };
+
+            this.onCreateDataChannelCallback_ = function (event) {
+                if (thi$.dataChannel != null && thi$.dataChannel.readyState != 'closed') {
+                    throw failTest('Received DataChannel, but we already have one.');
+                }
+                thi$.dataChannel = event.channel;
+                debug('DataChannel with label ' + thi$.dataChannel.label +
+                    ' initiated by remote peer.');
+                thi$.hookupDataChannelEvents();
+            };
+
+            this.onDataChannelReadyStateChange_ = function (event) {
+                var readyState = event.target.readyState;
+                debug('DataChannel state:' + readyState);
+                radio('connectionReady').broadcast(event.target);
+            };
+
+            this.onMessageCallback_ = function (message) {
+                console.log("received message" + message);
+                radio('commandArrived').broadcast(message.currentTarget, message);
+            };
         },
 
         ensureHasDataChannel:function () {
@@ -73,7 +79,7 @@
             if (this.dataChannel != null && this.dataChannel != 'closed') {
                 throw failTest('Creating DataChannel, but we already have one.');
             }
-            this.dataChannel = this.createDataChannel();
+            this.createDataChannel();
         },
 
         handleMessage:function (message) {
@@ -92,7 +98,6 @@
                 if (session_description.type == "offer") {
                     debug('createAnswer with constraints: ' +
                         JSON.stringify(this.createAnswerConstraints, null, ' '));
-                    tempPeerConnection = this.peerConnection;
                     this.peerConnection.createAnswer(
                         this.setLocalAndSendMessage_,
                         function (err) {
@@ -115,10 +120,21 @@
                 {url:"stun:" + stun_server}
             ]};
             try {
-                this.peerConnection = new webkitRTCPeerConnection(
-                    servers, { optional:[
-                        { RtpDataChannels:true }
-                    ]});
+                if (window.webkitRTCPeerConnection) {
+                    console.log("webkitRTCPeerConnection");
+                    this.peerConnection = new webkitRTCPeerConnection(
+                        servers, { optional:[
+                            { RtpDataChannels:true }
+                        ]});
+                }
+                else if (window.mozRTCPeerConnection) {
+                    console.log("window.mozRTCPeerConnection");
+                    this.peerConnection = new mozRTCPeerConnection();
+                    var thi$ = this;
+                    navigator.mozGetUserMedia({video:true, fake:true}, function (vs) {
+                        thi$.peerConnection.addStream(vs);
+                    }, addTestFailure)
+                }
             } catch (exception) {
                 throw failTest('Failed to create peer connection: ' + exception);
             }
@@ -126,9 +142,6 @@
             this.peerConnection.onremovestream = this.removeStreamCallback_;
             this.peerConnection.onicecandidate = this.iceCallback_;
             this.peerConnection.ondatachannel = this.onCreateDataChannelCallback_;
-            this.peerConnection.originId = this.originId;
-            this.peerConnection.targetId = this.targetId;
-//            return this.peerConnection;
         },
 
         setupCall:function (peerConnection) {
@@ -145,7 +158,11 @@
 
         createDataChannel:function () {
             console.log("createDataChannel");
-            this.dataChannel = this.peerConnection.createDataChannel(this.label, { reliable:false });
+            if (window.webkitRTCPeerConnection)
+                this.dataChannel = this.peerConnection.createDataChannel(this.label, { reliable:false });
+            else if (window.mozRTCPeerConnection)
+                this.dataChannel = this.peerConnection.createDataChannel(this.label, {outOfOrderAllowed:true, maxRetransmitNum:0});
+
             debug('DataChannel with label ' + this.dataChannel.label + ' initiated locally.');
             this.hookupDataChannelEvents();
         },
@@ -158,45 +175,15 @@
         },
 
         hookupDataChannelEvents:function () {
-            this.dataChannel.onmessage = function (data_message) {
-                //scope is the datachannel
-                radio('receivedMessage' + this.label).broadcast(data_message);
-            }
+            this.dataChannel.onmessage = this.onMessageCallback_;
             this.dataChannel.onopen = this.onDataChannelReadyStateChange_;
             this.dataChannel.onclose = this.onDataChannelReadyStateChange_;
-            // Trigger gDataStatusCallback so an application is notified
-            // about the created data channel.
+            //connecting status:
             console.log('data-channel-status: ' + this.dataChannel.readyState);
-//    onDataChannelReadyStateChange_(dataChannel);
         },
 
         transformOutgoingSdp:function (sdp) {
             return sdp;
-        },
-
-// Internals.
-        iceCallback_:function (event) {
-            if (event.candidate)
-                ws.sendSDP(new protocol.Offer(JSON.stringify(event.candidate), event.currentTarget.targetId, event.currentTarget.originId));
-//        sendToPeer(gRemotePeerId, JSON.stringify(event.candidate));
-        },
-
-        setLocalAndSendMessage_:function (session_description) {
-            //parsing the label from the sdp:
-            var subStrings = session_description.sdp.split(" label:"); //the label is at the end of the sdp
-            var label = subStrings[subStrings.length - 1].replace(/\n|\r/g, ""); //removing newlines
-            radio('setLocalAndSendMessage' + label).broadcast(session_description);
-        },
-
-        onCreateDataChannelCallback_:function (event) {
-            console.log("onCreateDataChannel");
-            console.log(event);
-            radio('onCreateDataChannelCallback' + event.channel.label).broadcast(event);
-        },
-
-        onDataChannelReadyStateChange_:function (event) {
-            console.log('onDataChannelReadyStateChange');
-            radio('onDataChannelReadyStateChange' + event.currentTarget.label).broadcast(event);
         },
 
         //keeping add/remove stream since firefox might still need it

@@ -26,7 +26,6 @@
         },
 
         addFile:function (body) {
-            debugger;
             var splitAns = body.split(',');
             var base64file = splitAns[1];
             this.chunkFile(base64file);
@@ -82,7 +81,7 @@
         sendCommand:function (dataChannel, message) {
             var thi$ = this;
             if (dataChannel.readyState == 'open') {
-                setTimeout(function (message) {
+                setTimeout(function (message) { //setting a timeout since chrome can't handle fast transfer yet
                     dataChannel.send(message)
                 }, 200, message);
             } else {
