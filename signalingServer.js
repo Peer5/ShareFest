@@ -65,6 +65,10 @@ exports.start = function (server) {
             this.answer(msg.socketid, msg);
         });
 
+        socket.on('announce', function (msg) {
+            socket.broadcast.to(socket.room).emit('announce', msg);
+        });
+
         socket.on('disconnect', function (msg) {
             matcher.leave(socket.room, socket.id);
             socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);

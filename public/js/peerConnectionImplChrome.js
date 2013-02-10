@@ -1,5 +1,5 @@
 (function () {
-    peerConnectionImpl = function (originId, targetId, initiator) {
+    peerConnectionImplChrome = function (originId, targetId, initiator) {
         var STUN_SERVER = 'stun.l.google.com:19302';
 
         /** @private */
@@ -17,7 +17,7 @@
             this.ensureHasDataChannel();
     };
 
-    peerConnectionImpl.prototype = {
+    peerConnectionImplChrome.prototype = {
 
         initiatePeerConnectionCallbacks:function () {
             replaceReturnCallback(function (msg) {
@@ -83,6 +83,7 @@
         },
 
         handleMessage:function (message) {
+            message=message.sdp;
             console.log('handling message ' + message);
             var parsed_msg = JSON.parse(message);
             if (parsed_msg.type) {
@@ -147,7 +148,6 @@
         setupCall:function (peerConnection) {
             debug('createOffer with constraints: ' +
                 JSON.stringify(this.createOfferConstraints, null, ' '));
-            tempPeerConnection = this.peerConnection;
             this.peerConnection.createOffer(
                 this.setLocalAndSendMessage_,
                 function (err) {

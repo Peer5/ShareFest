@@ -22,7 +22,12 @@
     proto64.DATA_TAG = 4; // UInt8array
     proto64.SDP_TAG = 5; // UInt8array
     proto64.NEED_CHUNK = 6; // uint32
+    proto64.MESSAGE = 7;
 
+    proto64.message = function(originId, destId, message){
+        cmdObj = new cmd(this.MESSAGE,originId,destId,null,null,message);
+        return encode(cmdObj);
+    }
 
     proto64.need = function (originId, destId, swarmId, chunkId) {
         cmdObj = new cmd(this.NEED_CHUNK, originId, destId, swarmId, chunkId, null);

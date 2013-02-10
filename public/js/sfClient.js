@@ -1,8 +1,11 @@
 (function () {
     client = function (wsServerUrl) {
-        this.CHUNK_SIZE = 500; //bytes
         this.clientId;
         this.peerConnections = {};
+        this.configureBrowserSpecific();
+        this.CHUNK_SIZE;//bytes
+        this.sendingTimeout; //ma
+        this.peerConnectionImpl;
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
         this.registerEvents();
@@ -12,6 +15,18 @@
     };
 
     client.prototype = {
+        configureBrowserSpecific:function(){
+          if(window.mozRTCPeerConnection){
+              this.CHUNK_SIZE = 5000;
+              this.sendingTimeout = 1;
+              this.peerConnectionImpl = peerConnectionImplFirefox;
+
+          }  else if(window.webkitRTCPeerConnection){
+              this.CHUNK_SIZE = 500;
+              this.sendingTimeout = 200;
+              this.peerConnectionImpl = peerConnectionImplChrome;
+          }
+        },
 
         updateMetadata:function (files) {
             this.numOfChunksInFile = files[0].numOfChunks;
@@ -74,16 +89,16 @@
         //init true if this peer initiated the connection
         ensureHasPeerConnection:function (peerId, init) {
             if (!this.peerConnections[peerId]) {
-                this.peerConnections[peerId] = new peerConnectionImpl(this.clientId, peerId, init);
+                this.peerConnections[peerId] = new this.peerConnectionImpl(this.clientId, peerId, init);
             }
         },
 
         sendCommand:function (dataChannel, message) {
             var thi$ = this;
-            if (dataChannel.readyState == 'open') {
+            if (dataChannel.readyState.toLowerCase() == 'open') {
                 setTimeout(function (message) { //setting a timeout since chrome can't handle fast transfer yet
                     dataChannel.send(message)
-                }, 200, message);
+                }, this.sendingTimeout, message);
             } else {
                 console.log('dataChannel wasnt ready, seting timeout');
                 setTimeout(function (dataChannel, message) {
@@ -112,7 +127,7 @@
 
             radio('receivedOffer').subscribe([function (msg) {
                 this.ensureHasPeerConnection(msg.originId, false);
-                this.peerConnections[msg.originId].handleMessage(msg.sdp);
+                this.peerConnections[msg.originId].handleMessage(msg);
             }, this]);
 
             //PeerConnection events
@@ -130,6 +145,8 @@
                     this.receiveChunk(cmd.chunkId, cmd.data);
                     if (!this.hasEntireFile)
                         this.requestChunks(dataChannel, cmd.chunkId + 1);
+                } else if(cmd.op == proto64.MESSAGE) {
+                    console.log("peer " + cmd.originId + " sais: " + cmd.data);
                 }
             }, this]);
 
