@@ -12,7 +12,7 @@ The main difference is that currently the peers are coordinated using an intelle
 This coordinator controls which parts are sent from A to B and who shall talk with whom.
 Peer5 Coordinator (or any other solution) is used to accomplish this.
 Each peer will connect to few other peers in order to maximize the distribution of the file.
-Right now the first browser that this project supports is chrome canary.
+Supporting chrome canary (>26) and firefox (>19)
 
 First version includes a simple page that one user will drag a file to
 share, and a other users will enter the first user's url and start downloading the file.
@@ -22,9 +22,6 @@ test it out at: http://sharefest.peer5.com
 TODO:
 =====
 * add file type when saving the file
-* add support for firefox nightly 19.0a+
-* add a download progress gauge
-* server should match only with peers that have the file
 
 History
 =======
