@@ -44,8 +44,8 @@
         });
 
         function updateList(files) {
-            $('#box-text')[0].innerText = listFiles(files);
-            $('.dragdrop')[0].style.opacity = 0.95;
+            $('#box-text').text(listFiles(files));
+            $('.dragdrop').css('opacity', 0.95);
         }
         function addFiles(files) {
             var file = files[0]; // FileList object
@@ -143,7 +143,8 @@
     <h1></h1>
 
     <div class="dragdrop" id="dropbox" onClick="$('#files').click()">
-        <div><img src="img/logo.png"/>
+        <canvas id="cnvs"></canvas>
+        <div><img id="logo" src="img/logo.png"/>
 
             <h3 id='box-text'>Just drag any file here, and start sharing immediately!</h3>
         </div>
