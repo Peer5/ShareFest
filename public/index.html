@@ -9,7 +9,6 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/sfClient.js"></script>
     <script src="js/peerConnectionImplChrome.js"></script>
-    <script src="js/peerConnectionImplFirefox2.js"></script>
     <script src="js/test_functions.js"></script>
     <script src="js/util.js"></script>
     <script src="js/p2p_proto.js"></script>
@@ -62,7 +61,7 @@
                     meta0.name = files[0].name;
                     meta0.lastModifiedDate = files[0].lastModifiedDate;
                     meta0.type = files[0].type;
-                    ws.upload([meta0]);
+                    sharefestClient.ws.upload([meta0]);
                 };
             })(file);
             reader.readAsDataURL(file);

@@ -28,8 +28,9 @@
           }
         },
 
-        updateMetadata:function (files) {
-            this.numOfChunksInFile = files[0].numOfChunks;
+        updateMetadata:function (metadata) {
+            this.metadata = metadata[0];
+            this.numOfChunksInFile = metadata[0].numOfChunks;
         },
 
         chunkFile:function (base64file) {
@@ -67,7 +68,7 @@
                 //ToDo: anounce has file base64.decode the strings and open it
                 console.log("I have the entire file");
                 this.hasEntireFile = true;
-                ws.sendDownloadCompleted();
+                this.ws.sendDownloadCompleted();
                 this.saveFileLocally();
             }
         },
@@ -78,18 +79,18 @@
                 stringFile += this.chunks[i];
             }
             var blob = new Blob([base64.decode(stringFile)]);
-            saveLocally(blob);
+            saveLocally(blob, this.metadata.name);
         },
 
         initiateClient:function (wsServerUrl) {
-            ws = new WsConnection(wsServerUrl);
+            this.ws = new WsConnection(wsServerUrl);
             this.clientId; //either randomly create or get it from WsConnection
         },
 
         //init true if this peer initiated the connection
         ensureHasPeerConnection:function (peerId, init) {
             if (!this.peerConnections[peerId]) {
-                this.peerConnections[peerId] = new this.peerConnectionImpl(this.clientId, peerId, init);
+                this.peerConnections[peerId] = new this.peerConnectionImpl(this.ws,this.clientId, peerId, init);
             }
         },
 
@@ -114,7 +115,7 @@
             }, this]);
 
             radio('socketConnected').subscribe([function () {
-                this.clientId = ws.socket.socket.sessionid;
+                this.clientId = this.ws.socket.socket.sessionid;
                 console.log('got an id: ' + this.clientId);
             }, this]);
 

@@ -9,32 +9,33 @@
             var thi$ = this;
             this.socket = io.connect(wsServerUrl);
             console.log('new websocket');
-            this.socket.on('connect', function () {
-                console.log("websocket connected");
-                thi$.socket.on('disconnect', function () {
-                });
-                thi$.socket.on('created', function (msg) {
-                    history.pushState({}, msg, msg)
-                });
-                thi$.socket.on('files', function (files) {
-                    radio('receivedRoomMetadata').broadcast(files);
-                });
-                thi$.socket.on('message', function (msg) {
-                    console.log(msg);
+
+            thi$.socket.on('disconnect', function () {
+                //thi$.socket.removeAllListeners();
+            });
+            thi$.socket.on('created', function (msg) {
+                history.pushState({}, msg, msg)
+            });
+            thi$.socket.on('files', function (files) {
+                radio('receivedRoomMetadata').broadcast(files);
+            });
+            thi$.socket.on('message', function (msg) {
+                console.log(msg);
 //                    var arr = Uint8Array(10);
 //                    arr[5] = 5;
 //
 //                    thi$.socket.emit()
-                });
-                thi$.socket.on('offer', function (message) {
-                    console.log("got an offer");
-                    radio('receivedOffer').broadcast(message);
-                });
-                thi$.socket.on('match', function (message) {
-                    console.log('received a match');
-                    radio('receivedMatch').broadcast(message);
-                });
-
+            });
+            thi$.socket.on('offer', function (message) {
+                console.log("got an offer");
+                radio('receivedOffer').broadcast(message);
+            });
+            thi$.socket.on('match', function (message) {
+                console.log('received a match');
+                radio('receivedMatch').broadcast(message);
+            });
+            this.socket.on('connect', function () {
+                console.log("websocket connected");
                 thi$.socket.emit('message', 'hi from a new peer');
                 radio('socketConnected').broadcast();
             });
@@ -49,7 +50,7 @@
             this.socket.emit('upload', files);
         },
 
-        sendDownloadCompleted:function(){
+        sendDownloadCompleted:function () {
             this.socket.emit('downloadCompleted');
         }
 

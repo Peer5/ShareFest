@@ -1,5 +1,6 @@
 (function () {
-    peerConnectionImplFirefox = function (originId, targetId, initiator) {
+    peerConnectionImplFirefox = function (ws, originId, targetId, initiator) {
+        this.ws = ws;
         this.originId = originId;
         this.targetId = targetId;
         this.peerConnection;
@@ -36,13 +37,13 @@
                             thi$.offererPort = Math.floor(Math.random() * 5000) * 2;
                             var toSend = {
                                 type:"offer",
-                                originId:ws.socket.socket.sessionid,
+                                originId:thi$.ws.socket.socket.sessionid,
                                 targetId:thi$.targetId,
                                 port:thi$.offererPort,
                                 offer:JSON.stringify(offer)
                             };
                             console.log("remoteID: " + thi$.targetId);
-                            ws.sendSDP(toSend);
+                            thi$.ws.sendSDP(toSend);
                         }, thi$.error);
                     }, thi$.error);
             }, this.error);
@@ -123,7 +124,7 @@
                                 port:thi$.answererPort,
                                 answer:JSON.stringify(answer)
                             };
-                            ws.sendSDP(toSend);
+                            thi$.ws.sendSDP(toSend);
                             console.log("remoteID: " + thi$.targetId)
 
                             setTimeout(function () {

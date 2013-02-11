@@ -26,6 +26,42 @@ function dragEnter(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
     $('.dragdrop')[0].style.opacity = 0.9;
+
+    var x =  0;
+    var y = 15;
+    var speed = 5;
+
+    function animate() {
+
+        reqAnimFrame = window.mozRequestAnimationFrame    ||
+            window.webkitRequestAnimationFrame ||
+            window.msRequestAnimationFrame     ||
+            window.oRequestAnimationFrame
+        ;
+
+        reqAnimFrame(animate);
+
+        x += speed;
+
+        if(x <= 0 || x >= 475){
+            speed = -speed;
+        }
+
+        draw();
+    }
+
+
+    function draw() {
+        var canvas  = document.getElementById("cnvs");
+        var context = canvas.getContext("2d");
+
+        context.clearRect(0, 0, 500, 170);
+        context.fillStyle = "#ff00ff";
+        context.fillRect(x, y, 25, 25);
+    }
+
+    animate();
+
 }
 
 function dragExit(evt) {
@@ -44,6 +80,7 @@ function drop(evt) {
 	evt.preventDefault();
 
 	var files = evt.dataTransfer.files;
+    console.log(files);
 	var count = files.length;
 
 	// Only call the handler if 1 or more files was dropped.
