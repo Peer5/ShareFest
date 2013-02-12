@@ -11,7 +11,7 @@ exports.start = function (server) {
     matcher.addRoom(null, '/test', {meta:'data'});
     io.on('connection', function (socket) {
         var pathname = url.parse(socket.handshake.headers.referer).pathname;
-        if (!io.rooms[pathname] && pathname!='/test') {
+        if (!io.rooms[pathname] && pathname != '/test') {
             //no room found!
             console.warn(pathname + ' room id not found');
         } else {
@@ -54,7 +54,11 @@ exports.start = function (server) {
         });
 
         socket.on('message', function (msg) {
-            socket.broadcast.to(socket.room).emit('message', msg + ' from ' + socket.id);
+            if (socket.room) {
+                socket.broadcast.to(socket.room).emit('message', msg + ' from ' + socket.id);
+            } else {
+                console.log('got an empty room');
+            }
         });
 
         socket.on('offer', function (offer) {
@@ -70,8 +74,14 @@ exports.start = function (server) {
         });
 
         socket.on('disconnect', function (msg) {
-            matcher.leave(socket.room, socket.id);
-            socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);
+            if (socket.room) {
+
+                socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);
+                socket.leave(socket.room);
+                matcher.leave(socket.room, socket.id);
+            } else {
+                console.warn('socket room is undefined');
+            }
         });
     });
 };

@@ -1,5 +1,7 @@
 (function () {
-    peerConnectionImplChrome = function (originId, targetId, initiator) {
+    peerConnectionImplChrome = function (ws, originId, targetId, initiator) {
+        this.ws = ws;
+
         var STUN_SERVER = 'stun.l.google.com:19302';
 
         /** @private */
@@ -42,12 +44,12 @@
                         debug('setLocalDescription(): failed' + err)
                     });
                 debug("Sending SDP message:\n" + session_description.sdp);
-                ws.sendSDP(new protocol.Offer(JSON.stringify(session_description), thi$.targetId, thi$.originId));
+                thi$.ws.sendSDP(new protocol.Offer(JSON.stringify(session_description), thi$.targetId, thi$.originId));
             };
 
             this.iceCallback_ = function (event) {
                 if (event.candidate)
-                    ws.sendSDP(new protocol.Offer(JSON.stringify(event.candidate), thi$.targetId, thi$.originId));
+                    thi$.ws.sendSDP(new protocol.Offer(JSON.stringify(event.candidate), thi$.targetId, thi$.originId));
             };
 
             this.onCreateDataChannelCallback_ = function (event) {
