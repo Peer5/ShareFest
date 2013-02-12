@@ -200,7 +200,7 @@
 
         transformOutgoingSdp:function (sdp) {
             var splitted = sdp.split("b=AS:30");
-            var newSDP = splitted[0] + "b=AS:16384" + splitted[1];
+            var newSDP = splitted[0] + "b=AS:163840" + splitted[1];
             return newSDP;
         },
 
