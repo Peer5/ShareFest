@@ -4,6 +4,7 @@
         this.peerConnections = {};
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
+        this.CHUNK_EXPIRATION_TIMEOUT = 1000;
         this.peerConnectionImpl;
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
@@ -12,8 +13,8 @@
         this.numOfChunksInFile;
         this.hasEntireFile = false;
         this.incomingChunks = {}; //<peerId , numOfChunks>
-        this.requestThresh = 1; //how many chunk till new request
-        this.numOfChunksToAllocate = 15;
+        this.requestThresh = 20; //how many chunk till new request
+        this.numOfChunksToAllocate = 100;
         this.missingChunks = [];
         this.pendingChunks = [];
     };
@@ -68,6 +69,12 @@
             radio('downloadProgress').broadcast(percentage * 100);
         },
 
+
+        addToPendingChunks:function(chunksIds, peerId) {
+            var id = setTimeout(this.expireChunks, this.CHUNK_EXPIRATION_TIMEOUT, chunksIds, peerId);
+            console.log(id);
+        },
+
         requestChunks:function (targetId) {
             var chunkIds = [];
             var missingChunksArr = Object.keys(this.missingChunks);
@@ -77,6 +84,7 @@
                 this.pendingChunks[missingChunksArr[i]] = 1;
             }
             this.incomingChunks[targetId]+=chunkIds.length;
+            this.addToPendingChunks(chunkIds, targetId);
             this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds))
         },
 
@@ -112,6 +120,29 @@
         },
 
         registerEvents:function () {
+            var thi$ = this;
+            /**
+             * remove pending chunks from the pending and add back to the missing
+             * @param chunksIds that might still be pending
+             */
+            this.expireChunks = function(chunksIds,peerId) {
+                for (var i=0; i<chunksIds.length;i++) {
+                    var chunkId = chunksIds[i];
+                    if (chunkId in thi$.pendingChunks) {
+                        console.log('expiring chunk '+chunkId);
+                        // let's expire this chunk
+                        delete thi$.pendingChunks[chunkId];
+                        thi$.missingChunks[chunkId] = 2;
+                        thi$.incomingChunks[peerId]--;
+                    }
+                }
+
+                if (thi$.incomingChunks[peerId] < thi$.requestThresh) {
+                    thi$.requestChunks(peerId);
+                }
+
+            };
+
             //websockets events
             radio('receivedRoomMetadata').subscribe([function (files) {
                 this.updateMetadata(files);
