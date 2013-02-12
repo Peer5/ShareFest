@@ -17,13 +17,13 @@
     client.prototype = {
         configureBrowserSpecific:function(){
           if(window.mozRTCPeerConnection){
-              this.CHUNK_SIZE = 5000;
+              this.CHUNK_SIZE = 50000;
               this.sendingTimeout = 1;
               this.peerConnectionImpl = peerConnectionImplFirefox;
 
           }  else if(window.webkitRTCPeerConnection){
-              this.CHUNK_SIZE = 500;
-              this.sendingTimeout = 200;
+              this.CHUNK_SIZE = 750;
+              this.sendingTimeout = 0;
               this.peerConnectionImpl = peerConnectionImplChrome;
           }
         },
@@ -119,6 +119,8 @@
             }, this]);
 
             radio('receivedMatch').subscribe([function (message) {
+                if(this.hasEntireFile)
+                    return;
                 for (var i = 0; i < message.clientIds.length; ++i) {
                     this.ensureHasPeerConnection(message.clientIds[i], true);
                     this.peerConnections[message.clientIds[i]].setupCall();

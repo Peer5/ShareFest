@@ -130,9 +130,9 @@
                                 thi$.peerConnection.connectDataConnection(thi$.answererPort, thi$.offererPort);
                                 console.log("connectDataConnection(" + thi$.answererPort + "," + thi$.offererPort + ")");
                             }, 3000);
-                        }, this.error);
-                    }, this.error);
-                }, this.error);
+                        }, thi$.error);
+                    }, thi$.error);
+                }, thi$.error);
             }, this.error);
         },
 
