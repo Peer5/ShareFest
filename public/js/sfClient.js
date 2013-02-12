@@ -4,7 +4,7 @@
         this.peerConnections = {};
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
-        this.CHUNK_EXPIRATION_TIMEOUT = 200;
+        this.CHUNK_EXPIRATION_TIMEOUT = 1000;
         this.peerConnectionImpl;
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
@@ -14,8 +14,8 @@
         this.numOfChunksReceived = 0;
         this.hasEntireFile = false;
         this.incomingChunks = {}; //<peerId , numOfChunks>
-        this.requestThresh = 20; //how many chunk till new request
-        this.numOfChunksToAllocate = 80;
+        this.requestThresh = 25; //how many chunk till new request
+        this.numOfChunksToAllocate = 50;
         this.missingChunks = [];
         this.pendingChunks = [];
     };
@@ -75,16 +75,19 @@
         addToPendingChunks:function(chunksIds, peerId) {
             if (chunksIds.length == 0) return;
             var id = setTimeout(this.expireChunks, this.CHUNK_EXPIRATION_TIMEOUT, chunksIds, peerId);
-            console.log(id);
+//            console.log(id);
         },
 
         requestChunks:function (targetId) {
             var chunkIds = [];
-            var missingChunksArr = Object.keys(this.missingChunks);
-            for(var i=0;i<this.numOfChunksToAllocate && i < missingChunksArr.length;++i){
-                chunkIds.push(missingChunksArr[i]);
-                delete this.missingChunks[missingChunksArr[i]];
-                this.pendingChunks[missingChunksArr[i]] = 1;
+            var tempChunks = 0;
+            for(var chunkId in this.missingChunks){
+                chunkIds.push(chunkId);
+                delete this.missingChunks[chunkId];
+                this.pendingChunks[chunkId] = 1;
+                tempChunks++;
+                if(tempChunks >= this.numOfChunksToAllocate)
+                    break;
             }
             this.incomingChunks[targetId]+=chunkIds.length;
             this.addToPendingChunks(chunkIds, targetId);
