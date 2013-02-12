@@ -73,6 +73,8 @@
             var missingChunksArr = Object.keys(this.missingChunks);
             for(var i=0;i<this.numOfChunksToAllocate && i < missingChunksArr.length;++i){
                 chunkIds.push(missingChunksArr[i]);
+                delete this.missingChunks[i];
+                this.pendingChunks[i] = 1;
             }
             this.incomingChunks[targetId]+=chunkIds.length;
             this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds))
