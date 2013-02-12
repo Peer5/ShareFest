@@ -70,8 +70,9 @@
 
         requestChunks:function (targetId) {
             var chunkIds = [];
-            for(var i=0;i<this.numOfChunksToAllocate && (Object.keys(this.chunks).length + i)<this.numOfChunksInFile;++i){
-                chunkIds.push(Object.keys(this.chunks).length + i);
+            var missingChunksArr = Object.keys(this.missingChunks);
+            for(var i=0;i<this.numOfChunksToAllocate && i < missingChunksArr.length;++i){
+                chunkIds.push(missingChunksArr[i]);
             }
             this.incomingChunks[targetId]+=chunkIds.length;
             this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds))
