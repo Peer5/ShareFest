@@ -11,9 +11,11 @@
         this.chunks = {};// <id, arrybuffer>
         this.numOfChunksInFile;
         this.hasEntireFile = false;
-        this.incomingChunks = {};
-        this.requestThresh = 1;
+        this.incomingChunks = {}; //<peerId , numOfChunks>
+        this.requestThresh = 1; //how many chunk till new request
         this.numOfChunksToAllocate = 15;
+        this.missingChunks = [];
+        this.pendingChunks = [];
     };
 
     client.prototype = {
@@ -21,7 +23,6 @@
             if (window.mozRTCPeerConnection) {
                 this.CHUNK_SIZE = 50000;
                 this.peerConnectionImpl = peerConnectionImplFirefox;
-
             } else if (window.webkitRTCPeerConnection) {
                 this.CHUNK_SIZE = 750;
                 this.peerConnectionImpl = peerConnectionImplChrome;
@@ -31,6 +32,8 @@
         updateMetadata:function (metadata) {
             this.metadata = metadata[0];
             this.numOfChunksInFile = metadata[0].numOfChunks;
+            for(var i=0;i<this.numOfChunksInFile;++i)
+                this.missingChunks[i] = 1;
         },
 
         chunkFile:function (base64file) {
@@ -48,10 +51,16 @@
             this.hasEntireFile = true;
         },
 
-        receiveChunk:function (chunkId, chunkData) {
-            this.chunks[chunkId] = chunkData;
-            this.updateProgress();
-            this.checkHasEntireFile();
+        receiveChunk:function (originId,chunkId, chunkData) {
+            if(this.pendingChunks.hasOwnProperty(chunkId)){
+                delete this.pendingChunks[chunkId];
+                this.incomingChunks[originId]--;
+            }
+            if(!this.chunks.hasOwnProperty(chunkId)){
+                this.chunks[chunkId] = chunkData;
+                this.updateProgress();
+                this.checkHasEntireFile();
+            }
         },
 
         updateProgress:function () {
@@ -139,8 +148,7 @@
                     }
                 } else if (cmd.op == proto64.DATA_TAG) {
 //                    console.log("received DATA_TAG command with chunk id " + cmd.chunkId);
-                    this.receiveChunk(cmd.chunkId, cmd.data);
-                    this.incomingChunks[cmd.originId]--;
+                    this.receiveChunk(cmd.originId,cmd.chunkId, cmd.data);
                     if (!this.hasEntireFile && this.incomingChunks[cmd.originId] < this.requestThresh)
                         this.requestChunks(cmd.originId);
                 } else if (cmd.op == proto64.MESSAGE) {
