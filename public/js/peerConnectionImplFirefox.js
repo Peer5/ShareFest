@@ -14,12 +14,40 @@
     };
 
     peerConnectionImplFirefox.prototype = {
-        registerEvents:function () {
-
-        },
-
+    //public methods
         setupCall:function () {
             this.initiateCall();
+        },
+
+        handleMessage:function (msg) {
+            console.log("receivedOffer: " + msg.type);
+            switch (msg.type) {
+                case "offer":
+                    this.offererPort = msg.port || 5000;
+                    this.acceptCall(msg.offer, msg.originId);
+                    break;
+                case "answer":
+                    this.answererPort = msg.port || 5001;
+                    this.incomingAnswer(msg.answer);
+                    break;
+            }
+        },
+
+        send:function(message){
+            var thi$ = this;
+            if (thi$.dataChannel.readyState.toLowerCase() == 'open') {
+                thi$.dataChannel.send(message)
+            } else {
+                console.log('dataChannel wasnt ready, seting timeout');
+                setTimeout(function (dataChannel, message) {
+                    thi$.send(dataChannel, message);
+                }, 1000, thi$.dataChannel, message);
+            }
+        },
+
+    //private methods
+        registerEvents:function () {
+
         },
 
         initiateCall:function () {
@@ -72,20 +100,6 @@
                     console.log("*** pc1 no onopen??! possible race");
                 }
             };
-        },
-
-        handleMessage:function (msg) {
-            console.log("receivedOffer: " + msg.type);
-            switch (msg.type) {
-                case "offer":
-                    this.offererPort = msg.port || 5000;
-                    this.acceptCall(msg.offer, msg.originId);
-                    break;
-                case "answer":
-                    this.answererPort = msg.port || 5001;
-                    this.incomingAnswer(msg.answer);
-                    break;
-            }
         },
 
         incomingAnswer:function (answer) {
@@ -153,7 +167,7 @@
                 } else {
                     //            log("message from", remotePC," length=",evt.data.length);
                     //            console.log(evt.data);
-                    radio('commandArrived').broadcast(evt.currentTarget, evt);
+                    radio('commandArrived').broadcast(evt);
                 }
             };
 
@@ -166,7 +180,7 @@
                     thi$.dataChannel.send(proto64.message(thi$.originId, thi$.targetId, greeting));
                 }
                 console.log(localPC + "state: " + thi$.dataChannel.state);
-                radio('connectionReady').broadcast(thi$.dataChannel);
+                radio('connectionReady').broadcast(thi$.targetId);
             };
 
             this.dataChannel.onclose = function () {

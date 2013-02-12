@@ -4,7 +4,6 @@
         this.peerConnections = {};
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
-        this.sendingTimeout; //ma
         this.peerConnectionImpl;
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
@@ -12,20 +11,21 @@
         this.chunks = {};// <id, arrybuffer>
         this.numOfChunksInFile;
         this.hasEntireFile = false;
+        this.incomingChunks = {};
+        this.requestThresh = 1;
+        this.numOfChunksToAllocate = 15;
     };
 
     client.prototype = {
-        configureBrowserSpecific:function(){
-          if(window.mozRTCPeerConnection){
-              this.CHUNK_SIZE = 50000;
-              this.sendingTimeout = 1;
-              this.peerConnectionImpl = peerConnectionImplFirefox;
+        configureBrowserSpecific:function () {
+            if (window.mozRTCPeerConnection) {
+                this.CHUNK_SIZE = 50000;
+                this.peerConnectionImpl = peerConnectionImplFirefox;
 
-          }  else if(window.webkitRTCPeerConnection){
-              this.CHUNK_SIZE = 750;
-              this.sendingTimeout = 0;
-              this.peerConnectionImpl = peerConnectionImplChrome;
-          }
+            } else if (window.webkitRTCPeerConnection) {
+                this.CHUNK_SIZE = 750;
+                this.peerConnectionImpl = peerConnectionImplChrome;
+            }
         },
 
         updateMetadata:function (metadata) {
@@ -54,13 +54,18 @@
             this.checkHasEntireFile();
         },
 
-        updateProgress:function(){
-            var percentage = Object.keys(this.chunks).length/this.numOfChunksInFile;
-            radio('downloadProgress').broadcast(percentage*100);
+        updateProgress:function () {
+            var percentage = Object.keys(this.chunks).length / this.numOfChunksInFile;
+            radio('downloadProgress').broadcast(percentage * 100);
         },
 
-        requestChunks:function (dataChannel, chunkNum) {
-            this.sendCommand(dataChannel, proto64.need(this.clientId, 1, 1, chunkNum));
+        requestChunks:function (targetId) {
+            var chunkIds = [];
+            for(var i=0;i<this.numOfChunksToAllocate && (Object.keys(this.chunks).length + i)<this.numOfChunksInFile;++i){
+                chunkIds.push(Object.keys(this.chunks).length + i);
+            }
+            this.incomingChunks[targetId]+=chunkIds.length;
+            this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds))
         },
 
         checkHasEntireFile:function () {
@@ -90,21 +95,7 @@
         //init true if this peer initiated the connection
         ensureHasPeerConnection:function (peerId, init) {
             if (!this.peerConnections[peerId]) {
-                this.peerConnections[peerId] = new this.peerConnectionImpl(this.ws,this.clientId, peerId, init);
-            }
-        },
-
-        sendCommand:function (dataChannel, message) {
-            var thi$ = this;
-            if (dataChannel.readyState.toLowerCase() == 'open') {
-                setTimeout(function (message) { //setting a timeout since chrome can't handle fast transfer yet
-                    dataChannel.send(message)
-                }, this.sendingTimeout, message);
-            } else {
-                console.log('dataChannel wasnt ready, seting timeout');
-                setTimeout(function (dataChannel, message) {
-                    thi$.sendCommand(dataChannel, message);
-                }, 1000, dataChannel, message);
+                this.peerConnections[peerId] = new this.peerConnectionImpl(this.ws, this.clientId, peerId, init);
             }
         },
 
@@ -120,7 +111,7 @@
             }, this]);
 
             radio('receivedMatch').subscribe([function (message) {
-                if(this.hasEntireFile)
+                if (this.hasEntireFile)
                     return;
                 for (var i = 0; i < message.clientIds.length; ++i) {
                     this.ensureHasPeerConnection(message.clientIds[i], true);
@@ -134,31 +125,36 @@
             }, this]);
 
             //PeerConnection events
-            radio('commandArrived').subscribe([function (dataChannel, msg) {
+            radio('commandArrived').subscribe([function (msg) {
                 var cmd = proto64.decode(msg.data);
                 if (cmd.op == proto64.NEED_CHUNK) {
-                    console.log("received NEED_CHUNK command " + cmd.chunkId);
-                    if (cmd.chunkId in this.chunks) {
-                        this.sendCommand(dataChannel, proto64.send(this.clientId, 1, 1, cmd.chunkId, this.chunks[cmd.chunkId]))
-                    } else {
-                        console.warn('I dont have this chunk' + cmd.chunkId);
+                    for (var i = 0; i < cmd.chunkId.length; ++i) {
+                        var chunkId = cmd.chunkId[i];
+//                        console.log("received NEED_CHUNK command " + chunkId);
+                        if (chunkId in this.chunks) {
+                            this.peerConnections[cmd.originId].send(proto64.send(this.clientId, 1, 1, chunkId, this.chunks[chunkId]));
+                        } else {
+                            console.warn('I dont have this chunk' + chunkId);
+                        }
                     }
                 } else if (cmd.op == proto64.DATA_TAG) {
-                    console.log("received DATA_TAG command with chunk id " + cmd.chunkId);
+//                    console.log("received DATA_TAG command with chunk id " + cmd.chunkId);
                     this.receiveChunk(cmd.chunkId, cmd.data);
-                    if (!this.hasEntireFile)
-                        this.requestChunks(dataChannel, cmd.chunkId + 1);
-                } else if(cmd.op == proto64.MESSAGE) {
+                    this.incomingChunks[cmd.originId]--;
+                    if (!this.hasEntireFile && this.incomingChunks[cmd.originId] < this.requestThresh)
+                        this.requestChunks(cmd.originId);
+                } else if (cmd.op == proto64.MESSAGE) {
                     console.log("peer " + cmd.originId + " sais: " + cmd.data);
                 }
             }, this]);
 
-            radio('connectionReady').subscribe([function (dataChannel) {
+            radio('connectionReady').subscribe([function (targetId) {
+                this.incomingChunks[targetId] = 0;
                 if (0 in this.chunks) {
                     console.log('got chunk 0');
                 } else {
                     console.log('requesting chunk 0');
-                    this.requestChunks(dataChannel, 0);
+                    this.requestChunks(targetId);
                 }
             }, this]);
 

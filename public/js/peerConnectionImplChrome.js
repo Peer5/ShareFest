@@ -20,7 +20,66 @@
     };
 
     peerConnectionImplChrome.prototype = {
+    //public methods
+        setupCall:function (peerConnection) {
+            debug('createOffer with constraints: ' +
+                JSON.stringify(this.createOfferConstraints, null, ' '));
+            this.peerConnection.createOffer(
+                this.setLocalAndSendMessage_,
+                function (err) {
+                    debug('createOffer(): failed, ' + err)
+                },
+                this.createOfferConstraints);
+        },
 
+
+        handleMessage:function (message) {
+            message = message.sdp;
+            console.log('handling message ' + message);
+            var parsed_msg = JSON.parse(message);
+            if (parsed_msg.type) {
+                var session_description = new RTCSessionDescription(parsed_msg);
+                this.peerConnection.setRemoteDescription(
+                    session_description,
+                    function () {
+                        debug('setRemoteDescription(): success.')
+                    },
+                    function (err) {
+                        debug('setRemoteDescription(): failed, ' + err)
+                    });
+                if (session_description.type == "offer") {
+                    debug('createAnswer with constraints: ' +
+                        JSON.stringify(this.createAnswerConstraints, null, ' '));
+                    this.peerConnection.createAnswer(
+                        this.setLocalAndSendMessage_,
+                        function (err) {
+                            debug('createAnswer(): failed, ' + err)
+                        },
+                        this.createAnswerConstraints);
+                }
+                return;
+            } else if (parsed_msg.candidate) {
+                var candidate = new RTCIceCandidate(parsed_msg);
+                this.peerConnection.addIceCandidate(candidate);
+                return;
+            }
+            addTestFailure("unknown message received");
+            return;
+        },
+
+        send:function(message){
+            var thi$ = this;
+            if (thi$.dataChannel.readyState.toLowerCase() == 'open') {
+                thi$.dataChannel.send(message);
+            } else {
+                console.log('dataChannel wasnt ready, seting timeout');
+                setTimeout(function (dataChannel, message) {
+                    thi$.send(dataChannel, message);
+                }, 1000, thi$.dataChannel, message);
+            }
+        },
+
+    //private methods
         initiatePeerConnectionCallbacks:function () {
             replaceReturnCallback(function (msg) {
                 console.log("return log: " + msg);
@@ -65,12 +124,12 @@
             this.onDataChannelReadyStateChange_ = function (event) {
                 var readyState = event.target.readyState;
                 debug('DataChannel state:' + readyState);
-                radio('connectionReady').broadcast(event.target);
+                radio('connectionReady').broadcast(thi$.targetId);
             };
 
             this.onMessageCallback_ = function (message) {
-                console.log("received message" + message);
-                radio('commandArrived').broadcast(message.currentTarget, message);
+//                console.log("received message" + message);
+                radio('commandArrived').broadcast(message);
             };
         },
 
@@ -82,40 +141,6 @@
                 throw failTest('Creating DataChannel, but we already have one.');
             }
             this.createDataChannel();
-        },
-
-        handleMessage:function (message) {
-            message=message.sdp;
-            console.log('handling message ' + message);
-            var parsed_msg = JSON.parse(message);
-            if (parsed_msg.type) {
-                var session_description = new RTCSessionDescription(parsed_msg);
-                this.peerConnection.setRemoteDescription(
-                    session_description,
-                    function () {
-                        debug('setRemoteDescription(): success.')
-                    },
-                    function (err) {
-                        debug('setRemoteDescription(): failed, ' + err)
-                    });
-                if (session_description.type == "offer") {
-                    debug('createAnswer with constraints: ' +
-                        JSON.stringify(this.createAnswerConstraints, null, ' '));
-                    this.peerConnection.createAnswer(
-                        this.setLocalAndSendMessage_,
-                        function (err) {
-                            debug('createAnswer(): failed, ' + err)
-                        },
-                        this.createAnswerConstraints);
-                }
-                return;
-            } else if (parsed_msg.candidate) {
-                var candidate = new RTCIceCandidate(parsed_msg);
-                this.peerConnection.addIceCandidate(candidate);
-                return;
-            }
-            addTestFailure("unknown message received");
-            return;
         },
 
         createPeerConnection:function (stun_server) {
@@ -145,17 +170,6 @@
             this.peerConnection.onremovestream = this.removeStreamCallback_;
             this.peerConnection.onicecandidate = this.iceCallback_;
             this.peerConnection.ondatachannel = this.onCreateDataChannelCallback_;
-        },
-
-        setupCall:function (peerConnection) {
-            debug('createOffer with constraints: ' +
-                JSON.stringify(this.createOfferConstraints, null, ' '));
-            this.peerConnection.createOffer(
-                this.setLocalAndSendMessage_,
-                function (err) {
-                    debug('createOffer(): failed, ' + err)
-                },
-                this.createOfferConstraints);
         },
 
         createDataChannel:function () {
