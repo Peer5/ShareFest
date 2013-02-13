@@ -82,6 +82,10 @@
             font-family: "Courgette";
         }
 
+        .text-pretty {
+            font-size: 1.5em;
+        }
+
         h3 {
             font-size: 24px;
         }
@@ -92,7 +96,7 @@
         }
 
         .dragdrop {
-            padding-top: 250px;
+            padding-top: 260px;
             width: 900px;
             height: 450px;
             border: solid #000000;
@@ -135,9 +139,9 @@
 
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li class="active"><a href="#">Sharefest</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li class="active"><a href="/">Sharefest</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
                 </ul>
             </div>
             <!--/.nav-collapse -->
@@ -145,20 +149,19 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container" >
     <h1></h1>
 
-    <div class="dragdrop" id="dropbox" onClick="$('#files').click()">
-        <canvas id="cnvs"></canvas>
+    <div class="dragdrop text-pretty" id="dropbox" onClick="$('#files').click()">
+        <!--<canvas id="cnvs"></canvas>-->
         <div><img id="logo" src="img/logo.png"/>
+            <br/>
+            <span id='box-text'>Just drag any file here, and start sharing immediately!</span>
 
-            <h3 id='box-text'>Just drag any file here, and start sharing immediately!</h3>
-        </div>
-
-        <div id="progressbar" hidden="true" >
-            Downloading:
+        <span id="progressbar" hidden="true" >
             <progress id="progress" hidden="true" value="0" max="100"></progress>
             <p id="percent" style="display: inline;"></p>
+        </span>
         </div>
 
         <!--<p class="info">For more info about Sharefest, go to our-->

@@ -4,7 +4,7 @@
         this.peerConnections = {};
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
-        this.CHUNK_EXPIRATION_TIMEOUT = 1000;
+        this.CHUNK_EXPIRATION_TIMEOUT = 2000;
         this.peerConnectionImpl;
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
@@ -14,8 +14,8 @@
         this.numOfChunksReceived = 0;
         this.hasEntireFile = false;
         this.incomingChunks = {}; //<peerId , numOfChunks>
-        this.requestThresh = 25; //how many chunk till new request
-        this.numOfChunksToAllocate = 50;
+        this.requestThresh = 70; //how many chunk till new request
+        this.numOfChunksToAllocate = 90;
         this.missingChunks = [];
         this.pendingChunks = [];
     };
