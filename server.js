@@ -27,6 +27,19 @@ app.configure('production', function () {
     signaling.start(server);
 });
 
+app.get('/browser', function (req, res) {
+    res.sendfile(__dirname + '/public/browser.html');
+});
+
+app.get('/about', function (req, res) {
+    res.redirect("https://github.com/peer5/sharefest");
+});
+
+app.get('/contact', function (req, res) {
+    res.redirect("https://github.com/peer5/sharefest");
+});
+
+
 app.get('/:id', function (req, res) {
     var roomId = req.params.id;
     var room = rooms.getRoom(roomId);
