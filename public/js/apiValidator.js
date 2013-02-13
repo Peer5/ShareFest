@@ -13,7 +13,7 @@
             chrome:26, //just so it'll work with current version of chrome and websockets
             firefox:19,
             msie:11,
-            opera:12,
+            opera:15,
             safari:1000
         }
     };
