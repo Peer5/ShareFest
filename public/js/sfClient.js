@@ -212,11 +212,11 @@
         }
     };
 })();
-
-var t_from_start = 0
-function inc() {
-    if (document.getElementById('tt')) {
-        document.getElementById('tt').innerText = t_from_start++
-    }
-}
-setInterval(inc, 1000);
+//
+//var t_from_start = 0
+//function inc() {
+//    if (document.getElementById('tt')) {
+//        document.getElementById('tt').innerText = t_from_start++
+//    }
+//}
+//setInterval(inc, 1000);
