@@ -15,7 +15,7 @@
         this.hasEntireFile = false;
         this.incomingChunks = {}; //<peerId , numOfChunks>
         this.requestThresh = 70; //how many chunk till new request
-        this.numOfChunksToAllocate = 90;
+        this.numOfChunksToAllocate = 95;
         this.missingChunks = [];
         this.pendingChunks = [];
     };
@@ -34,7 +34,7 @@
         updateMetadata:function (metadata) {
             this.metadata = metadata[0];
             this.numOfChunksInFile = metadata[0].numOfChunks;
-            for(var i=0;i<this.numOfChunksInFile;++i)
+            for (var i = 0; i < this.numOfChunksInFile; ++i)
                 this.missingChunks[i] = 1;
         },
 
@@ -53,12 +53,12 @@
             this.hasEntireFile = true;
         },
 
-        receiveChunk:function (originId,chunkId, chunkData) {
-            if(this.pendingChunks.hasOwnProperty(chunkId)){
+        receiveChunk:function (originId, chunkId, chunkData) {
+            if (this.pendingChunks.hasOwnProperty(chunkId)) {
                 delete this.pendingChunks[chunkId];
                 this.incomingChunks[originId]--;
             }
-            if(!this.chunks.hasOwnProperty(chunkId)){
+            if (!this.chunks.hasOwnProperty(chunkId)) {
                 this.numOfChunksReceived++;
                 this.chunks[chunkId] = chunkData;
                 this.updateProgress();
@@ -72,7 +72,7 @@
         },
 
 
-        addToPendingChunks:function(chunksIds, peerId) {
+        addToPendingChunks:function (chunksIds, peerId) {
             if (chunksIds.length == 0) return;
             var id = setTimeout(this.expireChunks, this.CHUNK_EXPIRATION_TIMEOUT, chunksIds, peerId);
 //            console.log(id);
@@ -81,17 +81,17 @@
         requestChunks:function (targetId) {
             var chunkIds = [];
             var tempChunks = 0;
-            for(var chunkId in this.missingChunks){
+            for (var chunkId in this.missingChunks) {
                 chunkIds.push(chunkId);
                 delete this.missingChunks[chunkId];
                 this.pendingChunks[chunkId] = 1;
                 tempChunks++;
-                if(tempChunks >= this.numOfChunksToAllocate)
+                if (tempChunks >= this.numOfChunksToAllocate)
                     break;
             }
-            this.incomingChunks[targetId]+=chunkIds.length;
+            this.incomingChunks[targetId] += chunkIds.length;
             this.addToPendingChunks(chunkIds, targetId);
-            this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds))
+            this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds));
         },
 
         checkHasEntireFile:function () {
@@ -131,11 +131,11 @@
              * remove pending chunks from the pending and add back to the missing
              * @param chunksIds that might still be pending
              */
-            this.expireChunks = function(chunksIds,peerId) {
-                for (var i=0; i<chunksIds.length;i++) {
+            this.expireChunks = function (chunksIds, peerId) {
+                for (var i = 0; i < chunksIds.length; i++) {
                     var chunkId = chunksIds[i];
                     if (chunkId in thi$.pendingChunks) {
-                        console.log('expiring chunk '+chunkId);
+                        console.log('expiring chunk ' + chunkId);
                         // let's expire this chunk
                         delete thi$.pendingChunks[chunkId];
                         thi$.missingChunks[chunkId] = 2;
@@ -182,15 +182,17 @@
 //                        console.log("received NEED_CHUNK command " + chunkId);
                         if (chunkId in this.chunks) {
                             this.peerConnections[cmd.originId].send(proto64.send(this.clientId, 1, 1, chunkId, this.chunks[chunkId]));
+
                         } else {
                             console.warn('I dont have this chunk' + chunkId);
                         }
                     }
                 } else if (cmd.op == proto64.DATA_TAG) {
 //                    console.log("received DATA_TAG command with chunk id " + cmd.chunkId);
-                    this.receiveChunk(cmd.originId,cmd.chunkId, cmd.data);
-                    if (!this.hasEntireFile && this.incomingChunks[cmd.originId] < this.requestThresh)
+                    this.receiveChunk(cmd.originId, cmd.chunkId, cmd.data);
+                    if (!this.hasEntireFile && this.incomingChunks[cmd.originId] < this.requestThresh) {
                         this.requestChunks(cmd.originId);
+                    }
                 } else if (cmd.op == proto64.MESSAGE) {
                     console.log("peer " + cmd.originId + " sais: " + cmd.data);
                 }
@@ -210,3 +212,11 @@
         }
     };
 })();
+
+var t_from_start = 0
+function inc() {
+    if (document.getElementById('tt')) {
+        document.getElementById('tt').innerText = t_from_start++
+    }
+}
+setInterval(inc, 1000);
