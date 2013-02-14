@@ -2,6 +2,8 @@
     client = function (wsServerUrl) {
         this.clientId;
         this.peerConnections = {};
+        this.requestThresh; //how many chunk till new request
+        this.numOfChunksToAllocate;
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
         this.CHUNK_EXPIRATION_TIMEOUT = 2000;
@@ -16,8 +18,6 @@
         this.numOfChunksReceived = 0;
         this.hasEntireFile = false;
         this.incomingChunks = {}; //<peerId , numOfChunks>
-        this.requestThresh = 70; //how many chunk till new request
-        this.numOfChunksToAllocate = 95;
         this.missingChunks = [];
         this.pendingChunks = [];
         this.lastCycleUpdateSizeInBytes = 0;
@@ -29,9 +29,13 @@
     client.prototype = {
         configureBrowserSpecific:function () {
             if (window.mozRTCPeerConnection) {
-                this.CHUNK_SIZE = 1500;
+                this.requestThresh = 15; //how many chunk till new request
+                this.numOfChunksToAllocate = 30;
+                this.CHUNK_SIZE = 5000;
                 this.peerConnectionImpl = peerConnectionImplFirefox;
             } else if (window.webkitRTCPeerConnection) {
+                this.requestThresh = 70; //how many chunk till new request
+                this.numOfChunksToAllocate = 95;
                 this.CHUNK_SIZE = 750;
                 this.peerConnectionImpl = peerConnectionImplChrome;
             }
