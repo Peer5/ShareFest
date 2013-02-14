@@ -41,18 +41,18 @@
                 var bwPresenter = document.getElementById('bandwidthPresenter');
                 if (bw) {
                     if (bw >= 1024) {
-                        rateDiv.innerText = (((bw / 1024).toFixed(1))).toString() + 'MByte|sec';
+                        rateDiv.textContent = (((bw / 1024).toFixed(1))).toString() + 'MByte|sec';
                     } else {
-                        rateDiv.innerText = (((bw).toFixed(1))).toString() + 'KByte|sec';
+                        rateDiv.textContent = (((bw).toFixed(1))).toString() + 'KByte|sec';
                     }
                 }
 
                 if (totalBW) {
-                    bwPresenter.innerText = 'Total Download Bandwidth';
+                    bwPresenter.textContent = 'Total Download Bandwidth';
                     if (totalBW >= 1024) {
-                        rateDiv.innerText = (((totalBW / 1024).toFixed(1))).toString() + 'MByte|sec';
+                        rateDiv.textContent = (((totalBW / 1024).toFixed(1))).toString() + 'MByte|sec';
                     } else {
-                        rateDiv.innerText = (((totalBW).toFixed(1))).toString() + 'KByte|sec';
+                        rateDiv.textContent = (((totalBW).toFixed(1))).toString() + 'KByte|sec';
                     }
 
                 }
@@ -63,7 +63,7 @@
                 }
 
                 prog.value = percent;
-                per.innerText = Math.floor(percent.toString()) + '%';
+                per.textContent = Math.floor(percent.toString()) + '%';
 
 
             }, null]);
