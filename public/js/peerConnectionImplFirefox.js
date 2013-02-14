@@ -84,7 +84,8 @@
             this.peerConnection.onconnection = function () {
                 console.log("pc1 onconnection");
 
-                thi$.dataChannel = thi$.peerConnection.createDataChannel("This is pc1", {}); // reliable (TCP-like)
+//                thi$.dataChannel = thi$.peerConnection.createDataChannel("This is pc1", {}); // reliable (TCP-like)
+                thi$.dataChannel = thi$.peerConnection.createDataChannel("This is pc1", {outOfOrderAllowed: true, maxRetransmitNum: 0}); // reliable (TCP-like)
                 //            channel = pc.createDataChannel("This is pc1",{outOfOrderAllowed: true, maxRetransmitNum: 0});
                 thi$.setupChannel("Hello out there.");
             };

@@ -29,7 +29,7 @@
     client.prototype = {
         configureBrowserSpecific:function () {
             if (window.mozRTCPeerConnection) {
-                this.CHUNK_SIZE = 5000;
+                this.CHUNK_SIZE = 1500;
                 this.peerConnectionImpl = peerConnectionImplFirefox;
             } else if (window.webkitRTCPeerConnection) {
                 this.CHUNK_SIZE = 750;
