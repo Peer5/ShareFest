@@ -2,6 +2,8 @@
     client = function (wsServerUrl) {
         this.clientId;
         this.peerConnections = {};
+        this.requestThresh; //how many chunk till new request
+        this.numOfChunksToAllocate;
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
         this.CHUNK_EXPIRATION_TIMEOUT = 2000;
@@ -11,21 +13,29 @@
         this.registerEvents();
         this.chunks = {};// <id, arrybuffer>
         this.numOfChunksInFile;
+        this.BW_INTERVAL = 500;
+        this.lastCycleTime = Date.now();
         this.numOfChunksReceived = 0;
         this.hasEntireFile = false;
         this.incomingChunks = {}; //<peerId , numOfChunks>
-        this.requestThresh = 70; //how many chunk till new request
-        this.numOfChunksToAllocate = 95;
         this.missingChunks = [];
         this.pendingChunks = [];
+        this.lastCycleUpdateSizeInBytes = 0;
+        this.firstTime = true;
+        this.startTime;
+        this.totalAvarageBw;
     };
 
     client.prototype = {
         configureBrowserSpecific:function () {
             if (window.mozRTCPeerConnection) {
-                this.CHUNK_SIZE = 50000;
+                this.requestThresh = 15; //how many chunk till new request
+                this.numOfChunksToAllocate = 30;
+                this.CHUNK_SIZE = 5000;
                 this.peerConnectionImpl = peerConnectionImplFirefox;
             } else if (window.webkitRTCPeerConnection) {
+                this.requestThresh = 70; //how many chunk till new request
+                this.numOfChunksToAllocate = 95;
                 this.CHUNK_SIZE = 750;
                 this.peerConnectionImpl = peerConnectionImplChrome;
             }
@@ -67,10 +77,41 @@
         },
 
         updateProgress:function () {
+            if(this.firstTime){
+                this.startTime = Date.now();
+                this.firstTime = false;
+            }
             var percentage = this.numOfChunksReceived / this.numOfChunksInFile;
-            radio('downloadProgress').broadcast(percentage * 100);
+            var currentProgressUpdateSizeInSize = this.numOfChunksReceived * this.CHUNK_SIZE; //in bytes
+            var rate;
+
+            var currentTime = Date.now();
+            var cycleDuration = currentTime - this.lastCycleTime;
+            var cycleSize = this.numOfChunksReceived * this.CHUNK_SIZE - this.lastCycleUpdateSizeInBytes
+
+            if (cycleDuration > this.BW_INTERVAL) {
+                rate = this.calcBwInKbps(cycleDuration / 1000, cycleSize);
+                this.lastCycleTime = currentTime
+                this.lastCycleUpdateSizeInBytes = this.numOfChunksReceived * this.CHUNK_SIZE;
+            }
+
+            if(this.numOfChunksReceived == this.numOfChunksInFile){
+                this.totalAvarageBw =  this.calcBwInKbps((currentTime - this.startTime)/1000 , this.numOfChunksInFile*this.CHUNK_SIZE)
+            }
+
+            /*if(this.numOfChunksReceived*this.CHUNK_SIZE - this.lastProgressUpdateSizeInSize > 50000){
+             rate = this.calcBwInKbps()
+             }*/
+
+
+            radio('downloadProgress').broadcast(percentage * 100, rate , this.totalAvarageBw);
+
+
         },
 
+        calcBwInKbps:function (timeInSec, sizeInBytes) {
+            return (sizeInBytes / 1024) / timeInSec;
+        },
 
         addToPendingChunks:function (chunksIds, peerId) {
             if (chunksIds.length == 0) return;
@@ -212,11 +253,3 @@
         }
     };
 })();
-//
-//var t_from_start = 0
-//function inc() {
-//    if (document.getElementById('tt')) {
-//        document.getElementById('tt').innerText = t_from_start++
-//    }
-//}
-//setInterval(inc, 1000);

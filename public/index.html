@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
     <title>Sharefest</title>
     <!-- Bootstrap -->
@@ -33,10 +33,29 @@
                 updateList(room_files);
             }, null]);
 
-            radio('downloadProgress').subscribe([function (percent) {
+            radio('downloadProgress').subscribe([function (percent, bw, totalBW) {
                 var prog = document.getElementById('progress');
                 var progDiv = document.getElementById('progressbar');
                 var per = document.getElementById('percent');
+                var rateDiv = document.getElementById('rate');
+                var bwPresenter = document.getElementById('bandwidthPresenter');
+                if (bw) {
+                    if (bw >= 1024) {
+                        rateDiv.textContent = (((bw / 1024).toFixed(1))).toString() + 'MByte|sec';
+                    } else {
+                        rateDiv.textContent = (((bw).toFixed(1))).toString() + 'KByte|sec';
+                    }
+                }
+
+                if (totalBW) {
+                    bwPresenter.textContent = 'Total Download Bandwidth';
+                    if (totalBW >= 1024) {
+                        rateDiv.textContent = (((totalBW / 1024).toFixed(1))).toString() + 'MByte|sec';
+                    } else {
+                        rateDiv.textContent = (((totalBW).toFixed(1))).toString() + 'KByte|sec';
+                    }
+
+                }
 
                 if (prog.hidden) {
                     prog.hidden = false;
@@ -44,7 +63,8 @@
                 }
 
                 prog.value = percent;
-                per.innerText = Math.floor(percent.toString()) + '%';
+                per.textContent = Math.floor(percent.toString()) + '%';
+
 
             }, null]);
         });
@@ -156,7 +176,7 @@
     </div>
 </div>
 
-<div class="container" >
+<div class="container">
     <h1></h1>
 
     <div class="dragdrop text-pretty" id="dropbox" onClick="$('#files').click()">
@@ -165,9 +185,13 @@
             <br/>
             <span id='box-text'>Just drag any file here, and start sharing immediately!</span>
 
-        <span id="progressbar" hidden="true" >
+        <span id="progressbar" hidden="true">
             <progress id="progress" hidden="true" value="0" max="100"></progress>
             <p id="percent" style="display: inline;"></p>
+            </br>
+            <p id="bandwidthPresenter" style="display: inline;">Download Rate: </p>
+            <p id="rate" style="display: inline;"></p>
+
         </span>
         </div>
 
