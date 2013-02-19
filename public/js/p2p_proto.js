@@ -10,7 +10,7 @@
     }
 
     var encode = function(cmdObj) {
-        return btoa(JSON.stringify(cmdObj));
+        return JSON.stringify(cmdObj);
     }
 
     proto64 = {};
@@ -40,7 +40,7 @@
     }
 
     proto64.decode = function(encoded) {
-        return JSON.parse(atob(encoded));
+        return JSON.parse(encoded);
     }
 
 })();
