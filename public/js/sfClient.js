@@ -130,6 +130,7 @@
                 if (tempChunks >= this.numOfChunksToAllocate)
                     break;
             }
+            this.numOfChunksToAllocate++;
             this.incomingChunks[targetId] += chunkIds.length;
             this.addToPendingChunks(chunkIds, targetId);
             this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds));
@@ -176,6 +177,7 @@
                 for (var i = 0; i < chunksIds.length; i++) {
                     var chunkId = chunksIds[i];
                     if (chunkId in thi$.pendingChunks) {
+                        thi$.numOfChunksToAllocate = 50;
                         console.log('expiring chunk ' + chunkId);
                         // let's expire this chunk
                         delete thi$.pendingChunks[chunkId];
@@ -183,7 +185,7 @@
                         thi$.incomingChunks[peerId]--;
                     }
                 }
-
+//                console.log(thi$.numOfChunksToAllocate);
                 if (thi$.incomingChunks[peerId] < thi$.requestThresh) {
                     thi$.requestChunks(peerId);
                 }
