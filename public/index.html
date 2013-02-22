@@ -27,6 +27,10 @@
                 return;
             }
 
+            if (document.location.pathname == '/' || document.location.pathname == '/upload' ) { // homepage
+                $('#box-text').text('Just drag any file here, and start sharing immediately!');
+            }
+
             sharefestClient = new client('ws://' + window.location.hostname);
 
             radio('receivedRoomMetadata').subscribe([function (room_files) {
@@ -72,8 +76,18 @@
         function updateList(files) {
             $('#box-text').text(listFiles(files));
             $('.dragdrop').css('opacity', 0.95);
+            $('.dragdrop')[0].style.borderStyle = 'solid';
+            $('.dragdrop')[0].style.borderWidth = '5px';
+//            $('.dragdrop')[0].style.borderColor = '#FFFFFF';
+
+            $('.dragdrop')[0].onclick = '';
+
+            disableDrag();
+
+
         }
         function addFiles(files) {
+            $('#box-text').text('Loading...');
             var file = files[0]; // FileList object
             var reader = new FileReader();
             reader.onload = (function (theFile) {
@@ -183,7 +197,7 @@
         <canvas id="cnvs" style="height: 0px"></canvas>
         <div><img id="logo" src="img/logo.png"/>
             <br/>
-            <span id='box-text'>Just drag any file here, and start sharing immediately!</span>
+            <span id='box-text'>Loading</span>
 
         <span id="progressbar" hidden="true">
             <progress id="progress" hidden="true" value="0" max="100"></progress>

@@ -22,6 +22,16 @@ $(document).ready(function () {
 //	$("#progressbar").progressbar();
 });
 
+
+function disableDrag() {
+    var dropbox = document.getElementById("dropbox")
+
+    dropbox.removeEventListener("dragenter", dragEnter);
+    dropbox.removeEventListener("dragexit", dragExit);
+    dropbox.removeEventListener("dragover", dragOver);
+    dropbox.removeEventListener("drop", drop);
+}
+
 function dragEnter(evt) {
     evt.stopPropagation();
     evt.preventDefault();
