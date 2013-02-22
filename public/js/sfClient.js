@@ -6,7 +6,7 @@
         this.numOfChunksToAllocate;
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
-        this.CHUNK_EXPIRATION_TIMEOUT = 2000;
+        this.CHUNK_EXPIRATION_TIMEOUT = 2000 ;
         this.peerConnectionImpl;
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);

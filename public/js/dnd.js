@@ -1,41 +1,44 @@
-window.addEventListener("dragover",function(e){
+window.addEventListener("dragover", function (e) {
     e = e || event;
     e.dataTransfer.dropEffect = 'none';
     e.preventDefault();
-},false);
-window.addEventListener("drop",function(e){
+}, false);
+window.addEventListener("drop", function (e) {
     e = e || event;
     e.dataTransfer.dropEffect = 'none';
     e.preventDefault();
-},false);
+}, false);
 
-$(document).ready(function() {
-	var dropbox = document.getElementById("dropbox")
+$(document).ready(function () {
+    var dropbox = document.getElementById("dropbox")
 
-	// init event handlers
-	dropbox.addEventListener("dragenter", dragEnter, false);
-	dropbox.addEventListener("dragexit", dragExit, false);
-	dropbox.addEventListener("dragover", dragOver, false);
-	dropbox.addEventListener("drop", drop, false);
+    // init event handlers
+    dropbox.addEventListener("dragenter", dragEnter, false);
+    dropbox.addEventListener("dragexit", dragExit, false);
+    dropbox.addEventListener("dragover", dragOver, false);
+    dropbox.addEventListener("drop", drop, false);
 
-	// init the widgets
+    // init the widgets
 //	$("#progressbar").progressbar();
 });
 
 function dragEnter(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
+    evt.stopPropagation();
+    evt.preventDefault();
     $('.dragdrop')[0].style.opacity = 0.9;
+    $('.dragdrop')[0].style.borderStyle = 'dashed';
+    $('.dragdrop')[0].style.borderWidth = '5px';
 
-    var x =  0;
+
+    var x = 0;
     var y = 15;
     var speed = 5;
 
     function animate() {
 
-        reqAnimFrame = window.mozRequestAnimationFrame    ||
+        reqAnimFrame = window.mozRequestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
-            window.msRequestAnimationFrame     ||
+            window.msRequestAnimationFrame ||
             window.oRequestAnimationFrame
         ;
 
@@ -43,7 +46,7 @@ function dragEnter(evt) {
 
         x += speed;
 
-        if(x <= 0 || x >= 475){
+        if (x <= 0 || x >= 475) {
             speed = -speed;
         }
 
@@ -52,7 +55,7 @@ function dragEnter(evt) {
 
 
     function draw() {
-        var canvas  = document.getElementById("cnvs");
+        var canvas = document.getElementById("cnvs");
         var context = canvas.getContext("2d");
 
         context.clearRect(0, 0, 500, 170);
@@ -65,29 +68,35 @@ function dragEnter(evt) {
 }
 
 function dragExit(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
+    evt.stopPropagation();
+    evt.preventDefault();
     $('.dragdrop')[0].style.opacity = 0.8;
+    $('.dragdrop')[0].style.borderStyle = 'solid';
+    $('.dragdrop')[0].style.borderWidth = '2px';
 }
 
 function dragOver(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
+    evt.stopPropagation();
+    evt.preventDefault();
 }
 
 function drop(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
+    evt.stopPropagation();
+    evt.preventDefault();
 
-	var files = evt.dataTransfer.files;
+    var files = evt.dataTransfer.files;
     console.log(files);
-	var count = files.length;
+    var count = files.length;
 
-	// Only call the handler if 1 or more files was dropped.
+    // Only call the handler if 1 or more files was dropped.
     addFiles(files);
 
     if (count > 0)
-		handleFiles(files);
+        handleFiles(files);
+    else {
+        $('.dragdrop')[0].style.borderStyle = 'solid';
+        $('.dragdrop')[0].style.borderWidth = '2px';
+    }
 }
 
 
@@ -106,16 +115,16 @@ function handleFiles(files) {
 }
 
 function handleReaderProgress(evt) {
-	if (evt.lengthComputable) {
-		var loaded = (evt.loaded / evt.total);
+    if (evt.lengthComputable) {
+        var loaded = (evt.loaded / evt.total);
 
 //		$("#progressbar").progressbar({ value: loaded * 100 });
-	}
+    }
 }
 
 function handleReaderLoadEnd(evt) {
 //	$("#progressbar").progressbar({ value: 100 });
 
-	var img = document.getElementById("preview");
-	img.src = evt.target.result;
+    var img = document.getElementById("preview");
+    img.src = evt.target.result;
 }

@@ -21,7 +21,8 @@ test it out at: http://sharefest.peer5.com
 
 TODO:
 =====
-* add file type when saving the file
+* local storage
+* see issues - https://github.com/Peer5/ShareFest/issues
 
 History
 =======
