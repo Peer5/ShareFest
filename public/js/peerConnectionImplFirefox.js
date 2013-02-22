@@ -5,6 +5,8 @@
         this.targetId = targetId;
         this.peerConnection;
         this.dataChannel;
+        this.secondaryDataChannel;
+        this.secondaryDataChannel2;
         //pseudo ports for connectDataConnection() - will be deperecated soon.
         this.offererPort;
         this.answererPort;
@@ -83,7 +85,8 @@
             this.peerConnection.onaddstream = this.onaddstream;
             this.peerConnection.onconnection = function () {
                 console.log("pc1 onconnection");
-
+                if(thi$.dataChannel)
+                    thi$.secondarydataChannel2 = thi$.dataChannel;
                 thi$.dataChannel = thi$.peerConnection.createDataChannel("This is pc1", {}); // reliable (TCP-like)
 //                thi$.dataChannel = thi$.peerConnection.createDataChannel("This is pc1", {outOfOrderAllowed: true, maxRetransmitNum: 0}); // reliable (TCP-like)
                 //            channel = pc.createDataChannel("This is pc1",{outOfOrderAllowed: true, maxRetransmitNum: 0});
@@ -95,6 +98,8 @@
 
                 // There's a race condition with onopen; if the channel is already
                 // open it should fire after onDataChannel -- state should normally be 0 here
+                if(thi$.dataChannel)
+                    thi$.secondaryDataChannel = thi$.dataChannel;
                 thi$.dataChannel = channel;
                 thi$.setupChannel("Hello out there.");
                 if (thi$.dataChannel.readyState !== 0) {

@@ -36,7 +36,7 @@
             } else if (window.webkitRTCPeerConnection) {
                 this.requestThresh = 70; //how many chunk till new request
                 this.numOfChunksToAllocate = 95;
-                this.CHUNK_SIZE = 750;
+                this.CHUNK_SIZE = 1000;
                 this.peerConnectionImpl = peerConnectionImplChrome;
             }
         },
@@ -130,7 +130,6 @@
                 if (tempChunks >= this.numOfChunksToAllocate)
                     break;
             }
-            this.numOfChunksToAllocate++;
             this.incomingChunks[targetId] += chunkIds.length;
             this.addToPendingChunks(chunkIds, targetId);
             this.peerConnections[targetId].send(proto64.need(this.clientId, 1, 1, chunkIds));
@@ -174,10 +173,11 @@
              * @param chunksIds that might still be pending
              */
             this.expireChunks = function (chunksIds, peerId) {
+                var expire = false;
                 for (var i = 0; i < chunksIds.length; i++) {
                     var chunkId = chunksIds[i];
                     if (chunkId in thi$.pendingChunks) {
-                        thi$.numOfChunksToAllocate = 50;
+                        expire = true;
                         console.log('expiring chunk ' + chunkId);
                         // let's expire this chunk
                         delete thi$.pendingChunks[chunkId];
@@ -185,6 +185,13 @@
                         thi$.incomingChunks[peerId]--;
                     }
                 }
+                //flow-control: currently this mechanism isn't very effective
+//                if(expire){
+//                    console.log("numOfChunksToAllocate: " + thi$.numOfChunksToAllocate);
+//                    thi$.numOfChunksToAllocate = thi$.numOfChunksToAllocate/1.3;
+//                }else{
+//                    thi$.numOfChunksToAllocate++;
+//                }
 //                console.log(thi$.numOfChunksToAllocate);
                 if (thi$.incomingChunks[peerId] < thi$.requestThresh) {
                     thi$.requestChunks(peerId);
