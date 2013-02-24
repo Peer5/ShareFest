@@ -2,8 +2,8 @@ var socketio = require('socket.io');
 var io;
 var url = require('url');
 var matcher = require('./matcher.js');
-var proto = require('./public/shared/protocol.js');
-var util = require('./util.js');
+var proto = require('./../../public/shared/protocol.js');
+var util = require('./../../util.js');
 //var rooms = require('rooms.js');
 
 exports.start = function (server) {
@@ -85,10 +85,9 @@ exports.start = function (server) {
             if (socket.room) {
 
                 socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);
-                //TODO: get real size from room
-                socket.broadcast.emit('size', result.size);
                 socket.leave(socket.room);
-                matcher.leave(socket.room, socket.id);
+                var size = matcher.leave(socket.room, socket.id);
+                socket.broadcast.emit('size', size);
             } else {
                 console.warn('socket room is undefined');
             }

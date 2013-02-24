@@ -1,4 +1,4 @@
-var util = require('./util.js');
+var util = require('./../../util.js');
 // an in memory placeholder for the rooms
 var rooms = {};
 

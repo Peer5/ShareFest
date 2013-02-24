@@ -24,4 +24,5 @@ exports.leave = function (swarmId, peerId) {
     if (room) {
         room.removePeer(peerId);
     }
+    return room.getCount();
 }
