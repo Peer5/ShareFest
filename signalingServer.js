@@ -25,8 +25,10 @@ exports.start = function (server) {
             socket.join(socket.room);
 
             var result = matcher.join(socket.room, socket.id);
-            socket.emit('files', result.metadata);
+            socket.emit('files', result);
             socket.emit('match', new proto.Match(result.peers))
+            socket.emit('size', result.size);
+            socket.broadcast.emit('size', result.size);
         }
 
         //TODO: notify other peers about this match (more secured)

@@ -16,9 +16,14 @@
             thi$.socket.on('created', function (msg) {
                 radio('roomReady').broadcast(msg);
             });
+
+            thi$.socket.on('size', function (size) {
+                radio('roomSizedChanged').broadcast(size);
+            });
+
             thi$.socket.on('files', function (files) {
                 if (files) {
-                    radio('receivedRoomMetadata').broadcast(files);
+                    radio('receivedRoomMetadata').broadcast(files.metadata);
                 } else {
                     radio('roomNotFound').broadcast();
                 }

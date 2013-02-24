@@ -10,6 +10,10 @@ function Room(id, metadata) {
 }
 
 Room.prototype = {
+    getCount:function() {
+        return this.count;
+    },
+
     getMetadata:function () {
         return this.metadata;
     },

@@ -40,3 +40,10 @@ h1 {
     bottom: 10px;
     position: absolute;
 }
+
+#countWrapper {
+    font-size: 0.8em;
+    /*position: absolute;*/
+    /*left: 58px;*/
+    /*top: 705px;*/
+}
