@@ -6,7 +6,7 @@
         this.numOfChunksToAllocate;
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
-        this.CHUNK_EXPIRATION_TIMEOUT = 2000 ;
+        this.CHUNK_EXPIRATION_TIMEOUT = 2000;
         this.peerConnectionImpl;
         this.dataChannels = {};
         this.initiateClient(wsServerUrl);
@@ -77,7 +77,7 @@
         },
 
         updateProgress:function () {
-            if(this.firstTime){
+            if (this.firstTime) {
                 this.startTime = Date.now();
                 this.firstTime = false;
             }
@@ -95,8 +95,8 @@
                 this.lastCycleUpdateSizeInBytes = this.numOfChunksReceived * this.CHUNK_SIZE;
             }
 
-            if(this.numOfChunksReceived == this.numOfChunksInFile){
-                this.totalAvarageBw =  this.calcBwInKbps((currentTime - this.startTime)/1000 , this.numOfChunksInFile*this.CHUNK_SIZE)
+            if (this.numOfChunksReceived == this.numOfChunksInFile) {
+                this.totalAvarageBw = this.calcBwInKbps((currentTime - this.startTime) / 1000, this.numOfChunksInFile * this.CHUNK_SIZE)
             }
 
             /*if(this.numOfChunksReceived*this.CHUNK_SIZE - this.lastProgressUpdateSizeInSize > 50000){
@@ -104,7 +104,7 @@
              }*/
 
 
-            radio('downloadProgress').broadcast(percentage * 100, rate , this.totalAvarageBw);
+            radio('downloadProgress').broadcast(percentage * 100, rate, this.totalAvarageBw);
 
 
         },

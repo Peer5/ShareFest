@@ -11,9 +11,15 @@ exports.start = function (server) {
     matcher.addRoom(null, '/test', {meta:'data'});
     io.on('connection', function (socket) {
         var pathname = url.parse(socket.handshake.headers.referer).pathname;
-        if (!io.rooms[pathname] && pathname != '/test') {
-            //no room found!
-            console.warn(pathname + ' room id not found');
+        var uploadPath = {'/upload':true, '/':true}
+        if (!io.rooms[pathname]) {
+            if (uploadPath[pathname] == true) {
+                console.log('uploader entered');
+            } else {
+                //no room found!
+                console.warn(pathname + ' room id not found');
+                socket.emit('files', null);
+            }
         } else {
             socket.room = pathname.substr(1);
             socket.join(socket.room);
