@@ -7,7 +7,7 @@
     WsConnection.prototype = {
         initiateWebSocket:function (wsServerUrl) {
             var thi$ = this;
-            this.socket = io.connect(wsServerUrl);
+            this.socket = io.connect(wsServerUrl,{'connect timeout': 1500});
             console.log('new websocket');
 
             thi$.socket.on('disconnect', function () {
