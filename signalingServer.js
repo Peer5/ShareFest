@@ -85,6 +85,8 @@ exports.start = function (server) {
             if (socket.room) {
 
                 socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);
+                //TODO: get real size from room
+                socket.broadcast.emit('size', result.size);
                 socket.leave(socket.room);
                 matcher.leave(socket.room, socket.id);
             } else {

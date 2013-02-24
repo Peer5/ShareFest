@@ -18,6 +18,7 @@ exports.addRoom = function (firstPeerId, swarmId, metadata) {
     rooms.addRoom(swarmId, metadata).addPeer(firstPeerId);
 }
 
+
 exports.leave = function (swarmId, peerId) {
     var room = rooms.getRoom(swarmId);
     if (room) {
