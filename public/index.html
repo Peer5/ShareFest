@@ -1,168 +1,225 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
-    <title>Sharefest</title>
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Courgette' rel='stylesheet' type='text/css'>
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/sfClient.js"></script>
-    <script src="js/peerConnectionImplChrome.js"></script>
-    <script src="js/test_functions.js"></script>
-    <script src="js/util.js"></script>
-    <script src="js/p2p_proto.js"></script>
-    <script src="shared/radio.min.js"></script>
-    <script src="js/peerConnectionImplFirefox.js"></script>
-    <script src="shared/protocol.js"></script>
-    <script type="text/javascript" src="./socket.io/socket.io.js"></script>
-    <script src="js/wsConnection.js"></script>
-    <script src="js/base64-arraybuffer.js"></script>
-    <script src="js/apiValidator.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            var validator = new ApiValidator();
-            if (!validator.validateBrowser()) {
-                document.location = '/browser';
-                return;
+<title>Sharefest</title>
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/main.css" rel="stylesheet">
+<link href='http://fonts.googleapis.com/css?family=Courgette' rel='stylesheet' type='text/css'>
+<script src="js/jquery.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/sfClient.js"></script>
+<script src="js/peerConnectionImplChrome.js"></script>
+<script src="js/test_functions.js"></script>
+<script src="js/util.js"></script>
+<script src="js/p2p_proto.js"></script>
+<script src="shared/radio.min.js"></script>
+<script src="js/peerConnectionImplFirefox.js"></script>
+<script src="shared/protocol.js"></script>
+<script type="text/javascript" src="./socket.io/socket.io.js"></script>
+<script src="js/wsConnection.js"></script>
+<script src="js/base64-arraybuffer.js"></script>
+<script src="js/apiValidator.js"></script>
+
+
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-30916189-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+<!-- sharethis -->
+<!--<script type="text/javascript">var switchTo5x=true;</script>-->
+<!--<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>-->
+<!--<script type="text/javascript">stLight.options({publisher: "cce760f3-9146-42dc-985d-ab6d5f686266", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>-->
+<!-- sharethis -->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var validator = new ApiValidator();
+        if (!validator.validateBrowser()) {
+            document.location = '/browser';
+            return;
+        }
+
+        if (document.location.pathname == '/' || document.location.pathname == '/upload') { // homepage
+            $('#box-text').text('Just drag any file here, and start sharing immediately!');
+        } else {
+            startNonsense();
+        }
+
+        function showLink() {
+            $('#shareURLBox').show();
+            $('#shareURLBox').text(document.location.href);
+            $('#shareURLBox')[0].href = document.location.href;
+        }
+
+        radio('roomReady').subscribe([function (url) {
+            history.pushState({}, url, url)
+
+
+            $('#box-text').append('is ready to be shared!' + '<br>');
+            $('#box-text').append('Post this URL to get people in: ');
+            showLink();
+            //update the navigation stack
+        }, this])
+
+        sharefestClient = new client('ws://' + window.location.hostname);
+
+        radio('roomNotFound').subscribe([function () {
+            stopNonsense();
+            $('#box-text').text('Room ' + location.pathname + ' Not found!');
+        }, null])
+
+        radio('roomSizedChanged').subscribe([function (size) {
+            $('#countWrapper').show();
+            $('#countValue').text(size);
+        }, null]);
+        radio('receivedRoomMetadata').subscribe([function (room_files) {
+            stopNonsense();
+            updateList(room_files);
+        }, null]);
+
+        radio('downloadProgress').subscribe([function (percent, bw, totalBW) {
+            var prog = document.getElementById('progress');
+            var progDiv = document.getElementById('progressbar');
+            var per = document.getElementById('percent');
+            var rateDiv = document.getElementById('rate');
+            var bwPresenter = document.getElementById('bandwidthPresenter');
+            if (bw) {
+                if (bw >= 1024) {
+                    rateDiv.textContent = (((bw / 1024).toFixed(1))).toString() + 'MB/s';
+                } else {
+                    rateDiv.textContent = (((bw).toFixed(1))).toString() + 'KB/s';
+                }
             }
 
-            if (document.location.pathname == '/' || document.location.pathname == '/upload' ) { // homepage
-                $('#box-text').text('Just drag any file here, and start sharing immediately!');
+
+            if (prog.hidden) {
+                prog.hidden = false;
+                progDiv.hidden = false;
             }
 
-            sharefestClient = new client('ws://' + window.location.hostname);
 
-            radio('receivedRoomMetadata').subscribe([function (room_files) {
-                updateList(room_files);
-            }, null]);
+            prog.value = percent;
+            per.textContent = Math.floor(percent.toString()) + '%';
 
-            radio('downloadProgress').subscribe([function (percent, bw, totalBW) {
-                var prog = document.getElementById('progress');
-                var progDiv = document.getElementById('progressbar');
-                var per = document.getElementById('percent');
-                var rateDiv = document.getElementById('rate');
-                var bwPresenter = document.getElementById('bandwidthPresenter');
-                if (bw) {
-                    if (bw >= 1024) {
-                        rateDiv.textContent = (((bw / 1024).toFixed(1))).toString() + 'MByte|sec';
-                    } else {
-                        rateDiv.textContent = (((bw).toFixed(1))).toString() + 'KByte|sec';
-                    }
+            // only in the end
+            if (totalBW) {
+                prog.hidden = true;
+                per.textContent = 'was downloaded at ';
+
+                bwPresenter.textContent = '';
+                if (totalBW >= 1024) {
+                    per.textContent += (((totalBW / 1024).toFixed(1))).toString() + 'MB/s';
+                } else {
+                    per.textContent += (((totalBW).toFixed(1))).toString() + 'KB/s';
                 }
 
-                if (totalBW) {
-                    bwPresenter.textContent = 'Total Download Bandwidth';
-                    if (totalBW >= 1024) {
-                        rateDiv.textContent = (((totalBW / 1024).toFixed(1))).toString() + 'MByte|sec';
-                    } else {
-                        rateDiv.textContent = (((totalBW).toFixed(1))).toString() + 'KByte|sec';
-                    }
+                rate.textContent = '';
+                showLink();
+                $('#secondDesc').html('Thank you for Sharefesting!<br>Please stay and help sharing ');
 
-                }
+//                    rate.html('You can <a href="/">Upload something else</a> now');
 
-                if (prog.hidden) {
-                    prog.hidden = false;
-                    progDiv.hidden = false;
-                }
-
-                prog.value = percent;
-                per.textContent = Math.floor(percent.toString()) + '%';
+            }
 
 
-            }, null]);
-        });
+        }, null]);
+    });
 
-        function updateList(files) {
-            $('#box-text').text(listFiles(files));
-            $('.dragdrop').css('opacity', 0.95);
-            $('.dragdrop')[0].style.borderStyle = 'solid';
-            $('.dragdrop')[0].style.borderWidth = '5px';
+    function updateList(files) {
+
+//            $('#logo').hide();
+        $('#box-text').html(listFiles(files));
+
+        $('.dragdrop').css('opacity', 0.95);
+        $('.dragdrop')[0].style.borderStyle = 'solid';
+        $('.dragdrop')[0].style.borderWidth = '5px';
 //            $('.dragdrop')[0].style.borderColor = '#FFFFFF';
 
-            $('.dragdrop')[0].onclick = '';
+        $('#sharethis').css('opacity', 0.95);
 
-            disableDrag();
+        disableDrag();
+        $('.dragdrop')[0].onclick = '';
 
 
+    }
+
+    var stupidMessage =
+            ['Still loading',
+                'Making some more coffee',
+                'Watching my plants grow',
+                'Trying to solve Goldbach problem',
+                'Creating some random js code',
+                'Waiting for something to happen',
+                'Abracadabra',
+                'Come on',
+                'Sorry!',
+                'Sorry!!',
+                'Sorry!!!'];
+
+
+    var stupidMsgId;
+    function describeNonsense() {
+        $('#box-text').text(stupidMessage[stupidMsgId++] + '...');
+    }
+
+    var nonsenseId;
+    function startNonsense() {
+        stupidMsgId = 0
+        nonsenseId = setInterval(describeNonsense, 2000);
+    }
+
+    function stopNonsense() {
+        clearInterval(nonsenseId);
+    }
+
+
+    function addFiles(files) {
+        var file = files[0]; // FileList object
+        var reader = new FileReader();
+        $('#box-text').text('reading ' + file.name + '...');
+        startNonsense();
+        reader.onload = (function (theFile) {
+            return function (e) {
+                stopNonsense();
+                sharefestClient.addFile(e.target.result);
+                updateList(files);
+
+                //TODO: fix for multiple files
+                meta0 = {};
+                meta0.numOfChunks = sharefestClient.numOfChunksInFile;
+                meta0.size = files[0].size;
+                meta0.name = files[0].name;
+                meta0.lastModifiedDate = files[0].lastModifiedDate;
+                meta0.type = files[0].type;
+                sharefestClient.ws.upload([meta0]);
+            };
+        })(file);
+        reader.readAsDataURL(file);
+    }
+
+    function listFiles(files) {
+        var str = '';
+        for (var i = 0; i < files.length; i++) {
+            var entry = files[i];
+            str += entry.name + ' (' + bytesToSize(entry.size) + ') ';
         }
-        function addFiles(files) {
-            $('#box-text').text('Loading...');
-            var file = files[0]; // FileList object
-            var reader = new FileReader();
-            reader.onload = (function (theFile) {
-                return function (e) {
-                    sharefestClient.addFile(e.target.result);
-                    updateList(files);
-
-                    //TODO: fix for multiple files
-                    meta0 = {};
-                    meta0.numOfChunks = sharefestClient.numOfChunksInFile;
-                    meta0.size = files[0].size;
-                    meta0.name = files[0].name;
-                    meta0.lastModifiedDate = files[0].lastModifiedDate;
-                    meta0.type = files[0].type;
-                    sharefestClient.ws.upload([meta0]);
-                };
-            })(file);
-            reader.readAsDataURL(file);
-        }
-
-        function listFiles(files) {
-            var str = '';
-            for (var i = 0; i < files.length; i++) {
-                var entry = files[i];
-                str += entry.name + ' ' + bytesToSize(entry.size) + '\n';
-            }
-            return str;
-        }
-    </script>
-    <style>
-        body {
-            padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-            font-family: "Courgette";
-        }
-
-        .text-pretty {
-            font-size: 1.5em;
-        }
-
-        h3 {
-            font-size: 24px;
-        }
-
-        h1 {
-            font-family: 'Courgette', 'IM Fell English', serif;
-            font-size: 5em;
-        }
-
-        .dragdrop {
-            padding-top: 260px;
-            width: 900px;
-            height: 400px;
-            border: solid #000000;
-            line-height: 50px;
-            text-align: center;
-            font-weight: bold;
-            background-color: #FFFFFF;
-            opacity: 0.8;
-
-        }
-
-        .bg {
-            background-image: url('img/1.jpg');
-        }
-
-        .info {
-            right: 10px;
-            float: right;
-            clear: both;
-            bottom: 10px;
-            position: absolute;
-        }
-
-    </style>
-    <script type="text/javascript" src="js/dnd.js"></script>
+        return str;
+    }
+</script>
+<script type="text/javascript" src="js/dnd.js"></script>
 </head>
 <body class="bg">
 <a href="https://github.com/peer5/sharefest"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"
@@ -183,6 +240,8 @@
                     <li class="active"><a href="/">Sharefest</a></li>
                     <li><a href="/about">About</a></li>
                     <li><a href="/contact">Contact</a></li>
+                    <li><a href="/about">How it works</a></li>
+                    <li><a href="/upload">Upload file</a></li>
                 </ul>
             </div>
             <!--/.nav-collapse -->
@@ -193,11 +252,11 @@
 <div class="container">
     <h1></h1>
 
-    <div class="dragdrop text-pretty" id="dropbox" onClick="$('#files').click()">
+    <div class="dragdrop text-pretty" id="dropbox" onclick="$('#files').click()">
         <canvas id="cnvs" style="height: 0px"></canvas>
         <div><img id="logo" src="img/logo.png"/>
-            <br/>
-            <span id='box-text'>Loading</span>
+            <br>
+            <span id='box-text'>Loading...</span>
 
         <span id="progressbar" hidden="true">
             <progress id="progress" hidden="true" value="0" max="100"></progress>
@@ -206,7 +265,18 @@
             <p id="bandwidthPresenter" style="display: inline;">Download Rate: </p>
             <p id="rate" style="display: inline;"></p>
 
-        </span>
+        </span><span id="secondDesc"></span>
+            <a target="_blank" href="www.yy.com" id="shareURLBox" style="display:none"></a>
+            <span id="countWrapper" style="display: none">Currently in room: <span id="countValue" >0</span></span>
+
+            <!--<div id="sharethis">-->
+            <!--<span class='st_sharethis_large' displayText='ShareThis'></span>-->
+            <!--<span class='st_facebook_large' displayText='Facebook'></span>-->
+            <!--<span class='st_twitter_large' displayText='Tweet'></span>-->
+            <!--<span class='st_linkedin_large' displayText='LinkedIn'></span>-->
+            <!--<span class='st_pinterest_large' displayText='Pinterest'></span>-->
+            <!--<span class='st_email_large' displayText='Email'></span>-->
+            <!--</div>-->
         </div>
 
         <!--<p class="info">For more info about Sharefest, go to our-->

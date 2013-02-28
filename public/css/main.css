@@ -1,0 +1,49 @@
+body {
+    padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+    font-family: "Courgette";
+}
+
+.text-pretty {
+    font-size: 1.5em;
+}
+
+h3 {
+    font-size: 24px;
+}
+
+h1 {
+    font-family: 'Courgette', 'IM Fell English', serif;
+    font-size: 5em;
+}
+
+.dragdrop {
+    padding-top: 260px;
+    width: 900px;
+    height: 400px;
+    border: solid #000000;
+    line-height: 30px;
+    text-align: center;
+    font-weight: bold;
+    background-color: #FFFFFF;
+    opacity: 0.8;
+
+}
+
+.bg {
+    background-image: url('../img/1.jpg');
+}
+
+.info {
+    right: 10px;
+    float: right;
+    clear: both;
+    bottom: 10px;
+    position: absolute;
+}
+
+#countWrapper {
+    font-size: 0.8em;
+    /*position: absolute;*/
+    /*left: 58px;*/
+    /*top: 705px;*/
+}

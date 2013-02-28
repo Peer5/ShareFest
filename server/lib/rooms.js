@@ -1,4 +1,4 @@
-var util = require('./util.js');
+var util = require('./../../util.js');
 // an in memory placeholder for the rooms
 var rooms = {};
 
@@ -10,6 +10,10 @@ function Room(id, metadata) {
 }
 
 Room.prototype = {
+    getCount:function() {
+        return this.count;
+    },
+
     getMetadata:function () {
         return this.metadata;
     },

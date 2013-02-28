@@ -1,8 +1,8 @@
 var express = require('express');
 var app = express();
-var signaling = require('./signalingServer.js');
+var signaling = require('./server/lib/signalingServer.js');
+var router = require('./server/lib/router.js')
 var server;
-var rooms = require('./rooms.js');
 
 var allowCrossDomain = function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -27,26 +27,4 @@ app.configure('production', function () {
     signaling.start(server);
 });
 
-app.get('/browser', function (req, res) {
-    res.sendfile(__dirname + '/public/browser.html');
-});
-
-app.get('/about', function (req, res) {
-    res.redirect("https://github.com/peer5/sharefest");
-});
-
-app.get('/contact', function (req, res) {
-    res.redirect("https://github.com/peer5/sharefest");
-});
-
-
-app.get('/:id', function (req, res) {
-    var roomId = req.params.id;
-    var room = rooms.getRoom(roomId);
-//    displayRoom(room);
-
-    //todo: bind the room info to the page and output
-    res.sendfile(__dirname + '/public/index.html');
-    //res.send(room);
-});
-
+router.configure(app, __dirname);

@@ -14,10 +14,20 @@
                 //thi$.socket.removeAllListeners();
             });
             thi$.socket.on('created', function (msg) {
-                history.pushState({}, msg, msg)
+                radio('roomReady').broadcast(msg);
             });
+
+            thi$.socket.on('size', function (size) {
+                radio('roomSizedChanged').broadcast(size);
+            });
+
             thi$.socket.on('files', function (files) {
-                radio('receivedRoomMetadata').broadcast(files);
+                if (files) {
+                    radio('receivedRoomMetadata').broadcast(files.metadata);
+                } else {
+                    radio('roomNotFound').broadcast();
+                }
+
             });
             thi$.socket.on('message', function (msg) {
                 console.log(msg);

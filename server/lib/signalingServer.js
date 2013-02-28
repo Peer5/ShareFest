@@ -2,8 +2,8 @@ var socketio = require('socket.io');
 var io;
 var url = require('url');
 var matcher = require('./matcher.js');
-var proto = require('./public/shared/protocol.js');
-var util = require('./util.js');
+var proto = require('./../../public/shared/protocol.js');
+var util = require('./../../util.js');
 //var rooms = require('rooms.js');
 
 exports.start = function (server) {
@@ -11,16 +11,24 @@ exports.start = function (server) {
     matcher.addRoom(null, '/test', {meta:'data'});
     io.on('connection', function (socket) {
         var pathname = url.parse(socket.handshake.headers.referer).pathname;
-        if (!io.rooms[pathname] && pathname != '/test') {
-            //no room found!
-            console.warn(pathname + ' room id not found');
+        var uploadPath = {'/upload':true, '/':true}
+        if (!io.rooms[pathname]) {
+            if (uploadPath[pathname] == true) {
+                console.log('uploader entered');
+            } else {
+                //no room found!
+                console.warn(pathname + ' room id not found');
+                socket.emit('files', null);
+            }
         } else {
             socket.room = pathname.substr(1);
             socket.join(socket.room);
 
             var result = matcher.join(socket.room, socket.id);
-            socket.emit('files', result.metadata);
+            socket.emit('files', result);
             socket.emit('match', new proto.Match(result.peers))
+            socket.emit('size', result.size);
+            socket.broadcast.emit('size', result.size);
         }
 
         //TODO: notify other peers about this match (more secured)
@@ -78,7 +86,8 @@ exports.start = function (server) {
 
                 socket.broadcast.to(socket.room).emit('message', 'bye from ' + socket.id);
                 socket.leave(socket.room);
-                matcher.leave(socket.room, socket.id);
+                var size = matcher.leave(socket.room, socket.id);
+                socket.broadcast.emit('size', size);
             } else {
                 console.warn('socket room is undefined');
             }

@@ -22,6 +22,8 @@ test it out at: http://sharefest.peer5.com
 TODO:
 =====
 * local storage
+* RESTful API
+* tests
 * see issues - https://github.com/Peer5/ShareFest/issues
 
 History

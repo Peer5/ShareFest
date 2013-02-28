@@ -11,16 +11,18 @@ exports.join = function (swarmId, peerId) {
     if (!room) return;
     var peers = room.getRandomK(MAX_PEERS_MATCH);
     room.addPeer(peerId);
-    return {peers:peers, metadata:room.getMetadata()};
+    return {peers:peers, size: room.getCount(), metadata:room.getMetadata()};
 }
 
 exports.addRoom = function (firstPeerId, swarmId, metadata) {
     rooms.addRoom(swarmId, metadata).addPeer(firstPeerId);
 }
 
+
 exports.leave = function (swarmId, peerId) {
     var room = rooms.getRoom(swarmId);
     if (room) {
         room.removePeer(peerId);
     }
+    return room.getCount();
 }
