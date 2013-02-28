@@ -4,6 +4,7 @@
         this.peerConnections = {};
         this.requestThresh; //how many chunk till new request
         this.numOfChunksToAllocate;
+        this.maxNumOfChunksToAllocate;
         this.configureBrowserSpecific();
         this.CHUNK_SIZE;//bytes
         this.CHUNK_EXPIRATION_TIMEOUT = 2000 ;
@@ -29,13 +30,15 @@
     client.prototype = {
         configureBrowserSpecific:function () {
             if (window.mozRTCPeerConnection) {
-                this.requestThresh = 15; //how many chunk till new request
-                this.numOfChunksToAllocate = 30;
-                this.CHUNK_SIZE = 5000;
+                this.requestThresh = 70; //how many chunk till new request
+                this.numOfChunksToAllocate = 95;
+                this.maxNumOfChunksToAllocate = 99;
+                this.CHUNK_SIZE = 50000;
                 this.peerConnectionImpl = peerConnectionImplFirefox;
             } else if (window.webkitRTCPeerConnection) {
                 this.requestThresh = 70; //how many chunk till new request
                 this.numOfChunksToAllocate = 95;
+                this.maxNumOfChunksToAllocate = 200;
                 this.CHUNK_SIZE = 1000;
                 this.peerConnectionImpl = peerConnectionImplChrome;
             }
@@ -186,13 +189,13 @@
                     }
                 }
                 //flow-control: currently this mechanism isn't very effective
-//                if(expire){
-//                    console.log("numOfChunksToAllocate: " + thi$.numOfChunksToAllocate);
-//                    thi$.numOfChunksToAllocate = thi$.numOfChunksToAllocate/1.3;
-//                }else{
-//                    thi$.numOfChunksToAllocate++;
-//                }
-//                console.log(thi$.numOfChunksToAllocate);
+                if(expire){
+                    console.log("numOfChunksToAllocate: " + thi$.numOfChunksToAllocate);
+                    thi$.numOfChunksToAllocate = thi$.numOfChunksToAllocate/1.3;
+                }else if(thi$.numOfChunksToAllocate < thi$.maxNumOfChunksToAllocate){
+                    thi$.numOfChunksToAllocate++;
+                }
+                console.log(thi$.numOfChunksToAllocate);
                 if (thi$.incomingChunks[peerId] < thi$.requestThresh) {
                     thi$.requestChunks(peerId);
                 }
