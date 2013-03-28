@@ -12,7 +12,7 @@ The main difference is that currently the peers are coordinated using an intelli
 This coordinator controls which parts are sent from A to B and who shall talk with whom.
 Peer5 Coordinator (or any other solution) is used to accomplish this.
 Each peer will connect to few other peers in order to maximize the distribution of the file.
-Supporting Chrome Canary (>26) and Firefox (>19)
+Supporting Chrome (>26, now stable) and Firefox (>19)
 
 First version includes a simple page that one user will drag a file to
 share, and a other users will enter the first user's url and start downloading the file.
