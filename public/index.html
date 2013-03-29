@@ -52,6 +52,8 @@
             return;
         }
 
+        sharefestClient = new client('ws://' + window.location.hostname);
+
         if (document.location.pathname == '/' || document.location.pathname == '/upload') { // homepage
             $('#box-text').text('Just drag any file here, and start sharing immediately!');
         } else {
@@ -72,14 +74,12 @@
             $('#box-text').append('Post this URL to get people in: ');
             showLink();
             //update the navigation stack
-        }, this])
-
-        sharefestClient = new client('ws://' + window.location.hostname);
+        }, this]);
 
         radio('roomNotFound').subscribe([function () {
             stopNonsense();
             $('#box-text').text('Room ' + location.pathname + ' Not found!');
-        }, null])
+        }, null]);
 
         radio('roomSizedChanged').subscribe([function (size) {
             $('#countWrapper').show();

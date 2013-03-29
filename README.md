@@ -20,12 +20,18 @@ share, and a other users will enter the first user's url and start downloading t
 test it out at: http://sharefest.peer5.com
 
 TODO:
-=====
+============
 * local storage
 * RESTful API
 * tests
 * see issues - https://github.com/Peer5/ShareFest/issues
 
+Quick setup after cloning
+==============
+install nodejs
+cd into sharefest root directory and do "npm install"
+run node server.js
+
 History
-=======
+==============
 Started on SV DevFest 2012 hackathon in San Jose

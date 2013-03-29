@@ -15,8 +15,8 @@ exports.configure = function(app, rootdir) {
 
 
     app.get('/:id', function (req, res) {
-        var roomId = req.params.id;
-        var room = rooms.getRoom(roomId);
+//        var roomId = req.params.id;
+//        var room = rooms.getRoom(roomId);
 //    displayRoom(room);
 
         //todo: bind the room info to the page and output
