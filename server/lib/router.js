@@ -13,6 +13,9 @@ exports.configure = function(app, rootdir) {
         res.redirect("https://github.com/peer5/sharefest");
     });
 
+    app.get('/issues', function (req, res) {
+        res.redirect("https://github.com/peer5/sharefest");
+    });
 
     app.get('/:id', function (req, res) {
 //        var roomId = req.params.id;
