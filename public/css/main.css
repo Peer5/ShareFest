@@ -1,5 +1,6 @@
 .bg {
-    background: url('http://www.honeybook.com/Content/Images/CRM/Pattern_BG.png');
+    /*background: url('http://subtlepatterns.com/patterns/random_grey_variations.png');*/
+    background: url('/img/back.png');
 }
 
 .navbar-fixed-top {
@@ -36,13 +37,13 @@
     padding-left: 10px;
 }
 
-.dragdrop {
-    line-height: 52px;
-    text-align: center;
-    font-weight: bold;
-    color: #666;
-    font-size: 18px;
-}
+/*.dragdrop {*/
+    /*line-height: 52px;*/
+    /*text-align: center;*/
+    /*font-weight: bold;*/
+    /*color: #666;*/
+    /*font-size: 18px;*/
+/*}*/
 
 .dragdrop {
     width: 81%;
