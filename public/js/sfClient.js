@@ -13,6 +13,7 @@
         this.initiateClient(wsServerUrl);
         this.registerEvents();
         this.chunks = {};// <id, arrybuffer>
+        this.chunkRead = 0;
         this.numOfChunksInFile;
         this.BW_INTERVAL = 500;
         this.lastCycleTime = Date.now();
@@ -58,6 +59,27 @@
                 this.chunks[i] = binaryFile.slice(start, start + this.CHUNK_SIZE);
             }
         },
+
+        addChunk:function(i,binaryChunk){
+            this.chunks[i] = binaryChunk;
+        },
+
+        addChunks:function(binarySlice){
+            this.numOfChunksInSlice = Math.ceil(binarySlice.byteLength / this.CHUNK_SIZE);
+            for (var i = 0; i < this.numOfChunksInSlice; i++) {
+                var start = i * this.CHUNK_SIZE;
+                this.chunks[this.chunkRead] = binarySlice.slice(start,Math.min(start + this.CHUNK_SIZE,binarySlice.byteLength));
+                this.chunkRead++;
+            }
+            if(this.chunkRead == this.numOfChunksInFile){
+                this.hasEntireFile = true;
+            }
+        },
+
+        prepareToReadFile:function(fileSize){
+            this.numOfChunksInFile = Math.ceil(fileSize / this.CHUNK_SIZE);
+        },
+
 
         addFile:function (body) {
             this.chunkFile(body);
