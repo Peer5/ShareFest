@@ -68,6 +68,7 @@
         },
 
         send:function(message){
+
             var thi$ = this;
             if (thi$.dataChannel.readyState.toLowerCase() == 'open') {
                 thi$.dataChannel.send(message);

@@ -39,7 +39,7 @@
                 this.requestThresh = 70; //how many chunk till new request
                 this.numOfChunksToAllocate = 95;
                 this.maxNumOfChunksToAllocate = 99;
-                this.CHUNK_SIZE = 1000;
+                this.CHUNK_SIZE = 800;
                 this.peerConnectionImpl = peerConnectionImplChrome;
             }
         },
@@ -51,18 +51,16 @@
                 this.missingChunks[i] = 1;
         },
 
-        chunkFile:function (base64file) {
-            this.numOfChunksInFile = Math.ceil(base64file.length / this.CHUNK_SIZE)
+        chunkFile:function (binaryFile) {
+            this.numOfChunksInFile = Math.ceil(binaryFile.byteLength / this.CHUNK_SIZE)
             for (var i = 0; i < this.numOfChunksInFile; i++) {
                 var start = i * this.CHUNK_SIZE;
-                this.chunks[i] = base64file.slice(start, start + this.CHUNK_SIZE);
+                this.chunks[i] = binaryFile.slice(start, start + this.CHUNK_SIZE);
             }
         },
 
         addFile:function (body) {
-            var splitAns = body.split(',');
-            var base64file = splitAns[1];
-            this.chunkFile(base64file);
+            this.chunkFile(body);
             this.hasEntireFile = true;
         },
 
@@ -149,11 +147,11 @@
         },
 
         saveFileLocally:function () {
-            var stringFile = '';
+            var array = new Uint8Array((this.numOfChunksInFile-1)*this.CHUNK_SIZE+this.chunks[this.numOfChunksInFile-1].byteLength);
             for (var i = 0; i < this.numOfChunksInFile; ++i) {
-                stringFile += this.chunks[i];
+                array.set(this.chunks[i], i*this.CHUNK_SIZE);
             }
-            var blob = new Blob([base64.decode(stringFile)]);
+            var blob = new Blob([array]);
             saveLocally(blob, this.metadata.name);
         },
 
@@ -235,7 +233,7 @@
                         var chunkId = cmd.chunkId[i];
 //                        console.log("received NEED_CHUNK command " + chunkId);
                         if (chunkId in this.chunks) {
-                            this.peerConnections[cmd.originId].send(proto64.send(this.clientId, 1, 1, chunkId, this.chunks[chunkId]));
+                            this.peerConnections[cmd.originId].send(proto64.send(this.clientId, 1, 1, chunkId, Base64Binary.encode(this.chunks[chunkId])));
 
                         } else {
                             console.warn('I dont have this chunk' + chunkId);
@@ -243,7 +241,7 @@
                     }
                 } else if (cmd.op == proto64.DATA_TAG) {
 //                    console.log("received DATA_TAG command with chunk id " + cmd.chunkId);
-                    this.receiveChunk(cmd.originId, cmd.chunkId, cmd.data);
+                    this.receiveChunk(cmd.originId, cmd.chunkId, Base64Binary.decode(cmd.data));
                     if (!this.hasEntireFile && this.incomingChunks[cmd.originId] < this.requestThresh) {
                         this.requestChunks(cmd.originId);
                     }
