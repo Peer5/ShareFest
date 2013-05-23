@@ -7,6 +7,8 @@ Pure javascript-based, no plugins needed, thanks to HTML5 WebRTC Data Channel AP
 
 How does it work
 ================
+http://www.youtube.com/watch?v=p2HzZkd2A40#t=15m29s
+
 Sharefest operates on a mesh network similar to Bittorrent network.
 The main difference is that currently the peers are coordinated using an intelligent server.
 This coordinator controls which parts are sent from A to B and who shall talk with whom.
@@ -17,7 +19,7 @@ Supporting Chrome (>26, now stable) and Firefox (>19)
 First version includes a simple page that one user will drag a file to
 share, and a other users will enter the first user's url and start downloading the file.
 
-test it out at: http://sharefest.peer5.com
+test it out at: http://sharefest.me
 
 TODO:
 ============
@@ -32,6 +34,11 @@ install nodejs
 cd into sharefest root directory and do "npm install"
 run node server.js
 
-History
+About
 ==============
-Started on SV DevFest 2012 hackathon in San Jose
+Sharefest started by Peer5 at the SV DevFest 2012 hackathon (San Jose).
+It was soon open sourced to GitHub and now being developed by Peer5 and a community of great WebRTC hackers.
+
+License
+==============
+Apache 2.0 - see LICENSE file
