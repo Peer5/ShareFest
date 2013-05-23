@@ -14,11 +14,11 @@
 <script src="js/util.js"></script>
 <script src="js/p2p_proto.js"></script>
 <script src="shared/radio.min.js"></script>
+<script src="shared/base64.js"></script>
 <script src="js/peerConnectionImplFirefox.js"></script>
 <script src="shared/protocol.js"></script>
 <script type="text/javascript" src="./socket.io/socket.io.js"></script>
 <script src="js/wsConnection.js"></script>
-<script src="js/base64-arraybuffer.js"></script>
 <script src="js/apiValidator.js"></script>
 <script>
     (function (i, s, o, g, r, a, m) {
@@ -165,9 +165,12 @@
                 'Waiting for something to happen',
                 'Abracadabra',
                 'Come on',
+                'Wow you chose a big file',
+                'zZzZZzZZz...',
                 'Sorry!',
                 'Sorry!!',
-                'Sorry!!!'];
+                'Sorry!!!',
+                'Not sure if you want to share files, or stress test the platform'];
 
 
     var stupidMsgId;
@@ -188,26 +191,42 @@
 
     function addFiles(files) {
         var file = files[0]; // FileList object
+        sharefestClient.prepareToReadFile(file.size);
         var reader = new FileReader();
+        var chunkId = 0;
+        var chunksPerSlice = 20000;
+        var sliceSize = chunksPerSlice*sharefestClient.CHUNK_SIZE;
+        var blob;
         $('#box-text').text('reading ' + file.name + '...');
         startNonsense();
-        reader.onload = (function (theFile) {
-            return function (e) {
-                stopNonsense();
-                sharefestClient.addFile(e.target.result);
-                updateList(files);
 
-                //TODO: fix for multiple files
-                meta0 = {};
-                meta0.numOfChunks = sharefestClient.numOfChunksInFile;
-                meta0.size = files[0].size;
-                meta0.name = files[0].name;
-                meta0.lastModifiedDate = files[0].lastModifiedDate;
-                meta0.type = files[0].type;
-                sharefestClient.ws.upload([meta0]);
-            };
-        })(file);
-        reader.readAsDataURL(file);
+        reader.onloadend = function(evt) {
+            if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+                sharefestClient.addChunks(evt.target.result);
+                chunkId++;
+                if((chunkId+1)*sliceSize < file.size){
+                    blob = file.slice(chunkId*sliceSize,(chunkId+1)*sliceSize);
+                    reader.readAsArrayBuffer(blob);
+                }else if(chunkId*sliceSize < file.size){
+                    blob = file.slice(chunkId*sliceSize,file.size);
+                    reader.readAsArrayBuffer(blob);
+                }else{
+                    stopNonsense();
+                    updateList(files);
+                    //TODO: fix for multiple files
+                    meta0 = {};
+                    meta0.numOfChunks = sharefestClient.numOfChunksInFile;
+                    meta0.size = files[0].size;
+                    meta0.name = files[0].name;
+                    meta0.lastModifiedDate = files[0].lastModifiedDate;
+                    meta0.type = files[0].type;
+                    sharefestClient.ws.upload([meta0]);
+                }
+            }
+        };
+
+        blob = file.slice(chunkId*sliceSize,(chunkId+1)*sliceSize);
+        reader.readAsArrayBuffer(blob);
     }
 
     function listFiles(files) {
