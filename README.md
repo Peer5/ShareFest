@@ -1,4 +1,4 @@
-![Sharefest](https://raw.github.com/Peer5/ShareFest/master/public/img/logo.png)
+![Sharefest](https://raw.github.com/Peer5/ShareFest/sharefest/master/public/img/logo.png)
 
 One-To-Many sharing application. Serverless.
 Eliminates the need to fully upload your file to services such as Dropbox or Google Drive.
