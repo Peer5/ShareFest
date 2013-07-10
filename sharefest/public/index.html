@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+<title>Sharefest</title>
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<!-- Bootstrap -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+<!--<link href='http://fonts.googleapis.com/css?family=Courgette' rel='stylesheet' type='text/css'>-->
+<link href="css/main.css" rel="stylesheet">
+<script type="text/javascript" src="/client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/files.js"></script>
+<script type="text/javascript">
+
+window.onbeforeunload = function () {
+    if (sharefestClient.originator) {
+        return 'Note: Sharefest does not store any of your data on the "cloud". ' +
+                "If you want to continue sharing this file or you're not sure the file got to its destination, " +
+                " please stay on this page";
+    }
+}
+
+window.setInterval(this.forceProgressUpdate, 3000, this);
+
+$(document).ready(function () {
+    var validator = new peer5.core.apiValidators.ApiValidator([peer5.core.apiValidators.DataChannelsApiValidator]);
+    if (!validator.validate()) {
+        showErrorAlert('Sorry! Your browser is not supported.<br/>'
+                + 'Please use latest Chrome (26+) or Firefox (22+) to try out Sharefest.');
+        $('#box-text').text('');
+        disableUI();
+
+        ga('send', 'event', 'errors', 'navigate', 'browserNotCompatible');
+
+//            document.location = '/browser';
+        return;
+    }
+
+    sharefestClient = new sfclient();
+    userState = {isSeeder:false}
+
+    if (document.location.pathname == '/' || document.location.pathname == '/upload') { // homepage
+        $('#box-text').html('<big>Click or drag file to <i>instantly</i> share!</big>');
+        // $('#room-name').show();
+        // $("#room").focus();
+    } else {
+        startNonsense();
+        sharefestClient.join(document.location.pathname.substring(1));
+    }
+
+    radio('roomSizedChanged').subscribe([function (size) {
+        $('#countWrapper').show();
+        $('#countValue').text(size);
+    }, null]);
+
+
+    radio('roomOnlyChrome').subscribe(function () {
+        $('#box-text').text('');
+        showErrorAlert('Sorry, this file is only available for Chrome. <a class="tip" href="#" data-toggle="tooltip" title="There is no WebRTC interop yet, meaning that Chrome can only talk with Chrome, and FF with FF. They are going to make up though!">But why?</a>');
+        $('.tip').tooltip();
+    });
+
+    radio('roomOnlyFirefox').subscribe(function () {
+        $('#box-text').text('');
+        showErrorAlert('Sorry, this file is only available for Firefox. <a class="tip" href="#" data-toggle="tooltip" title="There is no WebRTC interop yet, meaning that Chrome can only talk with Chrome, and FF with FF. They are going to make up though!">But why?</a>');
+        $('.tip').tooltip();
+        disableUI();
+    });
+
+    radio('roomNotFound').subscribe([function () {
+        $('#box-text').text('');
+        showErrorAlert('Room ' + location.pathname.substr(1) + ' Not found!');
+        stopNonsense();
+        disableUI();
+    }, this]);
+
+    radio('receivedNewFileInfo').subscribe([function (fileInfo) {
+        var url = fileInfo.swarmId;
+        history.pushState({}, url, url);
+        ga('send', 'pageview'); // should notify the current URL
+        updateList([fileInfo]);
+        if (sharefestClient.isOrigin()) {
+            $('#box-text').append('is ready to be shared!' + '<br>');
+//            $('#shareURLBox').popover({animation:true,placement:'left', delay:3000, trigger:'manual'});
+//            $('#shareURLBox').popover('show')
+
+//                    $('#box-text').append('Post this URL to get people in: ');
+            //$('#room').prop('readonly', true);
+            //$('#room')[0].value = location.pathname.substr(1);
+        } else {
+//                    $('#box-text').append('<br>' + 'Post this URL to get people in: ');
+
+            var prog = document.getElementById('progress');
+            var progDiv = document.getElementById('progressbar');
+            var per = document.getElementById('percent');
+            var downRateDiv = document.getElementById('downRate');
+            if (prog.hidden) {
+                prog.hidden = false;
+                progDiv.hidden = false;
+            }
+            per.textContent = '0' + '%';
+            downRateDiv.textContent = bytesToSize(0) + '/s';
+        }
+        stopNonsense();
+        updateShareButtons();
+        showLink();
+    }, null]);
+
+    radio('activePeerConnectionsNumberChanged').subscribe([function (numOfPeers) {
+        $('#numOfPeers').html('Connected to ' + numOfPeers + ' peers');
+
+
+        $('#numOfPeers').show();
+
+    }, this]);
+
+
+    radio('swarmHealth').subscribe([function (sh) {
+
+        if (userState.isSeeder) {
+            if (sh.numOfSeedersInSwarm > 1) {
+                showSuccessAlert("File downloaded, thank you for Sharefesting! Please stay to help distribute the file");
+            } else {
+                showWarningAlert('You are the only peer with this file. Please don\'t close this tab yet.  <a class="tip" href="#" data-toggle="tooltip" title="Sharefest has just made your file accessible. Once you share the URL, others will be able to connect to your browser directly.">why?</a>');
+                $('.tip').tooltip();
+            }
+        } else {
+            if (sh.numOfSeedersInSwarm >= 1) {
+                showInfoAlert("I'm on it. Kick back and relax while receiving the file...")
+            } else {
+                showErrorAlert('It seems that nobody has the file, you will not be able to complete the download')
+            }
+        }
+        peer5.log(sh);
+    }, null]);
+
+
+    radio('downloadProgress').subscribe([function (percent, bw, totalBW) {
+        var prog = document.getElementById('progress');
+        var progDiv = document.getElementById('progressbar');
+        var per = document.getElementById('percent');
+        var downRateDiv = document.getElementById('downRate');
+        var bwPresenter = document.getElementById('bandwidthPresenter');
+        var totalDownloadSpan = document.getElementById('box-text');
+        if (bw)
+            downRateDiv.textContent = bytesToSize(bw) + '/s';
+        if (prog.hidden) {
+            prog.hidden = false;
+            progDiv.hidden = false;
+        }
+        prog.value = percent;
+        per.textContent = Math.floor(percent.toString()) + '%';
+
+        // only when download finish
+        if (percent == 100) {
+            userState.isSeeder = true;
+            prog.hidden = true;
+
+            totalDownloadSpan.hidden = false;
+            totalDownloadSpan.textContent += ' was downloaded at ' + bytesToSize(totalBW) + '/s';
+
+            bwPresenter.textContent = '';
+            downRateDiv.textContent = '';
+            progDiv.hidden = true;
+            showLink();
+            showSuccessAlert("File downloaded, thank you for Sharefesting! Please stay to help distribute the file");
+
+//            $('#secondDesc').html('Thank you for Sharefesting! <br> Please stay and help sharing');
+        }
+
+
+    }, null]);
+
+
+    radio('uploadProgress').subscribe([function (bw) {
+        var upRateDivParent = document.getElementById('uplinkRateSpan');
+        if (upRateDivParent.hidden) {
+            upRateDivParent.hidden = false;
+        }
+        var upRateDiv = document.getElementById('upRate');
+        if (bw)
+            upRateDiv.textContent = bytesToSize(bw) + '/s';
+    }, null]);
+});
+
+function forceProgressUpdate(self) {
+    //once in a while reset the progress update
+    //if no download/upload has been made during the last 3 seconds we want to reset the rates
+    var currTime = Date.now();
+
+    if ((currTime - sharefestClient.lastDownCycleTime > 3000)) {
+        var downRateDiv = document.getElementById('downRate');
+        downRateDiv.textContent = bytesToSize(0) + '/s';
+    }
+
+    if (sharefestClient.lastUpCycleTime) {
+        if ((currTime - sharefestClient.lastUpCycleTime > 3000)) {
+            var upRateDiv = document.getElementById('upRate');
+            upRateDiv.textContent = bytesToSize(0) + '/s';
+        }
+    }
+
+
+}
+
+function updateList(fileInfo) {
+//            $('#logo').hide();
+    $('#box-text').html(listFiles(fileInfo));
+    $('.dragdrop').css('opacity', 0.95);
+    $('.dragdrop')[0].style.borderStyle = 'solid';
+    $('.dragdrop')[0].style.borderWidth = '5px';
+    $('.dragdrop')[0].style.borderColor = '#FFFFFF';
+    $('#sharethis').css('opacity', 0.95);
+    disableDrag();
+    $('.dragdrop')[0].onclick = '';
+}
+
+function showLink() {
+    $('#shareURLBox').show();
+    $('#shareURLBox').text(document.location.href);
+    $('#shareURLBox')[0].href = document.location.href;
+//    $('#shareURLBox').popover({animation:true,placement:'left', delay:3000, trigger:'manual'});
+//    $('#shareURLBox').popover('show')
+
+}
+
+function updateShareButtons() {
+    var url = document.location.href;
+//            var element = $('#addthis')[0];
+//            $(element).attr('addthis:url',url);
+    addthis.update('share', 'url', url);
+    addthis.update('share', 'title', "Sharefest");
+    addthis.url = url;
+    addthis.toolbox(".addthis_toolbox");
+    $('#addthis').show()
+}
+
+function onTextBoxClick(e) {
+    e.stopPropagation();
+}
+
+
+</script>
+<script type="text/javascript" src="js/dnd.js"></script>
+<script type="text/javascript">
+function ga(params){
+    //place holder
+}
+</script>
+</head>
+<body class="bg">
+<a href="https://github.com/peer5/sharefest" target="_blank"><img
+        style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"
+        src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
+        alt="Fork me on GitHub"></a>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div>
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li class="active"><a href="/">
+                        <img src="/img/symbol.png" style="height: 18px;">
+                    </a></li>
+                    <li><a target="_blank" href="/about">About</a></li>
+                    <li><a target="_blank" href="/howdoesitwork">How it works</a></li>
+                    <li><a target="_blank" href="/issues">FAQ</a></li>
+                    <li><a target="_blank" href="http://webchat.freenode.net/?channels=sharefest">Live chat</a></li>
+                    <li><a target="_blank" href="/upload">Upload file</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h1></h1>
+
+    <div class="dragdrop text-pretty" id="dropbox" onclick="$('#files').click()">
+
+        <div id='notificationDiv' class="alert-error" style="display: none">
+            <a class="close" onclick="$('.alert').hide()">×</a>
+        </div>
+        <!--<canvas id="cnvs" style="height: 0px"></canvas>-->
+        <div class="textDrag">
+            <img id="logo" src="img/logo.png"/>
+            <span style="font-family: courier;color: #CC3333;font-size: 0.9em;">Alpha</span>
+
+            <!-- <div id='room-name' hidden="true">Room Name:
+                <input type="text" id="room" style="margin-top: 5px;" onclick="onTextBoxClick(event)">
+             </div>-->
+
+            <div id='box-text'>Loading...</div>
+            <!--<div id="totalDownload" hidden="true" style="display:inline-block"></div>-->
+
+
+            <a target="_blank" href="www.yy.com" id="shareURLBox" style="display:none" data-toggle="tooltip" title="Hooray!" data-content="Sharefest has just made your file accessible. Once you share this URL, others will be able to connect to your browser directly, and get the file."></a>
+
+            <div class="addthis_toolbox addthis_default_style addthis_32x32_style" id="addthis" style="display:none">
+                <a class="addthis_button_email"></a>
+                <a class="addthis_button_facebook"></a>
+                <a class="addthis_button_twitter"></a>
+                <a class="addthis_button_google_plusone_share"></a>
+                <a class="addthis_button_sinaweibo"></a>
+            </div>
+
+            <div id="box-info">
+                <span id="progressbar" hidden="true">
+                    <br>
+                    <progress id="progress" hidden="true" value="0" max="100"></progress>
+                    <span id="percent" style="display: inline;"></span>
+                    <br>
+                    <span id="bandwidthPresenter">Download Rate: </span>
+                    <span id="downRate" style="display: inline;"></span>
+                </span>
+
+
+
+                <span id="uplinkRateSpan" hidden="true">
+                    <br>
+                    <span id="UplinkBandwidthPresenter">Upload Rate: </span>
+                    <span id="upRate" style="display: inline;"></span>
+                </span>
+                <br>
+                <span id="numOfPeers" style="display: inline;" hidden="true"></span>
+                <br/>
+                <span id="secondDesc"></span>
+                <span id="countWrapper" style="display: none">Currently in room: <span id="countValue">0</span></span>
+            </div>
+            <!--<div id="sharethis">-->
+            <!--<span class='st_sharethis_large' displayText='ShareThis'></span>-->
+            <!--<span class='st_facebook_large' displayText='Facebook'></span>-->
+            <!--<span class='st_twitter_large' displayText='Tweet'></span>-->
+            <!--<span class='st_linkedin_large' displayText='LinkedIn'></span>-->
+            <!--<span class='st_pinterest_large' displayText='Pinterest'></span>-->
+            <!--<span class='st_email_large' displayText='Email'></span>-->
+            <!--</div>-->
+        </div>
+    </div>
+
+    <!--<p class="info">For more info about Sharefest, go to our-->
+    <!--<a href="http://github.com/peer5/sharefest">project page</a></p>-->
+    <footer class="footer">Based on HTML5 <a href="http://webrtc.org">WebRTC</a> DataChannels. No cloud storage
+        involved, only pure, direct P2P. Simple, Fast, Anonymous. Featured on <a
+                href="http://www.youtube.com/watch?v=p2HzZkd2A40#t=15m29s" target="_blank">
+            <img style="position: relative;left: 5px;top: 2px;" src="img/google_io.png" alt="Google I/O 2013">
+        </a>
+    </footer>
+</div>
+
+<input onchange="addFiles(sharefestClient,this.files)" type="file" id="files" name="files[]"
+       multiple
+       style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;"/>
+
+<!--<div id="tt" style="position: absolute; left: 50px; bottom: 50px; font-size: 5em;">0</div>-->
+<!-- /container -->
+<!-- AddThis Button BEGIN -->
+
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=undefined"></script>
+<!-- AddThis Button END -->
+</body>
+</html>

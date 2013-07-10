@@ -1,0 +1,14 @@
+server: http://localhost:9876
+
+load:
+  - ../../../client/test/jasmine/src/jasmine.js
+  - ../../../client/test/jasmine/src/JasmineAdapter.js
+  - ../../../client/test/jasmine/src/NameSpacer.js
+  - ../../util/lang_ext.js
+  - ../../util/namespaces.js
+  - ../../../client/config/dev.js
+  - ../../util/logger.js
+  - ../../dataStructures/Queue.compressed.js
+#  - ../../lib/idb/idb.filesystem.js
+  - ../../data/FSio.js
+  - FS.io.test.js
