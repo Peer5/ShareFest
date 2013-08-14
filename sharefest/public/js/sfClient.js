@@ -27,8 +27,8 @@
                 peer5.core.data.BlockCache.alias(metadata.swarmId, metadata.name);
             }
             peer5.core.data.BlockCache.get(metadata.swarmId).addMetadata(metadata);
-            this.controller = new peer5.core.controllers.P2PController(this.clientId,true);
-            this.controller.init(metadata.swarmId,true);
+            this.controller = new peer5.core.controllers.P2PController(this.clientId, true);
+            this.controller.init(metadata.swarmId, true);
         },
 
         addChunks:function (fileName, binarySlice) {
@@ -57,15 +57,15 @@
         join:function (swarmId) {
             if (this.ws.socketReadyToSend()) {
                 this.ws.sendMessage(new peer5.core.protocol.Join(swarmId));
-            } else { 
+            } else {
                 this.pendingSwarms.push(swarmId);
             }
         },
 
         sendReport:function () {
-            var thi$=this;
+            var thi$ = this;
             peer5.core.data.BlockCache.forEach(function (blockMapId, blockMap) {
-                if(blockMap.metadata && blockMap.metadata.swarmId){
+                if (blockMap.metadata && blockMap.metadata.swarmId) {
                     var reportMessage = new peer5.core.protocol.Report(
                         blockMap.metadata.swarmId, null,
                         null,
@@ -159,11 +159,8 @@
         },
 
         initiateClient:function () {
-            var ws_url = 'ws://'; // no wss for now
-            ws_url += peer5.config.WS_SERVER || window.location.hostname;
-            if (peer5.config.WS_PORT) {
-                ws_url += ':' + peer5.config.WS_PORT;
-            }
+            var ws_url = location.protocol.replace('http','ws') +  '//';
+            ws_url += location.host;
 
             this.clientId = peer5.core.util.generate_uuid();
             this.ws = new peer5.core.transport.WsConnection(ws_url, this.clientId);
@@ -210,14 +207,14 @@
                         radio('roomOnlyFirefox').broadcast();
                         break;
                 }
-            },this]);
+            }, this]);
 
-                //websockets events
+            //websockets events
             radio('receivedFileInfo').subscribe([function (fileInfo) {
                 if (fileInfo.swarmId) {
-                    if(peer5.core.data.BlockCache.get(fileInfo.swarmId) && peer5.core.data.BlockCache.get(fileInfo.swarmId).metadata)
+                    if (peer5.core.data.BlockCache.get(fileInfo.swarmId) && peer5.core.data.BlockCache.get(fileInfo.swarmId).metadata)
                         peer5.log("I allready have metadata of swarm " + fileInfo.swarmId);
-                    else{
+                    else {
                         this.updateMetadata(fileInfo);
                         radio('receivedNewFileInfo').broadcast(fileInfo);
                     }
