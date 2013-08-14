@@ -13,6 +13,8 @@ var allowCrossDomain = function (req, res, next) {
     next();
 }
 
+process.chdir(__dirname);
+
 app.use(express.json());
 app.use(express.compress());
 app.use(allowCrossDomain);
