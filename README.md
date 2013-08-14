@@ -30,9 +30,11 @@ TODO:
 
 Quick setup after cloning
 ==============
-install nodejs
-cd into sharefest root directory and do "npm install"
-run node server.js
+1. Install nodejs
+2. [Download](https://github.com/Peer5/ShareFest/archive/master.zip) this repo, or `git clone https://github.com/Peer5/ShareFest.git`
+3. `cd ShareFest`
+4. `npm install --dedupe` to install dependencies.
+5. `npm start`
 
 About
 ==============
