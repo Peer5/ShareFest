@@ -12,9 +12,9 @@ exports.configure = function (app, rootdir) {
         var referer = req.headers.referer;
         var domain = 'localhost';
         if (referer) {
-            try{
+            try {
                 domain = url.parse(req.headers.referer).hostname;
-            }catch(e){
+            } catch (e) {
                 peer5.error(e);
                 peer5.error('printing request headers');
                 peer5.error(req.headers);
@@ -40,19 +40,19 @@ exports.configure = function (app, rootdir) {
         js = js.perform(function (content) {
             return content.replace(/peer5.config.BLOCK_SIZE/g, config.blockSize);
         });
-
-        var port = req.query["port"] || process.env.WS_PORT;
-        if (port) {
-            js = js.perform(function (content) {
-                return content.replace(/peer5.config.WS_PORT/g, "\'" + port + "\'");
-            });
-        }
-        var server = req.query["server"] || process.env.WS_SERVER;
-        if (server) {
-            js = js.perform(function (content) {
-                return content.replace(/peer5.config.WS_SERVER/g, "\'" + server + "\'");
-            });
-        }
+//
+//        var port = req.query["port"] || process.env.WS_PORT;
+//        if (port) {
+//            js = js.perform(function (content) {
+//                return content.replace(/peer5.config.WS_PORT/g, "\'" + port + "\'");
+//            });
+//        }
+//        var server = req.query["server"] || process.env.WS_SERVER;
+//        if (server) {
+//            js = js.perform(function (content) {
+//                return content.replace(/peer5.config.WS_SERVER/g, "\'" + server + "\'");
+//            });
+//        }
 
         if (!debug) {
             js = js.uglify();
@@ -62,8 +62,8 @@ exports.configure = function (app, rootdir) {
         res.send(200, js.content);
     });
 
-    //TODO: add to ws
-    app.post('/new', function(req,res) {
+//TODO: add to ws
+    app.post('/new', function (req, res) {
         peer5.info('request for a new swarm');
         var fileInfo = req.body;
         peer5.info(fileInfo);
@@ -75,15 +75,22 @@ exports.configure = function (app, rootdir) {
         res.sendfile(rootdir + '/public/browser.html');
     });
 
+    app.get('/faq', function (req, res) {
+        res.sendfile(rootdir + '/public/faq.html');
+    });
+
+
+    app.get('/press', function (req, res) {
+        res.sendfile(rootdir + '/public/press.html');
+    });
+
+    app.get('/download', function (req, res) {
+        res.sendfile(rootdir + '/public/download.html');
+    });
+
     app.get('/about', function (req, res) {
         res.redirect("https://github.com/peer5/sharefest#about");
     });
-
-
-    app.get('/howdoesitwork', function (req, res) {
-        res.redirect("https://github.com/Peer5/ShareFest#how-does-it-work");
-    });
-
 
     app.get('/contact', function (req, res) {
         res.redirect("mailto://sharefest@peer5.com");
@@ -97,5 +104,4 @@ exports.configure = function (app, rootdir) {
         //todo: bind the room info to the page and output
         res.sendfile(rootdir + '/public/index.html');
     });
-}
-;
+};
