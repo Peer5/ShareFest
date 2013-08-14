@@ -16,7 +16,7 @@ var allowCrossDomain = function (req, res, next) {
 
 process.chdir(__dirname);
 
-if (!process.env.REQUIRE_HTTPS) {
+if (process.env.REQUIRE_HTTPS) {
     app.use(function (req, res, next) {
         if (!req.secure) {
             res.redirect('https://' + req.get('Host') + req.url);
@@ -32,14 +32,14 @@ app.use(express.static(__dirname + '/public'));
 var server;
 
 app.configure('development', function () {
-//    app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
-//    console.log('listening to port 13337');
-//    server = app.listen(13337);
-//    ws.instance.start(tracker.instance, server, null, config.clientTimeout);
-//    console.log('here I am');
-//});
-//
-//app.configure('production', function () {
+    app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
+    console.log('listening to port 13337');
+    server = app.listen(13337);
+    ws.instance.start(tracker.instance, server, null, config.clientTimeout);
+    console.log('here I am');
+});
+
+app.configure('production', function () {
     var options = {
         key:fs.readFileSync('server/secret/private.key'),
         cert:fs.readFileSync('server/secret/self.crt')
