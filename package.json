@@ -14,7 +14,7 @@
     },
     "devDependencies": {},
     "scripts": {
-        "start": "server.js"
+        "start": "node sharefest/server.js"
     },
     "engines": {
         "node": "0.6.x"
