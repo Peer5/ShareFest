@@ -7,6 +7,7 @@ Pure javascript-based. No plugins needed thanks to HTML5 WebRTC Data Channel API
 
 How does it work
 ================
+http://sharefest.me/faq
 http://www.youtube.com/watch?v=p2HzZkd2A40#t=15m29s
 
 Sharefest operates on a mesh network similar to Bittorrent network.
@@ -14,27 +15,30 @@ The main difference is that currently the peers are coordinated using an intelli
 This coordinator controls which parts are sent from A to B and who shall talk with whom.
 Peer5 Coordinator (or any other solution) is used to accomplish this.
 Each peer will connect to few other peers in order to maximize the distribution of the file.
-Supporting Chrome (>26, now stable) and Firefox (>19)
+Supporting Chrome (>26) and Firefox (>19)
 
 First version includes a simple page that one user will drag a file onto to
 share, and other users will enter the first user's url and start downloading the file.
 
-test it out at: http://sharefest.me
+Hosted version: http://sharefest.me
 
 TODO:
 ============
-* local storage
-* RESTful API
-* tests
 * see issues - https://github.com/Peer5/ShareFest/issues
 
-Quick setup after cloning
+Quick setup
 ==============
 1. Install nodejs
 2. [Download](https://github.com/Peer5/ShareFest/archive/master.zip) this repo, or `git clone https://github.com/Peer5/ShareFest.git`
 3. `cd ShareFest`
 4. `npm install --dedupe` to install dependencies.
-5. `npm start`
+5. `npm start` to start the server
+6. http://localhost:13337 should work
+
+Environment Variables
+==============
+NODE_ENV: development or production
+REQUIRE_HTTPS: 1 redirect to HTTPS when http GET request is coming
 
 About
 ==============
