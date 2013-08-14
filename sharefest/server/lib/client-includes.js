@@ -25,7 +25,7 @@ exports[exports.FULL] = [
     'core/protocol/BinaryProtocol.js',
     'core/controllers/IController.js',
     'core/controllers/P2PController.js',
+    'core/stats/StatsCalculator.js',
     'sharefest/public/js/sfClient.js',
     'sharefest/clientConfig.js'
 ];
-
