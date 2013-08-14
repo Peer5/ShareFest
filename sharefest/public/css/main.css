@@ -1,0 +1,128 @@
+.bg {
+    /*background: url('http://subtlepatterns.com/patterns/random_grey_variations.png');*/
+    background: url('/img/grey.png');
+}
+
+.navbar-fixed-top {
+    margin-bottom: 20px;
+    position: absolute;
+    top: 0;
+    height: auto;
+}
+
+.container {
+    position: absolute;
+    display: block;
+    margin: auto;
+    width: 98%;
+    height: 97%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.navbar-inner .container {
+    position: absolute;
+    display: block;
+    margin: auto;
+    width: 98%;
+    height: 97%;
+    background: transparent;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 0;
+    padding-left: 10px;
+}
+
+/*.dragdrop {*/
+    /*line-height: 52px;*/
+    /*text-align: center;*/
+    /*font-weight: bold;*/
+    /*color: #666;*/
+    /*font-size: 18px;*/
+/*}*/
+
+.dragdrop:hover {
+    /*width:85%;*/
+    border: 3px solid #FFFFFF;
+    /*background-color: #000;*/
+    transition: background-color 1000ms ease;
+    transition-delay: 0.5s;
+    background-color: rgba(255,250,250 , 0.85);
+}
+
+.dragdrop:hover * {
+
+
+    /*font-size: 20px;*/
+    /*zoom: 120%;*/
+}
+
+.dragdrop {
+
+    /*transition: all 10000ms ease-in-out;*/
+    /*-webkit-transform: rotate(-10deg);*/
+    /*-moz-transform: rotate(-10deg);*/
+    /*transition-delay: 15s;*/
+
+    -moz-transition:width 1s, height 1s, background-color 1s, -moz-transform 1s;
+    -webkit-transition:width 1s, height 1s, background-color 1s, -webkit-transform 1s;
+    -o-transition:width 1s, height 1s, background-color 1s, -o-transform 1s;
+    transition:width 1s, height 1s, background-color 1s, transform 1s;
+
+    width: 81%;
+    height: 76%;
+    border: 2px solid #DDD;
+    line-height: 30px;
+    text-align: center;
+    font-weight: bold;
+    /*background-color: #FFFFFF;*/
+    background-color: rgba(255,255,255, 0.65);
+    /*opacity: 0.75;*/
+    position: absolute;
+    display: block;
+    top: 7%;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    cursor: cell;
+}
+
+.footer * {
+    vertical-align: bottom;
+}
+.footer {
+    position: absolute;
+    bottom: 1%;
+    right: 10%;
+    clear: both;
+    color: #DDDDDD;
+    /*font-family: cursive;*/
+    /**/
+    /*position: absolute;*/
+    /*bottom: 1%;*/
+    /*right:1%;*/
+    /*clear:both;*/
+    /*color: #DDDDDD;*/
+}
+
+.textDrag {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    height: 200px;
+}
+
+.addthis_toolbox {
+    /*position: absolute;*/
+    /*top:41%;*/
+    /*left:61%;*/
+    display: inline-table;
+    margin-top: 8px;
+}
