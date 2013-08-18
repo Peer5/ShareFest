@@ -6,11 +6,22 @@ var config = require('../serverConfig.json');
 var router = require('./server/lib/router.js');
 var tracker = require(config.trackerPath);
 var server;
+var https = require('https');
+var fs = require('fs');
 
 var allowCrossDomain = function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Headers', 'Range');
     next();
+}
+
+if (process.env.REQUIRE_HTTPS) {
+    app.use(function (req, res, next) {
+        if (!req.secure) {
+            return res.redirect('https://' + req.get('Host') + req.url);
+        }
+        next();
+    });
 }
 
 app.use(express.json());
@@ -31,11 +42,22 @@ app.configure('development', function () {
 });
 
 app.configure('production', function () {
+    var options = {
+        key:fs.readFileSync('secret/private.key'),
+        ca:[fs.readFileSync('secret/AddTrustExternalCARoot.crt'),
+            fs.readFileSync('secret/SSLcomAddTrustSSLCA.crt')],
+        cert:fs.readFileSync('secret/www_sharefest_me.crt')
+    };
     app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
-    console.log('listening to port 80');
-    wsPort = process.env.WS_PORT || 443;
-    server = app.listen(80); //nodejitsu will map this to 80
-    ws.instance.start(tracker.instance,server,wsPort, config.clientTimeout);
+//    wsPort = process.env.WS_PORT || 443;
+
+    peer5.log('listening to port 80');
+    server80 = app.listen(80);
+
+    peer5.log('listening to port 443');
+    server = https.createServer(options, app).listen(443);
+
+    ws.instance.start(tracker.instance, server, null, config.clientTimeout);
 //    signaling.start(server);
 });
 

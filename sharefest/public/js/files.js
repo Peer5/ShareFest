@@ -14,9 +14,10 @@ function addFiles(client, files) {
     userState.isSeeder = true;
     var file = files[0]; // FileList object
     ga('send', 'event', 'files', 'addFile', 'fileSize', file.size);
-    if (file.size > 250 * 1024 * 1024) {
+    if (file.size > peer5.config.ALLOWED_FILE_SIZE) {
+        var maxFileSize = peer5.config.ALLOWED_FILE_SIZE/(1024*1024);
         //TODO: use bootstrap alerts
-        alert('Currently only files under 250MB are allowed');
+        alert('Currently only files under ' + maxFileSize + 'MB are allowed');
         ga('send', 'event', 'alerts', 'addFile', 'fileTooBig', file.size);
         return;
     }
