@@ -28,8 +28,10 @@ function addFiles(client, files) {
     }
         client.prepareToReadFile(file.name, file.size);
     var reader = new FileReader();
-    var chunkId = 0;
-    var chunksPerSlice = 20000;
+    //Reading the file in slices:
+    var sliceId = 0;
+    //read a slice the size min(CACHE_SIZE,100MB) since ~100MB is the limit for read size of file api (in chrome).
+    var chunksPerSlice = Math.floor(Math.min(100000000,peer5.config.CACHE_SIZE)/peer5.config.CHUNK_SIZE);
     //var swID;
     var sliceSize = chunksPerSlice * peer5.config.CHUNK_SIZE;
     var blob;
@@ -38,45 +40,44 @@ function addFiles(client, files) {
 
     reader.onloadend = function (evt) {
         if (evt.target.readyState == FileReader.DONE) { // DONE == 2
-            client.addChunks(file.name, evt.target.result);
-            chunkId++;
-            if ((chunkId + 1) * sliceSize < file.size) {
-                blob = file.slice(chunkId * sliceSize, (chunkId + 1) * sliceSize);
-                reader.readAsArrayBuffer(blob);
-            } else if (chunkId * sliceSize < file.size) {
-                blob = file.slice(chunkId * sliceSize, file.size);
-                reader.readAsArrayBuffer(blob);
-            } else {
-                stopNonsense();
-                updateList(files);
-                //TODO: fix for multiple files
+            client.addChunks(file.name, evt.target.result,function(){
+                sliceId++;
+                console.log(reader);
+                if ((sliceId + 1) * sliceSize < file.size) {
+                    blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
+                    reader.readAsArrayBuffer(blob);
+                } else if (sliceId * sliceSize < file.size) {
+                    blob = file.slice(sliceId * sliceSize, file.size);
+                    reader.readAsArrayBuffer(blob);
+                } else {
+                    stopNonsense();
+                    updateList(files);
+                    //TODO: fix for multiple files
 
-                //TODO: calc and add hashes
-                //ToDo: add origin instead of 'sharefest'
+                    //TODO: calc and add hashes
+                    //ToDo: add origin instead of 'sharefest'
 
-                /*
-                 support for choosing a room name
-                 if(swarmId && swarmId != '' ){
-                 swID = swarmId;
-                 }else{
-                 swID = null;
-                 }*/
-                var fileInfo = new peer5.core.protocol.FileInfo(null, file.size, null, null, 'sharefest',
-                    file.name, file.lastModifiedDate, file.type);
+                    /*
+                     support for choosing a room name
+                     if(swarmId && swarmId != '' ){
+                     swID = swarmId;
+                     }else{
+                     swID = null;
+                     }*/
+                    var fileInfo = new peer5.core.protocol.FileInfo(null, file.size, null, null, 'sharefest',
+                        file.name, file.lastModifiedDate, file.type);
+                    /*radio('SwarmCreatedEvent').subscribe(function(id) {
+                     //radio('roomReady').broadcast(id);
+                     });*/
 
-
-                /*radio('SwarmCreatedEvent').subscribe(function(id) {
-                 //radio('roomReady').broadcast(id);
-                 });*/
-
-                //sendFileInfo(fileInfo);
-                client.upload(fileInfo);
-
-            }
+                    //sendFileInfo(fileInfo);
+                    client.upload(fileInfo);
+                }
+            });
         }
     };
 
-    blob = file.slice(chunkId * sliceSize, (chunkId + 1) * sliceSize);
+    blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
     reader.readAsArrayBuffer(blob);
 }
 

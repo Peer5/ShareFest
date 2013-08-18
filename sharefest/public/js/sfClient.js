@@ -33,7 +33,7 @@
             blockMap.addMetadata(metadata);
             this.controller = new peer5.core.controllers.P2PController(this.clientId, true);
             if(!this.originator){
-                if (peer5.config.USE_FS && (window.requestFileSystem || window.webkitRequestFileSystem)) {
+                if (peer5.config.USE_FS) {
                     peer5.core.data.FSio.isExist(metadata.name,function(succ){
                         if(succ){
                             //file exists
@@ -56,7 +56,7 @@
             this.controller.init(metadata.swarmId, true);
         },
 
-        addChunks:function (fileName, binarySlice) {
+        addChunks:function (fileName, binarySlice,cb) {
             var blockMap = peer5.core.data.BlockCache.get(fileName);
             this.numOfChunksInSlice = Math.ceil(binarySlice.byteLength / peer5.config.CHUNK_SIZE);
             for (var i = 0; i < this.numOfChunksInSlice; i++) {
@@ -68,6 +68,8 @@
             if (this.chunkRead == this.numOfChunksInFile) {
                 this.hasEntireFile = true;
             }
+            if(peer5.config.USE_FS)
+                peer5.core.data.FSio.notifyFinishWrite(cb);
         },
 
         cron:function (self) {
@@ -92,7 +94,7 @@
             peer5.core.data.BlockCache.add(fileName, new peer5.core.dataStructures.BlockMap(fileSize));
             var blockMap = peer5.core.data.BlockCache.get(fileName);
             blockMap.addMetadata({name:fileName});
-            if (peer5.config.USE_FS && (window.requestFileSystem || window.webkitRequestFileSystem)){
+            if (peer5.config.USE_FS){
                 peer5.core.data.FSio.createResource(fileName,function(succ){
                     if(succ){
                         blockMap.fs = true;
@@ -202,10 +204,6 @@
                         peer5.log("I allready have metadata of swarm " + fileInfo.swarmId);
                     else {
                         this.updateMetadata(fileInfo);
-                        peer5.core.data.FSio.listFiles(function(succ,entries){
-                            if(succ)
-                                console.log(entries);
-                        })
                         radio('receivedNewFileInfo').broadcast(fileInfo);
                     }
                 } else {

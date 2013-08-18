@@ -181,7 +181,7 @@
                         radio('blockReceivedEvent').broadcast(blockId,this,this.metadata);
                     //writing to Filesystem:
                     var thi$ = this;
-                    if (peer5.config.USE_FS && (window.requestFileSystem || window.webkitRequestFileSystem) && this.fs) {
+                    if (peer5.config.USE_FS && this.fs) {
                         peer5.core.data.FSio.write(thi$.metadata.name,new Blob([thi$.getBlock(blockId)]),blockId*peer5.config.BLOCK_SIZE,function(succ){
                             if(succ){
                                 //adding the block to the lruMap
@@ -267,7 +267,7 @@
             //if we have file system api we should save the file using it instead of saving it again on the memory
             //this helps us to achieve higher file size.
             //the right way in the future will be to use file system to save to blocks from the beginning
-            if (peer5.config.USE_FS && (window.requestFileSystem || window.webkitRequestFileSystem)) {
+            if (peer5.config.USE_FS) {
                 peer5.info('saving file via file system api ')
                 this._saveLocallyUsingFSio();
             } else {

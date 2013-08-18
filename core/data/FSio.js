@@ -4,6 +4,7 @@
             this.writeQueue = new Queue();
             this.registerEvents();
             this.pendingObjectUrlCb = {};
+            this.finishWriteCbs = [];
 //            this.removeAll(function(){window.webkitRequestFileSystem(window.TEMPORARY, peer5.config.FS_SIZE, this.onInitFs, this.errorHandler);});
             window.webkitRequestFileSystem(window.TEMPORARY, peer5.config.FS_SIZE, this.onInitFs, this.errorHandler);
         },
@@ -83,6 +84,12 @@
             }
         },
 
+        notifyFinishWrite:function(cb){
+            if(this.writeQueue.getLength() <= 0)
+                cb();
+            this.finishWriteCbs.push(cb);
+        },
+
         isExist:function(resourceId,cb){
             peer5.log("Checking if resource " + resourceId + " exists in the filesystem.");
             var thi$ = this;
@@ -160,6 +167,10 @@
                                     thi$.createObjectURL(resourceId,thi$.pendingObjectUrlCb[resourceId]);
                                     delete thi$.pendingObjectUrlCb[resourceId];
                                 }
+                                for(var i=0;i<thi$.finishWriteCbs.length;++i){
+                                    thi$.finishWriteCbs[i](resourceId);
+                                }
+                                thi$.finishWriteCbs = [];
                             }
                         };
 
