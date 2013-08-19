@@ -94,10 +94,10 @@
                 peer5.debug("sending data on dataChannel");
                 thi$.dataChannel.send(message);
             } else {
-                peer5.info('dataChannel wasnt ready, seting timeout');
+                peer5.info('dataChannel was not ready, setting timeout');
                 setTimeout(function (dataChannel, message) {
                     thi$.send(dataChannel, message);
-                }, 1000, thi$.dataChannel, message);
+                }, peer5.config.PC_RESEND_INTERVAL, thi$.dataChannel, message);
             }
         },
         close:function(){
@@ -223,9 +223,7 @@
                 servers.iceServers.push({url:"turn:" + turn_servers[j], credential:turn_creds[j]});
             }
             try {
-                peer5.info("webkitRTCPeerConnection");
                 if(window.mozRTCPeerConnection)
-//                    this.peerConnection = new this.RTCPeerConnection();
                     this.peerConnection = new this.RTCPeerConnection();
                 else
                     this.peerConnection = new this.RTCPeerConnection(

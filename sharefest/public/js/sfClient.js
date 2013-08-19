@@ -155,7 +155,7 @@
                 array.set(blockMap.getBlock(i), i * peer5.config.BLOCK_SIZE);
             }
             var blob = new Blob([array]);
-            saveLocally(blob, blockMap.getMetadata().name);
+            saveBlobLocally(blob, blockMap.getMetadata().name);
         },
 
         initiateClient:function () {

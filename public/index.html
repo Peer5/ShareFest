@@ -137,7 +137,6 @@
     });
 
     function updateList(files) {
-
 //            $('#logo').hide();
         $('#box-text').html(listFiles(files));
 
@@ -150,8 +149,6 @@
 
         disableDrag();
         $('.dragdrop')[0].onclick = '';
-
-
     }
 
     var stupidMessage =
@@ -298,9 +295,7 @@
         <!--<a href="http://github.com/peer5/sharefest">project page</a></p>-->
     </div>
 
-    <input onchange="addFiles(this.files)" type="file" id="files" name="files[]" multiple
-           style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;"/>
-
+    <input onchange="addFiles(this.files)" type="file" id="files" name="files[]" multiple>
 </div>
 
 <!--<div id="tt" style="position: absolute; left: 50px; bottom: 50px; font-size: 5em;">0</div>-->

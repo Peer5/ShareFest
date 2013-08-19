@@ -147,13 +147,11 @@
         this.error = error;
     }
 
-    function Match(swarmId,peerId,availabilityMap,NATtype,ua){
-        this.tag = exports.MATCH;
-        this.swarmId = swarmId;
-        this.peerId = peerId;
-        this.availabilityMap = availabilityMap;
-        this.NATtype = NATtype;
-        this.ua = ua;
+    function Match(swarmId,peerId,availabilityMap){
+        this.tag = exports.MATCH; //protocol tag
+        this.swarmId = swarmId; //the swarm that consists the two peers
+        this.peerId = peerId; //the matched peerid
+        this.availabilityMap = availabilityMap; //bitarray consisting available blocks
     }
 
     function Connection(totalBytesDown, totalBytesUp, speedDown, speedUp, chunksExpired, chunksRequested, latency, connected, connectingDuration, failure) {
