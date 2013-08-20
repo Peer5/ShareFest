@@ -41,6 +41,8 @@ app.configure('development', function () {
 
 app.configure('production', function () {
     var options = {
+        // Important: the following crt and key files are insecure
+        // replace the following files with your own keys
         key:fs.readFileSync('server/secret/private.key'),
         cert:fs.readFileSync('server/secret/self.crt')
     };
