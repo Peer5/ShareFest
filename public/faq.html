@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sharefest FAQ</title>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="css/main_new.css" rel="stylesheet">
+</head>
+<body class="bg">
+<a href="https://github.com/peer5/sharefest" target="_blank"><img
+        style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"
+        src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
+        alt="Fork me on GitHub"></a>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div>
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li class="active"><a href="/">
+                        <img src="/img/symbol.png" style="height: 18px;">
+                    </a></li>
+                    <li><a target="_blank" href="/about">About</a></li>
+                    <li><a target="_blank" href="/faq">FAQ</a></li>
+                    <!--<li><a target="_blank" href="/howdoesitwork">How it works</a></li>-->
+                    <!--<li><a target="_blank" href="/issues">FAQ</a></li>-->
+                    <li><a target="_blank" href="http://webchat.freenode.net/?channels=sharefest">Live chat</a></li>
+                    <li><a target="_blank" href="/upload">Upload file</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container static-container">
+    <h3>What is this site?</h3>
+    <p>
+        Sharefest let's you send files, small or big, to other people.
+    </p>
+
+    <h3>How do I use Sharefest</h3>
+    <p>
+        You add files by clicking on the box or by dragging files into the box.
+        Then you should see a link. This is a unique url for your files or "room".
+        You can send this room URL through social networks, mail or just manually by copy&paste.
+    </p>
+
+    <h3>What is room?</h3>
+    A room is a place on Sharefest with a unique URL, that people
+    can enter and start downloading specific files. This files are
+    currently added by the room creator.
+    A room has a swarm of peers that are connected in a <a href="#swarming">mesh network</a>
+    For example room b909410e can be found on <a href="http://www.sharefest.me/b909410e">http://www.sharefest.me/b909410e</a>
+    </p>
+
+    <h3>Can't I use Gmail for that?</h3>
+    <p>
+        Sometimes. Gmail is limited for 25MB, and is not designed primarily for sending files.
+        You also need the recipients email addresses.
+    </p>
+
+    <h3>Why is it different from services such as Dropbox and Yousendit?</h3>
+    <p>
+        Sharefest does not use cloud storage. These services work by uploading and storing
+        the files in a remote storage, owned by these companies. Then recipients can download
+        it from the servers. In Sharefest, the files are downloaded from other browsers, peer-2-peer.
+    </p>
+
+    <h3>Sound like BitTorrent. Why should I use Sharefest?</h3>
+    <p>BitTorrent is great, but requires a special software to be downloaded. <br>
+       We wanted to build a web-based platform for filesharing that everyone with a modern browser
+        could use. <br>
+        Our goal is that everyone could just enter a Sharefest URL and start downloading, even our parents :)
+    </p>
+
+    <h3>Do you use Flash or any other plugin for the P2P</h3>
+    <p>
+        No - Only HTML+JS+CSS.
+    </p>
+    <h3>How is it even possible? I thought P2P cannot happen unless a plugin is used</h3>
+    <p>
+        This was true up until recently. <br>Now there is a new HTML5 standard called <a href="http://webrtc.org">WebRTC</a>
+        and it has an API to transfer arbitrary data - Data Channels API (or <a href="http://updates.html5rocks.com/2013/02/WebRTC-data-channels-API-changes-and-Chrome-talks-to-Firefox">RTCDataChannels API</a>).
+    </p>
+
+    <h3>Who can see my files?</h3>
+
+    <h3>What encryption is used?</h3>
+
+    <h3>What browsers are supported?</h3>
+    <p>
+        Currently Google Chrome and Mozilla Firefox.
+    </p>
+
+    <h3>Do I have to open my ports for that?</h3>
+    <p>
+        Usually no. Sharefest use standard WebRTC NAT traversal protocol - <a href="http://en.wikipedia.org/wiki/STUN">STUN</a>.
+    </p>
+
+    <h3>
+        What is a seeder?
+    </h3>
+    <p>
+        A peer (user) that have the complete file and serve it to other peers.
+    </p>
+
+    <h3>
+        When can I close the tab?
+    </h3>
+    <p>
+        The notification bar on the top of the box helps you to determine that.
+        If you are the only seeder of the file, you want to make sure the file is available.
+        Once more people seed, it is safe to close (you will see a green bar).
+    </p>
+
+    <h3 id="swarming">What are swarm and mesh network?</h3>
+    <p>
+
+    </p>
+
+    <h3>Why is this “a firefox swarm”/”chrome swarm” ?</h3>
+    <p>Right now, Google Chrome and Mozilla Firefox cannot send data between each other. Sad but true</p>
+
+    <h3>Why is the in alpha? When Sharefest is going to be beta and stable?</h3>
+    <h3>
+        I drag a file to sharefest but I don’t get a link
+    </h3>
+
+    <h3>
+        I’m kicking back and relaxing but I don’t get the file
+    </h3>
+
+    <h3>I have some ideas how to improve Sharefest, who should I talk to?</h3>
+    <h3>How can I help?</h3>
+     <h3>Who is behind this project?</h3>
+    <h3>Why do you have such an ugly logo?</h3>
+    <p>Because we are not designers. You are welcome to submit a new one.
+        We do love our icon though</p>
+
+    <h3>What is this weird icon?</h3>
+    <p>No one knows. Some think it's a happy, festing star.<br>
+       Other claim it's actually a smashed rubber on the wall.
+    </p>
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+</div>
+
+</body>
+</html>

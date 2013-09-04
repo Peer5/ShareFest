@@ -224,7 +224,6 @@
                 servers.iceServers.push({url:"turn:" + turn_servers[j], credential:turn_creds[j]});
             }
             try {
-                peer5.info("webkitRTCPeerConnection");
                 if(window.mozRTCPeerConnection)
                     this.peerConnection = new this.RTCPeerConnection();
                 else
