@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Sharefest - Privacy</title>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!-- Bootstrap -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <link href="css/main.css" rel="stylesheet">
+    <script>
+        if (location.host == 'www.sharefest.me') { // don't start analytics if in wrong domain
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r;
+                i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+                a = s.createElement(o),
+                        m = s.getElementsByTagName(o)[0];
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+            ga('create', 'UA-39731388-1');
+            ga('send', 'pageview');
+        } else {
+            ga = function(param) { peer5.log('ga called with params ' + JSON.stringify(arguments))}
+        }
+    </script>
+
+</head>
+<body class="bgTerms">
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div>
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li class="active"><a href="/">
+                        <img src="/img/symbol.png" style="height: 18px;">
+                    </a></li>
+                    <li><a target="_blank" href="/about">About</a></li>
+                    <li><a target="_blank" href="/faq">FAQ</a></li>
+                    <li><a target="_blank" href="http://webchat.freenode.net/?channels=sharefest">Live chat</a></li>
+                    <li><a target="_blank" href="/upload">Upload file</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container terms">
+    <h3 class="headLine">Sharefest Privacy Policy: </h3>
+
+
+    <h4 class="headLine">What information does Sharefest collects and how does it use it?
+    </h4>
+
+    <p class="paragraph">
+        We do collect some limited information that your browser routinely makes available whenever you visit a website.
+        We collect this data to improve the overall quality of the online experience. This information includes your
+        Internet Protocol address, the geographic location of the IP address the user is using to access the Internet,
+        browser type, browser language and the date and time of your query.
+
+        We do not track which files you share using Sharefest.
+    </p>
+
+    <p class="paragraph">
+        In addition, we may use aggregated information for the purposes of tracking the usage of our services and in
+        order to help us develop and improve the service and the software.
+    </p>
+
+
+    <h4 class="headLine">Does Sharefest use user’s local storage?
+    </h4>
+
+    <p class="paragraph">
+        Local storage (such as IndexDB and FileSystem API) are sandboxed storage spaces which the browser has access to. Sharefest
+        may temporarily use visitor's local storage to enable file sharing and saving of content.
+        This allow us to handle big files which are too big for the RAM and enable resumable downloads. As mentioned, this
+        space is temporary and Sharefest does not have any access to the user’s files. Sharefest cannot delete, modify
+        or search files on the user’s hard drive.
+    </p>
+
+
+    <h4 class="headLine">Does Sharefest use user’s cookies?</h4>
+
+    <p class="paragraph">
+        The use of cookies is standard on the Internet and many web sites use them. Sharefest does not use cookies
+        directly, but may include the usage of cookies through 3rd party services that are embedded within the site.
+    </p>
+
+
+    <h4 class="headLine">Which data does Sharefest store about the files I share?</h4>
+
+
+    <p class="paragraph">
+        With every upload the following data is stored in addition to the actual file:
+
+    </p>
+
+    <p class="paragraph">
+        1) SHA3 checksum of the shared file. This DOES NOT include the file data itself. By having the checksum, users are
+        able to verify if the file is not tempered. This checksum is not sufficient to reproduce the data itself.
+
+    </p>
+
+    <p class="paragraph">
+        2) Timestamp of the initiate share
+
+    </p>
+
+    <P class="paragraph">
+        3) File meta data which may be useful for other users, such as file name, file type, creation data and more. This
+        DOES NOT include the file data itself.
+
+    </P>
+
+    <h4 class="headLine">Changes to this Privacy Policy
+    </h4>
+
+    <P class="paragraph">
+        Sharefest may amend this policy from time to time. If we make any substantial changes in the way we use your
+        personal information we will notify you by posting a prominent announcement on our pages.
+
+    </P>
+
+</div>
+
+
+<footer class="termsFooter">
+
+</footer>
+
+</body>
+</html>
