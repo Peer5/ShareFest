@@ -23,6 +23,7 @@ exports.NONE = 0;
         'core/apiValidators/ApiValidatorBase.js',
         'core/apiValidators/ApiValidator.js',
         'core/apiValidators/DataChannelsValidator.js',
+        'core/apiValidators/FileSystemApiValidator.js',
         'core/transport/AbstractPeerConnection.js',
         'core/transport/PeerConnectionImpl.js',
         'core/transport/WsConnection.js',

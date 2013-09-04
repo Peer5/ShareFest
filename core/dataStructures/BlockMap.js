@@ -18,9 +18,12 @@
             this.availabilityMap = new peer5.core.dataStructures.AvailabilityMap(this.numOfBlocks);
             this.fs = false;
             this._registerEvents();
-            if(peer5.config.USE_FS)
+            if(peer5.config.USE_FS){
                 this.lruMap = new peer5.core.dataStructures.LRU(Math.floor(peer5.config.CACHE_SIZE/peer5.config.BLOCK_SIZE)
                     ,this._lruRemoveCb);
+                this._initiateFileSystem();
+            }
+
         },
 
 
@@ -96,7 +99,7 @@
                     if(retval == true){
                         //read from fs
                         var blockOffset = indices.block*peer5.config.BLOCK_SIZE;
-                        peer5.core.data.FSio.read(this.metadata.name,blockOffset,blockOffset+peer5.config.BLOCK_SIZE
+                        peer5.core.data.FSio.read(this.resourceId,blockOffset,blockOffset+peer5.config.BLOCK_SIZE
                             ,function(succ,data){
                                 if(succ){
                                     var block = thi$.privateBlockMap[indices.block];
@@ -182,7 +185,7 @@
                     //writing to Filesystem:
                     var thi$ = this;
                     if (peer5.config.USE_FS && this.fs) {
-                        peer5.core.data.FSio.write(thi$.metadata.name,new Blob([thi$.getBlock(blockId)]),blockId*peer5.config.BLOCK_SIZE,function(succ){
+                        peer5.core.data.FSio.write(thi$.resourceId,new Blob([thi$.getBlock(blockId)]),blockId*peer5.config.BLOCK_SIZE,function(succ){
                             if(succ){
                                 //adding the block to the lruMap
                                 thi$.lruMap.set(blockId,thi$.privateBlockMap[blockId]);
@@ -210,15 +213,15 @@
             return this.metadata;
         },
 
-        initiateFromLocalData:function(blockId,endBlockId){
+        initiateFromLocalData:function(cb,blockId,endBlockId){
             var thi$ = this;
             if(!endBlockId && endBlockId != 0) {
-                peer5.core.data.FSio.getResourceDetails(this.metadata.name,function(succ,details){
+                peer5.core.data.FSio.getResourceDetails(this.resourceId,function(succ,details){
                    var endBlockId = Math.floor(details.size/peer5.config.BLOCK_SIZE);
-                   thi$.initiateFromLocalData(blockId,endBlockId);
+                   thi$.initiateFromLocalData(cb,blockId,endBlockId);
                 });
             }else{
-                peer5.core.data.FSio.read(thi$.metadata.name,blockId*peer5.config.BLOCK_SIZE,(blockId+1)*peer5.config.BLOCK_SIZE,function(succ,data){
+                peer5.core.data.FSio.read(thi$.resourceId,blockId*peer5.config.BLOCK_SIZE,(blockId+1)*peer5.config.BLOCK_SIZE,function(succ,data){
                     if(succ){ //the block is read now we need to verify it against corruptions
                         if(thi$.initiateBlockFromLocalData(blockId,data)){
                             peer5.log("successfully initiated block " + blockId + " from filesystem " + Date.now());
@@ -228,10 +231,10 @@
                         if(blockId < endBlockId)
                         {
                             blockId++
-                            thi$.initiateFromLocalData(blockId,endBlockId);
+                            thi$.initiateFromLocalData(cb,blockId,endBlockId);
                         }else{
                             peer5.info("finished initiating from filesystem");
-                            radio('resourceInit').broadcast(thi$.metadata.url,thi$.metadata.size);
+                            cb(true);
                         }
                     }else{
                         peer5.warn("couldn't initiate block " + blockId + " from filesystem");
@@ -253,7 +256,7 @@
                     this.firstMissingBlock++;
                 }
                 for(var i=0; i<Math.ceil(data.length/peer5.config.CHUNK_SIZE);++i)
-                    radio('peer5_received_fs_chunk').broadcast(blockId*this.numOfChunksInBlock+i,this.metadata.swarmId);
+                    radio('peer5_received_fs_chunk').broadcast(blockId*this.numOfChunksInBlock+i,this.resourceId);
                 if(this.isFull()) radio('transferFinishedEvent').broadcast(this); //only call when a new block is completed
                 this.availabilityMap.set(blockId);
                 return true;
@@ -275,13 +278,114 @@
                 peer5.info('saving file without file system api ')
             }
         },
+
+        changeResourceId:function(newResourceId,cb){
+            var thi$ = this;
+            peer5.core.data.FSio.renameResource(this.resourceId,newResourceId,function(succ){
+                if(succ){
+                    thi$.resourceId = newResourceId;
+                }
+                cb(succ);
+            });
+        },
         /** @private functions*/
         _registerEvents:function(){
             var thi$ = this;
             this._lruRemoveCb = function(blockId,block){
-                console.log("block " + blockId + " was removed from lru");
                 thi$._removeBlockData(blockId);
             };
+        },
+
+        _initiateFileSystem:function(){
+            var thi$ = this;
+            var resourceId = this.resourceId;
+            peer5.core.data.FSio.requestQuota(this.fileSize,function(succ,freeSpace){
+                if(succ){ //success to create filesystem
+                    peer5.core.data.FSio.isExist(resourceId,function(succ){
+                        if(succ){ //file exists
+                            peer5.info("Resource " + resourceId + " exists already in the filesystem.");
+                            thi$.fs = true;
+                            thi$.initiateFromLocalData(function(succ){
+                                if(succ){ //initiated from local data
+                                    var fileSizeLeft = (thi$.numOfBlocks - thi$.numOfVerifiedBlocks)*peer5.config.BLOCK_SIZE;
+                                    if(freeSpace > fileSizeLeft){ //we hav enough space
+                                        radio('filesystemInitiated').broadcast();
+                                        radio('resourceInit').broadcast(thi$.metadata);
+                                    }else{ //we don't hav enough space, try #1
+                                        peer5.warn("We don't have enough space for the file");
+                                        peer5.config.USE_FS = false;
+                                        radio('resourceInit').broadcast(thi$.metadata);
+                                        radio('filesystemInitiated').broadcast();
+                                        //TODO: remove other files
+                                        //TODO: ask for more quota
+                                        //TODO: fallback to no filesystem
+                                    }
+                                } else{ //problem initiating from local data
+                                    //TODO: delete resource and go to file doesn't exist usecase.
+                                    peer5.warn("There was a problem initiating from filesystem");
+                                }
+                            },0);
+                            //TODO: verify that freeSpace > amount of file left to download
+                        }else{ //file doesn't exist
+                            peer5.info("Resource " + resourceId + " doesn't exist in the filesystem.");
+                            if(freeSpace > thi$.fileSize){ //we have enough space let's create the resource
+                                peer5.core.data.FSio.createResource(resourceId,function(succ){
+                                    if(succ){
+                                        thi$.fs = true;
+                                    }else{
+                                        thi$.fs = false;
+                                    }
+                                    radio('resourceInit').broadcast(thi$.metadata);
+                                    radio('filesystemInitiated').broadcast();
+                                });
+                            }else{ //we don't have enough space, try #1
+                                peer5.core.data.FSio.removeRootDir(function(){
+                                    peer5.core.data.FSio.queryQuota(function(succ,usage,quota){
+                                        if(quota - usage > thi$.fileSize){ //we have enough space let's create the resource
+                                            peer5.core.data.FSio.createResource(resourceId,function(succ){
+                                                if(succ){
+                                                    thi$.fs = true;
+                                                }else{
+                                                    thi$.fs = false;
+                                                }
+                                                radio('resourceInit').broadcast(thi$.metadata);
+                                                radio('filesystemInitiated').broadcast();
+                                            });
+                                        }else{ //we don't have enough space, try #2
+                                            peer5.core.data.FSio.requestQuota(thi$.fileSize + usage,function(succ,freeSpace){
+                                                if(succ){
+                                                    if(freeSpace > thi$.fileSize){ //we have enough space let's create the resource
+                                                        peer5.core.data.FSio.createResource(resourceId,function(succ){
+                                                            if(succ){
+                                                                thi$.fs = true;
+                                                            }else{
+                                                                thi$.fs = false;
+                                                            }
+                                                            radio('resourceInit').broadcast(thi$.metadata);
+                                                            radio('filesystemInitiated').broadcast();
+                                                        });
+                                                    }else{ //we don't have enough space, try #3
+                                                        peer5.warn("We don't have enough space for the file");
+                                                        peer5.config.USE_FS = false;
+                                                        radio('resourceInit').broadcast(thi$.metadata);
+                                                        radio('filesystemInitiated').broadcast();
+                                                        //TODO: fallback to no filesystem
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    })
+                                });
+                            }
+                        }
+                    })
+                }else{ //failed to create filesystem
+                    peer5.warn("failed to create the filesystem");
+                    peer5.config.USE_FS = false;
+                    radio('resourceInit').broadcast(thi$.metadata);
+                    radio('filesystemInitiated').broadcast();
+                }
+            })
         },
 
         _removeBlockData:function(blockId){
@@ -292,7 +396,7 @@
         _saveLocallyUsingFSio:function(){
             peer5.debug("saveLocally called");
             var thi$ = this;
-            peer5.core.data.FSio.createObjectURL(this.metadata.name,function(succ,url){
+            peer5.core.data.FSio.createObjectURL(this.resourceId,function(succ,url){
                 if(!succ) return;
                 var a = document.createElement('a');
                 a.setAttribute('download', thi$.metadata.name);

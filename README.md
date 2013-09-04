@@ -1,9 +1,9 @@
-![Sharefest](https://raw.github.com/Peer5/ShareFest/master/sharefest/public/img/logo.png)
+![Sharefest](https://raw.github.com/Peer5/ShareFest/master/public/img/logo.png)
 
 One-To-Many sharing application. Serverless.
 Eliminates the need to fully upload your file to services such as Dropbox or Google Drive.
-Put your file and start sharing immediately with anyone that enters the page.
-Pure javascript-based. No plugins needed thanks to HTML5 WebRTC Data Channel API - http://webrtc.org
+Put your file and start sharing immidiately with anyone that enters the page.
+Pure javascript-based, no plugins needed, thanks to HTML5 WebRTC Data Channel API - http://webrtc.org
 
 How does it work
 ================
@@ -16,8 +16,8 @@ Peer5 Coordinator (or any other solution) is used to accomplish this.
 Each peer will connect to few other peers in order to maximize the distribution of the file.
 Supporting Chrome (>26, now stable) and Firefox (>19)
 
-First version includes a simple page that one user will drag a file onto to
-share, and other users will enter the first user's url and start downloading the file.
+First version includes a simple page that one user will drag a file to
+share, and a other users will enter the first user's url and start downloading the file.
 
 test it out at: http://sharefest.me
 

@@ -24,8 +24,9 @@ exports.SimpleTracker = ITracker.subClass({
             if (swarm.count > 0) {
                 var peers = swarm.getRandomK(this.MAX_PEERS_MATCH);
                 //create Match message
+                //TODO: loop thru peers and send one by one
                 if (peers && peers.length > 0) {
-                    sender.send(peerId, new protocol.Match(swarm.id, peers, null, null, null));
+                    sender.send(peerId, new protocol.Match(swarm.id, peers));
                 }
             }
             swarm.addPeer(peerId);

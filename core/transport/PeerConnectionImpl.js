@@ -94,10 +94,10 @@
                 peer5.debug("sending data on dataChannel");
                 thi$.dataChannel.send(message);
             } else {
-                peer5.info('dataChannel wasnt ready, seting timeout');
+                peer5.info('dataChannel was not ready, setting timeout');
                 setTimeout(function (dataChannel, message) {
                     thi$.send(dataChannel, message);
-                }, 1000, thi$.dataChannel, message);
+                }, peer5.config.PC_RESEND_INTERVAL, thi$.dataChannel, message);
             }
         },
         close:function(){
@@ -114,6 +114,7 @@
                 this.ensureHasDataChannel();
             var id = setTimeout(function (thi$) {
                 if (!thi$.ready) {
+                    peer5.info("ready state of PCImpl to " + thi$.targetId + " = " + thi$.ready);
                     thi$.failure = true;
                     peer5.warn("couldn't connect to " + thi$.targetId);
                     thi$.handlePeerDisconnection(thi$.targetId);
@@ -184,7 +185,7 @@
 
             this.onDataChannelReadyStateChange_ = function (event) {
                 var readyState = event.target.readyState;
-                peer5.info('DataChannel state:' + readyState);
+                peer5.info('DataChannel to ' + thi$.targetId + ' state:' + readyState);
                 if (readyState.toLowerCase() == 'open') {
                     thi$.ready = true;
                     thi$.connectingDuration = Date.now() - thi$.startTime;
@@ -225,7 +226,6 @@
             try {
                 peer5.info("webkitRTCPeerConnection");
                 if(window.mozRTCPeerConnection)
-//                    this.peerConnection = new this.RTCPeerConnection();
                     this.peerConnection = new this.RTCPeerConnection();
                 else
                     this.peerConnection = new this.RTCPeerConnection(
@@ -302,7 +302,7 @@
 //            if(this.dataChannel.readyState == "closed" &&
 //                ((this.peerConnection.signalingState && this.peerConnection.signalingState == "closed")
 //                    || (this.peerConnection.readyState && this.peerConnection.readyState == "closed")))
-                radio('connectionFailed').broadcast(this.targetId);
+            radio('connectionFailed').broadcast(this.targetId);
         }
     })
 })();

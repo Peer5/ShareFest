@@ -51,12 +51,24 @@
 
         deserializeAndCopy:function (bitArray) {
             this.bitArray = bitArray;
+            var numOfOnBits = 0;
+            for(var i=0; i < bitArray.length; ++i){
+                if(bitArray[i] != 0){
+                    //how many on bits in this byte
+                    for(var j=0;j<this.bitMask.length;++j){
+                        if(this.bitArray[i] & this.bitMask[j])
+                            numOfOnBits++;
+                    }
+                }
+            }
+            this.numOfOnBits = numOfOnBits;
         },
 
         deserializeAndUpdate:function (blockIds) {
             for (var i = 0; i < blockIds; ++i) {
                 this.set(blockIds[i]);
             }
+            this.numOfOnBits += blockIds.length;
         },
 
         /** @Private Methods*/

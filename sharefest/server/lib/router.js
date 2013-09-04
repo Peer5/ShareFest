@@ -97,15 +97,17 @@ exports.configure = function (app, rootdir) {
         res.sendfile(rootdir + '/public/press.html');
     });
 
+    app.get('/download', function (req, res) {
+        res.sendfile(rootdir + '/public/download.html');
+    });
+
+    app.get('/demo', function (req, res) {
+        res.redirect("https://www.sharefest.me/ec90ce95");
+    });
+
     app.get('/about', function (req, res) {
         res.redirect("https://github.com/peer5/sharefest#about");
     });
-
-
-    app.get('/howdoesitwork', function (req, res) {
-        res.redirect("https://github.com/Peer5/ShareFest#how-does-it-work");
-    });
-
 
     app.get('/contact', function (req, res) {
         res.redirect("mailto://sharefest@peer5.com");

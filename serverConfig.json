@@ -1,5 +1,5 @@
 {
-    "blockSize": 512000,
+    "blockSize": 1024000,
     "clientTimeout": 20000,
     "logLevel": 4,
     "trackerPath":"../core/tracker/SimpleTracker.js"

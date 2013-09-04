@@ -6,11 +6,11 @@
             this.pendingObjectUrlCb = {};
             this.finishWriteCbs = [];
 //            this.removeAll(function(){window.webkitRequestFileSystem(window.TEMPORARY, peer5.config.FS_SIZE, this.onInitFs, this.errorHandler);});
-            window.webkitRequestFileSystem(window.TEMPORARY, peer5.config.FS_SIZE, this.onInitFs, this.errorHandler);
+//            window.webkitRequestFileSystem(window.TEMPORARY, peer5.config.FS_SIZE, this.onInitFs, this.errorHandler);
         },
 
         createResource:function(resourceId,cb,single){ //single:true - single file, :false a directory
-            peer5.log("Adding resource " + resourceId + " to the filesystem.");
+            peer5.info("Adding resource " + resourceId + " to the filesystem.");
             var thi$ = this;
             this.fs.root.getFile(peer5.config.FS_ROOT_DIR + resourceId,{create:true},function(fileEntry){
                 if(cb) cb(true);
@@ -25,6 +25,19 @@
                     if(cb) cb(true);
                 },function(e){thi$.errorHandler(e);if(cb) cb(false);})
             },function(e){thi$.errorHandler(e);if(cb) cb(false);})
+        },
+
+        renameResource:function(oldResourceId,newResourceId,cb){
+            peer5.info("changing resource name from " + oldResourceId + " to " + newResourceId);
+            var thi$ = this;
+            this.fs.root.getDirectory(peer5.config.FS_ROOT_DIR,{create:false},function(dirEntry){
+                dirEntry.getFile(oldResourceId,{create:false},function(fileEntry){
+                    fileEntry.moveTo(dirEntry,newResourceId,function(succ){
+                        if(succ) peer5.info("succesfully renamed");
+                        if(cb) cb(succ);
+                    },function(e){thi$.errorHandler(e);if(cb) cb(false);});
+                },function(e){thi$.errorHandler(e);if(cb) cb(false);});
+            },function(e){thi$.errorHandler(e);if(cb) cb(false);});
         },
 
         write:function(resourceId,data,position, cb){    //implementation supports single file only
@@ -112,20 +125,53 @@
         },
 
         removeAll:function(cb){
+            peer5.warn("removing all files in filesystem");
             var thi$ = this;
             var dirReader = this.fs.root.createReader();
             dirReader.readEntries(function(entries) {
                 for (var i = 0, entry; entry = entries[i]; ++i) {
                     if (entry.isDirectory) {
-                        entry.removeRecursively(function() {}, function(e){thi$.errorHandler(e);if(cb) cb(false);});
+                        entry.removeRecursively(function() {if(cb) cb(true);}, function(e){thi$.errorHandler(e);if(cb) cb(false);});
                     } else {
-                        entry.remove(function() {}, function(e){thi$.errorHandler(e);if(cb) cb(false);});
+                        entry.remove(function() {if(cb) cb(true);}, function(e){thi$.errorHandler(e);if(cb) cb(false);});
                     }
                 }
                 peer5.debug('Directory emptied.');
             },function(e){thi$.errorHandler(e);if(cb) cb(false);} );
         },
 
+        removeRootDir:function(cb){
+            peer5.warn("removing all files in filesystem under " + peer5.config.FS_ROOT_DIR);
+            var thi$ = this;
+            var dirReader = this.fs.root.createReader();
+            dirReader.readEntries(function(entries) {
+                for (var i = 0, entry; entry = entries[i]; ++i) {
+                    if (entry.isDirectory && entry.name + '/' == peer5.config.FS_ROOT_DIR) {
+                        entry.removeRecursively(function() {
+                            thi$.fs.root.getDirectory(peer5.config.FS_ROOT_DIR,{create:true},function(dirEntry){
+                                cb(true);
+                            },thi$.errorHandler)
+                        }, function(e){thi$.errorHandler(e);if(cb) cb(false);});
+                    }
+                }
+                peer5.debug('Directory emptied.');
+            },function(e){thi$.errorHandler(e);if(cb) cb(false);} );
+        },
+
+        //cb(succ,freespace)
+        requestQuota:function(size,cb){
+            peer5.info("requesting quota size = " + size);
+            var thi$ = this;
+            var requestSize = 1.1*size; //taking 10% overhead
+            window.webkitRequestFileSystem(window.TEMPORARY, requestSize, function(fs){
+                thi$.onInitFs(fs);
+                thi$.queryQuota(function(succ,usage,quota){
+                        cb(true,quota-usage);
+                })
+            },function(e){thi$.errorHandler(e);if(cb) cb(false);});
+        },
+
+        //cb(succ,usage,quota)
         queryQuota:function(cb){
             navigator.webkitTemporaryStorage.queryUsageAndQuota(function(usage, quota) {
                 peer5.info('Using: ' + (usage / quota) * 100 + '% of temporary storage');
@@ -182,7 +228,7 @@
                         fileWriter.write(data); //assuming data is of type blob
                     }
                 },function(e){thi$.errorHandler(e);if(cb) cb(false);});
-            });
+            },function(e){thi$.errorHandler(e);if(cb) cb(false);});
         },
 
         _addWriteCommand:function(resourceId,data,position,cb){
@@ -195,7 +241,7 @@
             this.onInitFs = function(fs){
                 thi$.fs = fs;
                 fs.root.getDirectory(peer5.config.FS_ROOT_DIR,{create:true},function(dirEntry){
-                    peer5.info("initiate filesystem");
+                    peer5.info("initiated filesystem");
                 },thi$.errorHandler)
             };
 

@@ -11,7 +11,6 @@
             this.peerConnectionImpl = null;
             this.prefetchFlag = {};
             this.resourceState = {}; //<resourceId,bool> true===everything is normal, false === error/pause/stop
-            this.registerEvents();
             this.configureBrowserSpecific();
             this.availableTimeStamp = 0;
         },
@@ -24,6 +23,7 @@
             if (forceInit || !this.remoteAvailabilityMaps[swarmId])
                 this.remoteAvailabilityMaps[swarmId] = {};
             this.prefetchFlag[swarmId] = prefetch;
+            this.registerEvents();
         },
 
         /** @Public Methods*/
@@ -95,8 +95,11 @@
         isAvailable:function(swarmId){
             if(!this.resourceState[swarmId]) return false;
             var availableTimeStamp = Date.now();
+            var bm = peer5.core.data.BlockCache.get(swarmId);
             for (var peerId in this.peerConnections) {
-                if (this.remoteAvailabilityMaps[swarmId][peerId] && this.peerConnections[peerId].numOfPendingChunks < 0.9 * this.peerConnections[peerId].maxNumOfPendingChunks) {
+                if (this.remoteAvailabilityMaps[swarmId][peerId]
+                    && this.remoteAvailabilityMaps[swarmId][peerId].numOfOnBits > bm.numOfVerifiedBlocks //only consider peers that can actually give me something TODO: change this to diff on availabilitymaps
+                    && this.peerConnections[peerId].numOfPendingChunks < 0.9 * this.peerConnections[peerId].maxNumOfPendingChunks) {
 //                    console.log("++++P2P is available++++ " + this.peerConnections[peerId].numOfPendingChunks + " " + this.peerConnections[peerId].maxNumOfPendingChunks + " " + (availableTimeStamp - this.availableTimeStamp));
                     this.availableTimeStamp = availableTimeStamp;
                     return true;
@@ -510,7 +513,11 @@
 
         closeConnection:function (peerId) {
             peer5.warn("closing connection with " + peerId + " due to high packet loss");
-            this.peerConnections[peerId].close();
+            if(this.peerConnections[peerId]){
+                peer5.info(this.peerConnections[peerId]);
+                this.peerConnections[peerId].close();
+                delete this.peerConnections[peerId];
+            }
         },
 
         canUpload:function(swarmId){
