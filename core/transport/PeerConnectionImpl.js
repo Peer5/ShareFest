@@ -114,6 +114,7 @@
                 this.ensureHasDataChannel();
             var id = setTimeout(function (thi$) {
                 if (!thi$.ready) {
+                    peer5.info("ready state of PCImpl to " + thi$.targetId + " = " + thi$.ready);
                     thi$.failure = true;
                     peer5.warn("couldn't connect to " + thi$.targetId);
                     thi$.handlePeerDisconnection(thi$.targetId);
@@ -184,7 +185,7 @@
 
             this.onDataChannelReadyStateChange_ = function (event) {
                 var readyState = event.target.readyState;
-                peer5.info('DataChannel state:' + readyState);
+                peer5.info('DataChannel to ' + thi$.targetId + ' state:' + readyState);
                 if (readyState.toLowerCase() == 'open') {
                     thi$.ready = true;
                     thi$.connectingDuration = Date.now() - thi$.startTime;
@@ -223,6 +224,7 @@
                 servers.iceServers.push({url:"turn:" + turn_servers[j], credential:turn_creds[j]});
             }
             try {
+                peer5.info("webkitRTCPeerConnection");
                 if(window.mozRTCPeerConnection)
                     this.peerConnection = new this.RTCPeerConnection();
                 else
@@ -300,7 +302,7 @@
 //            if(this.dataChannel.readyState == "closed" &&
 //                ((this.peerConnection.signalingState && this.peerConnection.signalingState == "closed")
 //                    || (this.peerConnection.readyState && this.peerConnection.readyState == "closed")))
-                radio('connectionFailed').broadcast(this.targetId);
+            radio('connectionFailed').broadcast(this.targetId);
         }
     })
 })();

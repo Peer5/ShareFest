@@ -100,7 +100,7 @@
 
         sendData:function (packedData) {
             if (this.socketReadyToSend()) {
-                peer5.log('sending data: ' + (Date.now()));
+                peer5.log('sending data on websockets, at time: ' + (Date.now()));
                 this.socket.send(packedData);
             } else {
                 peer5.warn('cant send data - socket is not defined');

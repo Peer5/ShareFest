@@ -61,6 +61,10 @@ module.exports.instance = new function () {
                             case protocol.SDP:
                                 thi$.send(entry.destId,entry);
                                 break;
+
+                            case protocol.COMPLETED_DOWNLOAD:
+                                tracker.onDownloadCompleted(entry.swarmId);
+                                break;
                         }
                     }
                 } else {

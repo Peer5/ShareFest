@@ -13,6 +13,7 @@
     exports.SWARM_HEALTH = 0x29;
     exports.SWARM_ERROR = 0x30;
     exports.SDP = 0x31;
+    exports.COMPLETED_DOWNLOAD = 0x32;
 
 //    attributes (ordered)
 //    swarmId - 4bytes - only the intial 4 bytes will be encoded. We have a slight chance for collision, but even if there is, the pollution detection will prevent serious problems.
@@ -94,7 +95,7 @@
 //    major (byte)
 //        ?minor (byte)
 //        availability block map (variable length)
-    function Report(swarmId, last_requested_block_id, total_bytes_up_P2P, total_bytes_down_P2P, total_bytes_down_HTTP,total_waste_P2P,total_waste_HTTP, speed_up, speed_down, connections, ua, availabilityMap,numOfBlocksHave,fileSize) {
+    function Report(swarmId, last_requested_block_id, total_bytes_up_P2P, total_bytes_down_P2P, total_bytes_down_HTTP,total_waste_P2P,total_waste_HTTP, speed_up, speed_down, connections, ua, availabilityMap,numOfBlocksHave,fileSize,completedDownload) {
         this.tag = exports.REPORT;
         this.swarmId = swarmId;
         this.lastRequestedBlockId = last_requested_block_id;
@@ -110,6 +111,7 @@
         this.availabilityMap = availabilityMap;
         this.numOfBlocksHave = numOfBlocksHave;
         this.fileSize = fileSize;
+        this.completedDownload = completedDownload;
     }
 
     function Join(swarmId) {
@@ -177,11 +179,12 @@
         this.type = type;
     }
 
-    function SwarmHealth(swarmId , numOfSeedersInSwarm , NumOfPeersInSwarm){
+    function SwarmHealth(swarmId , numOfSeedersInSwarm , NumOfPeersInSwarm, totalCompletedDownloads){
         this.tag = exports.SWARM_HEALTH;
         this.swarmId = swarmId;
         this.numOfSeedersInSwarm = numOfSeedersInSwarm;
         this.NumOfPeersInSwarm = NumOfPeersInSwarm;
+        this.totalCompletedDownloads = totalCompletedDownloads;
 
     }
 
@@ -198,4 +201,4 @@
     exports.SwarmHealth = SwarmHealth;
     exports.SwarmError = SwarmError;
 })
-    (typeof exports === 'undefined' ? peer5.core.protocol : exports);
+(typeof exports === 'undefined' ? peer5.core.protocol : exports);

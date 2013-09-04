@@ -6,6 +6,15 @@ var tracker = require('../../' + config.trackerPath);
 
 
 exports.configure = function (app, rootdir) {
+
+    //https redirect
+//    app.get('*', function (req, res, next) {
+//        if (!req.secure) {
+//            return res.redirect('https://' + req.get('Host') + req.url);
+//        }
+//        next();
+//    });
+
     //buildify
     app.get('/client.js', function (req, res) {
         var ua = req.headers['user-agent'];
@@ -71,6 +80,10 @@ exports.configure = function (app, rootdir) {
         res.send(200, swarmId);
     });
 
+    app.get('/B', function (req, res) {
+        res.sendfile(rootdir + '/public/new.html');
+    });
+
     app.get('/browser', function (req, res) {
         res.sendfile(rootdir + '/public/browser.html');
     });
@@ -86,6 +99,10 @@ exports.configure = function (app, rootdir) {
 
     app.get('/download', function (req, res) {
         res.sendfile(rootdir + '/public/download.html');
+    });
+
+    app.get('/demo', function (req, res) {
+        res.redirect("https://www.sharefest.me/ec90ce95");
     });
 
     app.get('/about', function (req, res) {
@@ -104,4 +121,5 @@ exports.configure = function (app, rootdir) {
         //todo: bind the room info to the page and output
         res.sendfile(rootdir + '/public/index.html');
     });
-};
+}
+;

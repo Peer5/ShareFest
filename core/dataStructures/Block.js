@@ -23,21 +23,29 @@
                 return false
         },
 
-        getBlockChunks:function(blockId){
-            if(this.verified){
-                var bufferDict = {};
-                for(var i=0;i<this.length;++i){
-                    bufferDict[blockId*peer5.config.BLOCK_SIZE/peer5.config.CHUNK_SIZE+i] = this.getChunk(i);
-                }
-                return bufferDict;
+        setBlock:function(data){
+            if(this.verified && data.length == this.blockSize){
+                this.buffer = data;
             }
         },
 
+//        getBlockChunks:function(blockId){
+//            if(this.verified){
+//                var bufferDict = {};
+//                for(var i=0;i<this.length;++i){
+//                    bufferDict[blockId*peer5.config.BLOCK_SIZE/peer5.config.CHUNK_SIZE+i] = this.getChunk(i);
+//                }
+//                return bufferDict;
+//            }
+//        },
+
         getChunk:function(chunkOffset){
             if(this.verified){
-                var startOffset = chunkOffset*peer5.config.CHUNK_SIZE; //inclusive
-                var endOffset = (1+chunkOffset)*peer5.config.CHUNK_SIZE; //exclusive
-                return this.buffer.subarray(startOffset,endOffset);
+                    if(this.buffer){
+                        var startOffset = chunkOffset*peer5.config.CHUNK_SIZE; //inclusive
+                        var endOffset = (1+chunkOffset)*peer5.config.CHUNK_SIZE; //exclusive
+                        return this.buffer.subarray(startOffset,endOffset);
+                    }else return true;
             }else
                 return false;
         },
@@ -57,13 +65,23 @@
             this.chunkMap[chunkOffset] = true;
         },
 
+        setChunkOn:function(chunkOffset){
+            if(!this.chunkMap)
+                this.chunkMap = [];
+            this.chunkMap[chunkOffset] = true;
+        },
+
         getNumOfChunks:function(){
             return this.length;
         },
 
+        removeBlockData:function(){
+            delete this.buffer;
+        },
+
 
         //returns number of new verified blocks
-        verifyBlock:function(){
+        verifyBlock:function(extData){
             if(this.verified)
                 return 0;
             for(var i=0;i<this.length;++i){
@@ -73,6 +91,7 @@
             }
 
             //TODO: add hash function
+            //TODO: if extData, use hash function on it
 //            if (this.hash == null)
             this.verified = true;
             return 1;

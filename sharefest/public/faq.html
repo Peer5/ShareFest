@@ -3,12 +3,33 @@
 <head>
     <title>Sharefest FAQ</title>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="css/main_new.css" rel="stylesheet">
+    <script>
+        if (location.host == 'www.sharefest.me') { // don't start analytics if in wrong domain
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r;
+                i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+                a = s.createElement(o),
+                        m = s.getElementsByTagName(o)[0];
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+            ga('create', 'UA-39731388-1');
+            ga('send', 'pageview');
+        } else {
+            ga = function(param) { peer5.log('ga called with params ' + JSON.stringify(arguments))}
+        }
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
 </head>
 <body class="bg">
-<a href="https://github.com/peer5/sharefest" target="_blank"><img
-        style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"
-        src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
-        alt="Fork me on GitHub"></a>
 
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
@@ -22,15 +43,23 @@
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li class="active"><a href="/">
-                        <img src="/img/symbol.png" style="height: 18px;">
+                        <img alt="sharefest" src="/img/symbol.png" style="height: 18px;">
                     </a></li>
                     <li><a target="_blank" href="/about">About</a></li>
                     <li><a target="_blank" href="/faq">FAQ</a></li>
                     <!--<li><a target="_blank" href="/howdoesitwork">How it works</a></li>-->
                     <!--<li><a target="_blank" href="/issues">FAQ</a></li>-->
                     <li><a target="_blank" href="http://webchat.freenode.net/?channels=sharefest">Live chat</a></li>
+                    <li><a target="_blank" href="/demo"><div>Demo<span class="label-upper-desc">New</span></div></a></li>
+                    <li><a target="_blank" href="/beta.html"><div>Sharefest for websites<span class="label-upper-desc">New</span></div></a></li>
                     <li><a target="_blank" href="/upload">Upload file</a></li>
                 </ul>
+
+
+                <a style="right: 60px; top: 10px; position: absolute" target="_blank"
+                   href="http://twitter.com/sharefestme"><img alt="twitter" src="/img/twitter_icon.png"/></a>
+                <a style="right: 20px; top: 6px; position: absolute" target="_blank"
+                   href="http://github.com/Peer5/Sharefest"><img alt="github" src="img/github_icon.png"/></a>
             </div>
             <!--/.nav-collapse -->
         </div>
@@ -55,7 +84,7 @@
     can enter and start downloading specific files. This files are
     currently added by the room creator.
     A room has a swarm of peers that are connected in a <a href="#swarming">mesh network</a>
-    For example room b909410e can be found on <a href="http://www.sharefest.me/b909410e">http://www.sharefest.me/b909410e</a>
+    For example room "ec90ce95" can be found on <a href="https://www.sharefest.me/ec90ce95">http://www.sharefest.me/b909410e</a>
     </p>
 
     <h3>Can't I use Gmail for that?</h3>
@@ -97,7 +126,7 @@
         Currently Google Chrome and Mozilla Firefox.
     </p>
 
-    <h3>Do I have to open my ports for that?</h3>
+    <h3>do I have to open my ports for that?</h3>
     <p>
         Usually no. Sharefest use standard WebRTC NAT traversal protocol - <a href="http://en.wikipedia.org/wiki/STUN">STUN</a>.
     </p>
@@ -141,6 +170,20 @@
     <h3>Why do you have such an ugly logo?</h3>
     <p>Because we are not designers. You are welcome to submit a new one.
         We do love our icon though</p>
+
+    <h3 id="spaceLimit">Why do I get a "Not enough disk space to download this file" message?</h3>
+    <p>To support the delivery of large files Sharefest uses HTML5 FileSystem API for storing the file temporarily in your browser.
+       This API is supported only by Chrome and it won't work in incognito mode.
+        It only works if you have enough space on your disk for us to use. More precisely Chrome let us use up to 10% of your free disk space. This means that if you'd like to download or share a big file you'll have to have 10x free space than the file size.
+        <a href=https://developers.google.com/chrome/whitepapers/storage>Would you like to know more?</a>.
+    </p>
+
+    <h3 id="spaceLimit2">Why do I get a "Could not add this file" message?</h3>
+    <p>To support the delivery of large files Sharefest uses HTML5 FileSystem API for storing the file temporarily in your browser.
+        This API is supported only by Chrome and it won't work in incognito mode.
+        It only works if you have enough space on your disk for us to use. More precisely Chrome let us use up to 10% of your free disk space. This means that if you'd like to download or share a big file you'll have to have 10x free space than the file size.
+        <a href=https://developers.google.com/chrome/whitepapers/storage>Would you like to know more?</a>.
+    </p>
 
     <h3>What is this weird icon?</h3>
     <p>No one knows. Some think it's a happy, festing star.<br>

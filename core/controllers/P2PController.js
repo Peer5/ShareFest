@@ -11,7 +11,6 @@
             this.peerConnectionImpl = null;
             this.prefetchFlag = {};
             this.resourceState = {}; //<resourceId,bool> true===everything is normal, false === error/pause/stop
-            this.registerEvents();
             this.configureBrowserSpecific();
             this.availableTimeStamp = 0;
         },
@@ -24,6 +23,7 @@
             if (forceInit || !this.remoteAvailabilityMaps[swarmId])
                 this.remoteAvailabilityMaps[swarmId] = {};
             this.prefetchFlag[swarmId] = prefetch;
+            this.registerEvents();
         },
 
         /** @Public Methods*/
@@ -57,6 +57,7 @@
             //store the needed blocks for the specific swarm
             peer5.log("startBlock = " + startBlock + " endBlock = " + endBlock);
             var chunkIds = this.allocateChunks(swarmId, startBlock, endBlock);
+            //console.log(chunkIds[0] + ' ' + chunkIds[chunkIds.length - 1]);
             this.distributeChunksAmongSources(swarmId, chunkIds);
         },
 
@@ -94,8 +95,11 @@
         isAvailable:function(swarmId){
             if(!this.resourceState[swarmId]) return false;
             var availableTimeStamp = Date.now();
+            var bm = peer5.core.data.BlockCache.get(swarmId);
             for (var peerId in this.peerConnections) {
-                if (this.remoteAvailabilityMaps[swarmId][peerId] && this.peerConnections[peerId].numOfPendingChunks < 0.9 * this.peerConnections[peerId].maxNumOfPendingChunks) {
+                if (this.remoteAvailabilityMaps[swarmId][peerId]
+                    && this.remoteAvailabilityMaps[swarmId][peerId].numOfOnBits > bm.numOfVerifiedBlocks //only consider peers that can actually give me something TODO: change this to diff on availabilitymaps
+                    && this.peerConnections[peerId].numOfPendingChunks < 0.9 * this.peerConnections[peerId].maxNumOfPendingChunks) {
 //                    console.log("++++P2P is available++++ " + this.peerConnections[peerId].numOfPendingChunks + " " + this.peerConnections[peerId].maxNumOfPendingChunks + " " + (availableTimeStamp - this.availableTimeStamp));
                     this.availableTimeStamp = availableTimeStamp;
                     return true;
@@ -195,7 +199,7 @@
             //PeerConnection events
             radio('dataReceivedEvent').subscribe([function (packedData, originId) {
                 //identify the type of data received
-                var unpackedDataArray = peer5.core.protocol.BinaryProtocol.decode(new Uint8Array(packedData));
+                var unpackedDataArray =  peer5.core.protocol.BinaryProtocol.decode(new Uint8Array(packedData));
 
                 //for now peer that was disconnected cannot be restored - we might consider to changing this in the near future
                 if (!this.peerConnections[originId]) {
@@ -281,9 +285,10 @@
 
         receiveRequestMessage:function (requestMessage, originId) {
             peer5.log("received a request for " + requestMessage.chunkIds.length + " chunks");
-            for (var i = 0; i < requestMessage.chunkIds.length; ++i) {
-                this.sendData(requestMessage.swarmId, originId, requestMessage.chunkIds[i]);
-            }
+//            for (var i = 0; i < requestMessage.chunkIds.length; ++i) {
+//                this.sendData(requestMessage.swarmId, originId, requestMessage.chunkIds[i]);
+//            }
+            this.sendData(requestMessage.swarmId, originId, requestMessage.chunkIds, 0);
             radio('requestChunks').broadcast(requestMessage.swarmId, originId, requestMessage.chunkIds);
         },
 
@@ -355,13 +360,32 @@
             }
         },
 
-        sendData:function (swarmId, peerID, chunkId) {
+        sendData:function (swarmId, peerID, chunkIds , iter) {
             if(!this.canUpload(swarmId)) return;
             if(peer5.config.EMULATE_LOSS && Math.random() < peer5.config.EMULATE_LOSS_PERCENTAGE) return;
-            var dataMessage = new peer5.core.protocol.Data(swarmId, chunkId, peer5.core.data.BlockCache.get(swarmId).getChunk(chunkId));
-            var packedData = peer5.core.protocol.BinaryProtocol.encode([dataMessage]);
-            this.peerConnections[peerID].send(packedData);
-            radio('chunkSentEvent').broadcast(swarmId);
+            if(peer5.config.USE_FS){
+                var chunkId = chunkIds[iter];
+                iter++;
+                var thi$ = this;
+                peer5.core.data.BlockCache.get(swarmId).getChunk(chunkId,function(succ,data){
+                    var dataMessage = new peer5.core.protocol.Data(swarmId, chunkId,data);
+                    var packedData = peer5.core.protocol.BinaryProtocol.encode([dataMessage]);
+                    thi$.peerConnections[peerID].send(packedData);
+                    radio('chunkSentEvent').broadcast(swarmId);
+                    if(iter<chunkIds.length)
+                        thi$.sendData(swarmId, peerID, chunkIds, iter);
+                });
+            }else{
+                for(var i=0;i<chunkIds.length;++i){
+                    chunkId = chunkIds[i];
+                    var data = peer5.core.data.BlockCache.get(swarmId).getChunk(chunkId);
+                    var dataMessage = new peer5.core.protocol.Data(swarmId,chunkId,data);
+                    var packedData = peer5.core.protocol.BinaryProtocol.encode([dataMessage]);
+                    this.peerConnections[peerID].send(packedData);
+                    radio('chunkSentEvent').broadcast(swarmId);
+                }
+            }
+
         },
 
         sendHaveToNewConnection:function (swarmId, remotePeerId) {
@@ -489,7 +513,11 @@
 
         closeConnection:function (peerId) {
             peer5.warn("closing connection with " + peerId + " due to high packet loss");
-            this.peerConnections[peerId].close();
+            if(this.peerConnections[peerId]){
+                peer5.info(this.peerConnections[peerId]);
+                this.peerConnections[peerId].close();
+                delete this.peerConnections[peerId];
+            }
         },
 
         canUpload:function(swarmId){

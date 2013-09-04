@@ -56,13 +56,14 @@
             var removeFlag = null;
             var writeFlag = 0;
             var numOfChunks = 10;
+            var data = new Blob([new Uint8Array(512000)]);
             peer5.core.data.FSio.createResource(resourceId,function(succ){createFlag = succ});
             waitsFor(function(){return createFlag!=null},'FSio.createResource didnt finish on time',1000);
             runs(function(){
 //                console.log("createResource finished and was successful - " + createFlag);
                 expect(createFlag).toEqual(true);
                 for(var i=0;i<numOfChunks;++i){
-                    peer5.core.data.FSio.write(resourceId,new Blob(["lorem ipsum"]),0,function(succ){
+                    peer5.core.data.FSio.write(resourceId,data,data.size*i,function(succ){
                         if(succ) writeFlag++;
                         console.log("writing has return " + succ + " writeFlag= " + writeFlag);
                     });

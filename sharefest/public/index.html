@@ -1,20 +1,41 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
-      xmlns="http://www.w3.org/1999/html">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Sharefest</title>
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta property="og:description" content="Sharefest is a free service to send files directly">
+<meta name="description" content="Sharefest is a free service to send files directly">
 <!-- Bootstrap -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 
 <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 
-<!--<link href='http://fonts.googleapis.com/css?family=Courgette' rel='stylesheet' type='text/css'>-->
-<link href="css/main.css" rel="stylesheet">
+<link href="css/main_new.css" rel="stylesheet">
 <script type="text/javascript" src="/client.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/files.js"></script>
+<script>
+    if (location.host == 'www.sharefest.me') { // don't start analytics if in wrong domain
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-39731388-1');
+        ga('send', 'pageview');
+    } else {
+        ga = function(param) { peer5.log('ga called with params ' + JSON.stringify(arguments))}
+    }
+</script>
+
 <script type="text/javascript">
 
 window.onbeforeunload = function () {
@@ -23,12 +44,11 @@ window.onbeforeunload = function () {
                 "If you want to continue sharing this file or you're not sure the file got to its destination, " +
                 " please stay on this page";
     }
-}
+};
 
-window.setInterval(this.forceProgressUpdate, 3000, this);
 
 $(document).ready(function () {
-    var validator = new peer5.core.apiValidators.ApiValidator([peer5.core.apiValidators.DataChannelsApiValidator]);
+    var validator = new peer5.core.apiValidators.ApiValidator([peer5.core.apiValidators.DataChannelsApiValidator , peer5.core.apiValidators.FileSystemApiValidator]);
     if (!validator.validate()) {
         showErrorAlert('Sorry! Your browser is not supported.<br/>'
                 + 'Please use latest Chrome (26+) or Firefox (22+) to try out Sharefest.');
@@ -42,9 +62,12 @@ $(document).ready(function () {
     }
 
     sharefestClient = new sfclient();
-    userState = {isSeeder:false}
+    userState = {isSeeder:false};
 
-    if (document.location.pathname == '/' || document.location.pathname == '/upload') { // homepage
+    if (document.location.pathname == '/'
+            || document.location.pathname == '/upload'
+            || document.location.pathname == '/B') {
+        // homepage
         $('#box-text').html('<big>Click or drag file to <i>instantly</i> share!</big>');
         // $('#room-name').show();
         // $("#room").focus();
@@ -61,13 +84,13 @@ $(document).ready(function () {
 
     radio('roomOnlyChrome').subscribe(function () {
         $('#box-text').text('');
-        showErrorAlert('Sorry, this file is only available for Chrome. <a class="tip" href="#" data-toggle="tooltip" title="There is no WebRTC interop yet, meaning that Chrome can only talk with Chrome, and FF with FF. They are going to make up though!">But why?</a>');
+        showErrorAlert('Sorry, this file is only available for Chrome. <a class="tip" href="#" data-toggle="tooltip" title="There is no WebRTC interop yet, meaning that Chrome can only talk with Chrome, and FF with FF. They are going to make up though!">But why?</a>',true);
         $('.tip').tooltip();
     });
 
     radio('roomOnlyFirefox').subscribe(function () {
         $('#box-text').text('');
-        showErrorAlert('Sorry, this file is only available for Firefox. <a class="tip" href="#" data-toggle="tooltip" title="There is no WebRTC interop yet, meaning that Chrome can only talk with Chrome, and FF with FF. They are going to make up though!">But why?</a>');
+        showErrorAlert('Sorry, this file is only available for Firefox. <a class="tip" href="#" data-toggle="tooltip" title="There is no WebRTC interop yet, meaning that Chrome can only talk with Chrome, and FF with FF. They are going to make up though!">But why?</a>',true);
         $('.tip').tooltip();
         disableUI();
     });
@@ -78,6 +101,34 @@ $(document).ready(function () {
         stopNonsense();
         disableUI();
     }, this]);
+
+    radio('activePeerConnectionsNumberChanged').subscribe([function (numOfPeers) {
+        $('#numOfPeers').html('Connected to ' + numOfPeers + ' peers');
+
+
+        $('#numOfPeers').show();
+
+    }, this]);
+
+    radio('swarmHealth').subscribe([function (sh) {
+
+        if (userState.isSeeder) {
+            if (sh.numOfSeedersInSwarm > 1) {
+                showSuccessAlert("File downloaded, thank you for Sharefesting! Please stay to help distribute the file");
+            } else {
+                showWarningAlert('You are the only peer with this file. Please don\'t close this tab yet.  <a class="tip" href="#" data-toggle="tooltip" title="Sharefest has just made your file accessible. Once you share the URL, others will be able to connect to your browser directly.">why?</a>');
+                $('.tip').tooltip();
+            }
+        } else {
+            if (sh.numOfSeedersInSwarm >= 1) {
+                showInfoAlert("I'm on it. Kick back and relax while receiving the file...")
+            } else {
+                showErrorAlert('It seems that nobody has the file, you will not be able to complete the download')
+            }
+        }
+        peer5.log(sh);
+    }, null]);
+
 
     radio('receivedNewFileInfo').subscribe([function (fileInfo) {
         var url = fileInfo.swarmId;
@@ -107,36 +158,8 @@ $(document).ready(function () {
             downRateDiv.textContent = bytesToSize(0) + '/s';
         }
         stopNonsense();
-        updateShareButtons();
         showLink();
-    }, null]);
-
-    radio('activePeerConnectionsNumberChanged').subscribe([function (numOfPeers) {
-        $('#numOfPeers').html('Connected to ' + numOfPeers + ' peers');
-
-
-        $('#numOfPeers').show();
-
-    }, this]);
-
-
-    radio('swarmHealth').subscribe([function (sh) {
-
-        if (userState.isSeeder) {
-            if (sh.numOfSeedersInSwarm > 1) {
-                showSuccessAlert("File downloaded, thank you for Sharefesting! Please stay to help distribute the file");
-            } else {
-                showWarningAlert('You are the only peer with this file. Please don\'t close this tab yet.  <a class="tip" href="#" data-toggle="tooltip" title="Sharefest has just made your file accessible. Once you share the URL, others will be able to connect to your browser directly.">why?</a>');
-                $('.tip').tooltip();
-            }
-        } else {
-            if (sh.numOfSeedersInSwarm >= 1) {
-                showInfoAlert("I'm on it. Kick back and relax while receiving the file...")
-            } else {
-                showErrorAlert('It seems that nobody has the file, you will not be able to complete the download')
-            }
-        }
-        peer5.log(sh);
+        updateShareButtons();
     }, null]);
 
 
@@ -188,58 +211,6 @@ $(document).ready(function () {
     }, null]);
 });
 
-function forceProgressUpdate(self) {
-    //once in a while reset the progress update
-    //if no download/upload has been made during the last 3 seconds we want to reset the rates
-    var currTime = Date.now();
-
-    if ((currTime - sharefestClient.lastDownCycleTime > 3000)) {
-        var downRateDiv = document.getElementById('downRate');
-        downRateDiv.textContent = bytesToSize(0) + '/s';
-    }
-
-    if (sharefestClient.lastUpCycleTime) {
-        if ((currTime - sharefestClient.lastUpCycleTime > 3000)) {
-            var upRateDiv = document.getElementById('upRate');
-            upRateDiv.textContent = bytesToSize(0) + '/s';
-        }
-    }
-
-
-}
-
-function updateList(fileInfo) {
-//            $('#logo').hide();
-    $('#box-text').html(listFiles(fileInfo));
-    $('.dragdrop').css('opacity', 0.95);
-    $('.dragdrop')[0].style.borderStyle = 'solid';
-    $('.dragdrop')[0].style.borderWidth = '5px';
-    $('.dragdrop')[0].style.borderColor = '#FFFFFF';
-    $('#sharethis').css('opacity', 0.95);
-    disableDrag();
-    $('.dragdrop')[0].onclick = '';
-}
-
-function showLink() {
-    $('#shareURLBox').show();
-    $('#shareURLBox').text(document.location.href);
-    $('#shareURLBox')[0].href = document.location.href;
-//    $('#shareURLBox').popover({animation:true,placement:'left', delay:3000, trigger:'manual'});
-//    $('#shareURLBox').popover('show')
-
-}
-
-function updateShareButtons() {
-    var url = document.location.href;
-//            var element = $('#addthis')[0];
-//            $(element).attr('addthis:url',url);
-    addthis.update('share', 'url', url);
-    addthis.update('share', 'title', "Sharefest");
-    addthis.url = url;
-    addthis.toolbox(".addthis_toolbox");
-    $('#addthis').show()
-}
-
 function onTextBoxClick(e) {
     e.stopPropagation();
 }
@@ -247,17 +218,12 @@ function onTextBoxClick(e) {
 
 </script>
 <script type="text/javascript" src="js/dnd.js"></script>
-<script type="text/javascript">
-function ga(params){
-    //place holder
-}
-</script>
 </head>
 <body class="bg">
-<a href="https://github.com/peer5/sharefest" target="_blank"><img
-        style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"
-        src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
-        alt="Fork me on GitHub"></a>
+<!--<a href="https://github.com/peer5/sharefest" target="_blank"><img-->
+<!--style="position: absolute; top: 0; right: 0; border: 0; z-index:9999"-->
+<!--src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"-->
+<!--alt="Fork me on GitHub"></a>-->
 
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
@@ -271,14 +237,23 @@ function ga(params){
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li class="active"><a href="/">
-                        <img src="/img/symbol.png" style="height: 18px;">
+                        <img alt="sharefest" src="/img/symbol.png" style="height: 18px;">
                     </a></li>
                     <li><a target="_blank" href="/about">About</a></li>
-                    <li><a target="_blank" href="/howdoesitwork">How it works</a></li>
-                    <li><a target="_blank" href="/issues">FAQ</a></li>
+                    <li><a target="_blank" href="/faq">FAQ</a></li>
+                    <!--<li><a target="_blank" href="/howdoesitwork">How it works</a></li>-->
+                    <!--<li><a target="_blank" href="/issues">FAQ</a></li>-->
                     <li><a target="_blank" href="http://webchat.freenode.net/?channels=sharefest">Live chat</a></li>
+                    <li><a target="_blank" href="/demo"><div>Demo<span class="label-upper-desc">New</span></div></a></li>
+                    <li><a target="_blank" href="/beta.html"><div>Sharefest for websites<span class="label-upper-desc">New</span></div></a></li>
                     <li><a target="_blank" href="/upload">Upload file</a></li>
                 </ul>
+
+
+                <a style="right: 60px; top: 10px; position: absolute" target="_blank"
+                   href="http://twitter.com/sharefestme"><img alt="twitter" src="/img/twitter_icon.png"/></a>
+                <a style="right: 20px; top: 6px; position: absolute" target="_blank"
+                   href="http://github.com/Peer5/Sharefest"><img alt="github" src="img/github_icon.png"/></a>
             </div>
             <!--/.nav-collapse -->
         </div>
@@ -286,16 +261,14 @@ function ga(params){
 </div>
 
 <div class="container">
-    <h1></h1>
-
     <div class="dragdrop text-pretty" id="dropbox" onclick="$('#files').click()">
 
-        <div id='notificationDiv' class="alert-error" style="display: none">
-            <a class="close" onclick="$('.alert').hide()">×</a>
+        <div id='notificationDiv' class="alert-error" style="display: none;cursor:default" onclick="stopPropogation(event)">
+            <!--<a class="close" onclick="$('.alert').hide()">×</a>-->
         </div>
         <!--<canvas id="cnvs" style="height: 0px"></canvas>-->
         <div class="textDrag">
-            <img id="logo" src="img/logo.png"/>
+            <img alt="logo" id="logo" src="img/logo.png"/>
             <span style="font-family: courier;color: #CC3333;font-size: 0.9em;">Alpha</span>
 
             <!-- <div id='room-name' hidden="true">Room Name:
@@ -306,7 +279,15 @@ function ga(params){
             <!--<div id="totalDownload" hidden="true" style="display:inline-block"></div>-->
 
 
-            <a target="_blank" href="www.yy.com" id="shareURLBox" style="display:none" data-toggle="tooltip" title="Hooray!" data-content="Sharefest has just made your file accessible. Once you share this URL, others will be able to connect to your browser directly, and get the file."></a>
+            <!--<a target="_blank" href="/" id="shareURLBox" style="display:none" data-toggle="tooltip"-->
+               <!--title="Hooray!"-->
+               <!--data-content="Sharefest has just made your file accessible. Once you share this URL, others will be able to connect to your browser directly, and get the file."></a>-->
+
+            <div>
+            <input id="shareURLBox" readonly style="display:none;cursor:text;" onclick="this.select();" type='text' data-toggle="tooltip"
+                           title="Copy and share"/>
+
+            <!--<span id="hs_cos_wrapper_social_sharing13591521802993" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_social_sharing" style="" data-hs-cos-general-type="widget" data-hs-cos-type="social_sharing"><a href="http://www.facebook.com/share.php?u=http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Dfacebook" target="_blank" style="width:24px;border-width:0px;border:0px;"><img src="https://static.hubspot.com/final/img/common/icons/social/facebook-24x24.png" class="hs-image-widget " style="height:24px;width:24px;border-width:0px;border:0px;" width="24" height="24" hspace="0" alt="Share on Facebook"></a>&nbsp;<a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Dlinkedin" target="_blank" style="width:24px;border-width:0px;border:0px;"><img src="https://static.hubspot.com/final/img/common/icons/social/linkedin-24x24.png" class="hs-image-widget " style="height:24px;width:24px;border-width:0px;border:0px;" width="24" height="24" hspace="0" alt="Share on LinkedIn"></a>&nbsp;<a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Dtwitter&amp;url=http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Dtwitter&amp;source=tweetbutton" target="_blank" style="width:24px;border-width:0px;border:0px;"><img src="https://static.hubspot.com/final/img/common/icons/social/twitter-24x24.png" class="hs-image-widget " style="height:24px;width:24px;border-width:0px;border:0px;" width="24" height="24" hspace="0" alt="Share on Twitter"></a>&nbsp;<a href="https://plus.google.com/share?url=http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Dgoogle_plus" target="_blank" style="width:24px;border-width:0px;border:0px;"><img src="https://static.hubspot.com/final/img/common/icons/social/googleplus-24x24.png" class="hs-image-widget " style="height:24px;width:24px;border-width:0px;border:0px;" width="24" height="24" hspace="0" alt="Share on Google+"></a>&nbsp;<a href="http://pinterest.com/pin/create/button/?url=http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Dpinterest&amp;media=http%3A%2F%2Fcdn1.hubspot.com%2Fhub%2F53%2Fthe-science-of-twitter.png" target="_blank" style="width:24px;border-width:0px;border:0px;"><img src="https://static.hubspot.com/final/img/common/icons/social/pinterest-24x24.png" class="hs-image-widget " style="height:24px;width:24px;border-width:0px;border:0px;" width="24" height="24" hspace="0" alt="Share on Pinterest"></a>&nbsp;<a href="mailto:?subject=Check out http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Demail &amp;body=Check out http%3A%2F%2Foffers.hubspot.com%2Fthe-science-of-twitter-free-chapter-download%3Futm_medium%3Dsocial%26utm_source%3Demail" target="_blank" style="width:24px;border-width:0px;border:0px;"><img src="https://static.hubspot.com/final/img/common/icons/social/email-24x24.png" class="hs-image-widget " style="height:24px;width:24px;border-width:0px;border:0px;" width="24" height="24" hspace="0" alt="Share on Email"></a></span>-->
 
             <div class="addthis_toolbox addthis_default_style addthis_32x32_style" id="addthis" style="display:none">
                 <a class="addthis_button_email"></a>
@@ -314,6 +295,7 @@ function ga(params){
                 <a class="addthis_button_twitter"></a>
                 <a class="addthis_button_google_plusone_share"></a>
                 <a class="addthis_button_sinaweibo"></a>
+            </div>
             </div>
 
             <div id="box-info">
@@ -327,6 +309,7 @@ function ga(params){
                 </span>
 
 
+                <span id="CompletedDownloads" hidden="true"> Completed Downloads: 0</span>
 
                 <span id="uplinkRateSpan" hidden="true">
                     <br>
@@ -350,25 +333,82 @@ function ga(params){
         </div>
     </div>
 
+
+    <div class="right_floater">
+
+        <h1>Send files directly</h1>
+
+
+        <div style="font-size: 22px;
+        font-weight: bold;
+        font-family: verdana,arial,sans-serif;
+        padding-bottom: 10px;
+        padding-left: 5px;
+        ">Secured, anonymous, instant, without a cloud. Here's <a href="javascript:fadeHow()">how</a> and <a
+                class="why" href="javascript:fadeWhy();">why</a></div>
+        <div style="padding-left: 5px">
+
+        <div id="explainwhat">
+        </div>
+
+        </div>
+
+        <!--<li>Featured on<a href="http://www.youtube.com/watch?v=p2HzZkd2A40#t=15m29s" target="_blank">-->
+        <!--<img style="position: relative;left: 5px;top: 2px;" src="img/google_io.png" alt="Google I/O 2013">-->
+
+    </div>
     <!--<p class="info">For more info about Sharefest, go to our-->
     <!--<a href="http://github.com/peer5/sharefest">project page</a></p>-->
-    <footer class="footer">Based on HTML5 <a href="http://webrtc.org">WebRTC</a> DataChannels. No cloud storage
-        involved, only pure, direct P2P. Simple, Fast, Anonymous. Featured on <a
-                href="http://www.youtube.com/watch?v=p2HzZkd2A40#t=15m29s" target="_blank">
-            <img style="position: relative;left: 5px;top: 2px;" src="img/google_io.png" alt="Google I/O 2013">
-        </a>
+    <footer class="footer">
+        <div class="footerMenu">
+            <a class="termsHref" href="./terms.html">Terms of Use</a>
+            |
+            <a class="termsHref" href="./privacy.html">Privacy Policy</a>
+            |
+            <a class="termsHref" href="mailto:sharefest@peer5.com">Contact</a>
+            |
+            <a class="termsHref" href="/press">Press</a>
+            <a title="Featured on CNET" target="_blank"
+               href="http://download.cnet.com/8301-2007_4-57591025-12/new-firefox-22-enables-browser-based-file-sharing/index.html">
+                <img style="position: relative;left: 5px;top: 5px;padding-left: 210px;"
+                     src="img/cnet.png" alt="Sharefest on CNET">
+            </a>
+            <a title="Covered on TorrentFreak" target="_blank"
+               href="http://torrentfreak.com/the-easiest-way-in-the-world-to-share-files-p2p-and-how-it-works-130706/">
+                <img style="position: relative;left: 5px;top: 7px;"
+                     src="img/tf.png"
+                     alt="TorrentFreak"/>
+            </a>
+            <a title="Presented on Google I/O 2013" href="http://www.youtube.com/watch?v=p2HzZkd2A40&feature=youtu.be&t=15m30s" target="_blank">
+                <img style="position: relative;left: 5px;top: -5px;" src="https://developers.google.com/_static/images/developers-logo-footer.png" alt="Google I/O 2013">
+            </a>
+
+        </div>
     </footer>
 </div>
 
-<input onchange="addFiles(sharefestClient,this.files)" type="file" id="files" name="files[]"
-       multiple
-       style="height: 20px; opacity: 0; filter:alpha(opacity: 0);  position: relative; top: -40px; left: -20px;"/>
+<input onchange="addFiles(this.files)" type="file" id="files" name="files[]" multiple>
 
 <!--<div id="tt" style="position: absolute; left: 50px; bottom: 50px; font-size: 5em;">0</div>-->
 <!-- /container -->
 <!-- AddThis Button BEGIN -->
-
-<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=undefined"></script>
+<script type="text/javascript" src="https://s7.addthis.com/js/300/addthis_widget.js#pubid=undefined"></script>
 <!-- AddThis Button END -->
+<!--<style type='text/css'>@import url('https://getbarometer.s3.amazonaws.com/assets/barometer/css/barometer.css');</style>-->
+<!--<script src='https://getbarometer.s3.amazonaws.com/assets/barometer/javascripts/barometer.js'-->
+<!--type='text/javascript'></script>-->
+<!--<script type="text/javascript" charset="utf-8">-->
+<!--BAROMETER.load('YPk3fWZ6NdkExAtE66t3y');-->
+<!--</script>-->
+
+<!-- crazyegg -->
+<script type="text/javascript">
+    setTimeout(function(){var a=document.createElement("script");
+        var b=document.getElementsByTagName("script")[0];
+        a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0018/2087.js?"+Math.floor(new Date().getTime()/3600000);
+        a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+</script>
+<!-- crazyegg -->
+
 </body>
 </html>

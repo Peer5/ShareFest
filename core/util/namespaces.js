@@ -6,8 +6,8 @@ var peer5 = {
         controllers:{},
         protocol:{},
         transport:{},
-        stats:{},
-        util:{}
+        util:{},
+        stats:{}
     }
 
 };

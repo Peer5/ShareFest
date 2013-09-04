@@ -100,14 +100,14 @@
     };
 
     var p2p_data_encode = function (message) {
-        var swarmId = ascii2ab(BinaryProtocol.shortenSwarmId(message.swarmId));
+        var swarmId = ascii2ab(BinaryProtocol.packSwarmId(message.swarmId));
         var chunkId = UInt32ToUInt8Array(message.chunkId);
         return BinaryProtocol.concat([swarmId, chunkId, message.payload]);
     };
 
     var p2p_request_encode = function (message) {
         var buffers = [];
-        var swarmId = ascii2ab(BinaryProtocol.shortenSwarmId(message.swarmId));
+        var swarmId = ascii2ab(BinaryProtocol.packSwarmId(message.swarmId));
         buffers.push(swarmId);
         var encodedChunkId = UInt32ToUInt8Array(message.chunkIds);
         buffers.push(encodedChunkId);
@@ -117,7 +117,7 @@
 
     var p2p_cancel_encode = function (message) {
         var buffers = [];
-        var swarmId = ascii2ab(BinaryProtocol.shortenSwarmId(message.swarmId));
+        var swarmId = ascii2ab(BinaryProtocol.packSwarmId(message.swarmId));
         buffers.push(swarmId);
         var encodedChunkIds = UInt32ToUInt8Array(message.chunkIds);
         buffers.push(encodedChunkIds);
@@ -126,7 +126,7 @@
 
     var p2p_have_encode = function (message) {
         var buffers = [];
-        var swarmId = ascii2ab(BinaryProtocol.shortenSwarmId(message.swarmId));
+        var swarmId = ascii2ab(BinaryProtocol.packSwarmId(message.swarmId));
         buffers.push(swarmId);
         var seeder = BoolToUInt8Array(message.seeder);
         buffers.push(seeder);
@@ -368,12 +368,15 @@
     };
 
     BinaryProtocol.transferedSwarmIdSize = 20;
-    BinaryProtocol.shortenSwarmId = function (s) {
-        var str = s.substr(0, BinaryProtocol.transferedSwarmIdSize);
-        return (new Array(BinaryProtocol.transferedSwarmIdSize - s.length + 1)).join(" ").concat(s);
+    BinaryProtocol.packSwarmId = function (swarmId) {
+        if (swarmId.length > BinaryProtocol.transferedSwarmIdSize) {
+            peer5.warn('trimming swarmId to be at size of ' + BinaryProtocol.transferedSwarmIdSize);
+            swarmId = swarmId.substr(0, BinaryProtocol.transferedSwarmIdSize);
+        }
+        return (new Array(BinaryProtocol.transferedSwarmIdSize - swarmId.length + 1)).join(" ").concat(swarmId);
     };
 
-    exports.shortenSwarmId = BinaryProtocol.shortenSwarmId;
+    exports.packSwarmId = BinaryProtocol.packSwarmId;
     exports.concat = BinaryProtocol.concat;
     exports.decode = BinaryProtocol.decode;
     exports.encode = BinaryProtocol.encode;

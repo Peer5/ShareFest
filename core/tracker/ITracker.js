@@ -19,6 +19,10 @@ require('../util/lang_ext.js');
             throw 'unimplemented method';
         },
 
+        onDownloadCompleted:function(swarmid) {
+            throw 'unimplemented method';
+        },
+
         validateToken:function(token,domain){
             throw 'unimplemented method';
         }
