@@ -1,0 +1,11 @@
+server: http://localhost:9876
+
+load:
+  - ../../../client/test/jasmine/src/jasmine.js
+  - ../../../client/test/jasmine/src/JasmineAdapter.js
+  - ../../../client/test/jasmine/src/NameSpacer.js
+  - ../../util/lang_ext.js
+  - ../../util/namespaces.js
+  - ../../dataStructures/DoublyLinkedList.js
+  - ../../dataStructures/LRU.js
+  - LRU.test.js
