@@ -108,7 +108,7 @@ function bytesToSize(bytes) {
     return (bytes / Math.pow(1024, i)).toFixed(2) + '' + sizes[i];
 };
 
-function saveBlobLocally(blob, name) {
+function saveLocally(blob, name) {
     if (!window.URL && window.webkitURL)
         window.URL = window.webkitURL;
     var a = document.createElement('a');

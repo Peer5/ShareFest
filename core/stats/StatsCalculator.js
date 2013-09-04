@@ -26,26 +26,36 @@
             this.Report_Created_Timestamp = Date.now();
             this.Report_Timestamp = 0;
             this.Stats_Timestamp = Date.now();
+            this.Total_Recv = 0;
+            this.Total_Sent = 0;
             this.Total_Sent_P2P = 0;
             this.Total_Recv_P2P = 0;
             this.Total_Recv_HTTP = 0;
             this.Total_Waste_P2P = 0;
             this.Total_Waste_HTTP = 0;
+            this.Total_loaded_FS = 0;
             this.numOfSenders = 0;
             this.Total_Avg_Download = 0;
 
             //the totals from last report
             this.Prev_Report_Timestamp = Date.now();
+            this.Prev_Total_Recv = 0;
+            this.Prev_Total_Sent = 0;
             this.Prev_Total_Sent_P2P = 0;
             this.Prev_Total_Recv_P2P = 0;
             this.Prev_Total_Waste_P2P = 0;
             this.Prev_Total_Waste_HTTP = 0;
             this.Prev_Total_Recv_HTTP = 0;
+            this.Prev_Total_loaded_FS = 0;
+            this.Avg_Sent = 0;
+            this.Avg_Recv = 0;
             this.Avg_Sent_P2P = 0;
             this.Avg_Recv_P2P = 0;
+            this.Avg_Loaded_FS = 0;
             this.Avg_Waste_P2P = 0;
             this.Avg_Waste_HTTP = 0;
             this.Avg_Recv_HTTP = 0;
+            this.Size_Uploaded_To_Memory = 0;
             this.Total_Avg_Download = 0;
             this.numOfHttpCompletedChunks = 0;
             this.numOfHttpWasteChunks = 0;
@@ -55,6 +65,8 @@
             this.startTime = Date.now();
 
             this.registerEvents();
+            //first to init the values.
+            this.calc_avg();
 
 
         },
@@ -68,7 +80,6 @@
         },
         addP2PSent:function () {
             this.Total_Sent_P2P += peer5.config.CHUNK_SIZE;
-
         },
         addHTTP:function () {
             this.Total_Recv_HTTP += peer5.config.CHUNK_SIZE;
@@ -80,6 +91,8 @@
 
             //we have to ignore the first calc because statsTimestamp is init to 0 and this will harm the calc
             if (this.statsTimestamp == 0) {
+                //first update to set with initial values (0,NAN, infinity years left
+                radio('peer5_state_updated').broadcast(this);
                 this.statsTimestamp += delta;
                 return;
             }
@@ -92,6 +105,12 @@
             //we want the calculations to be in bytes - therefore we will change delta to be in seconds
             delta /= 1000;
 
+            this.Total_Recv = this.Total_Recv_HTTP + this.Total_Recv_P2P + this.Total_loaded_FS;
+            this.Total_Sent = this.Total_Sent_P2P; //+this.Total_Sent_HTTP;
+
+            this.Avg_Recv = (this.Total_Recv - this.Prev_Total_Recv) / delta
+            this.Avg_Sent = (this.Total_Sent - this.Prev_Total_Sent) / delta
+            this.Avg_Loaded_FS = (this.Total_loaded_FS - this.Prev_Total_loaded_FS) / delta;
             this.Avg_Sent_P2P = (this.Total_Sent_P2P - this.Prev_Total_Sent_P2P) / delta;
             this.Avg_Recv_P2P = (this.Total_Recv_P2P - this.Prev_Total_Recv_P2P) / delta;
             this.Avg_Waste_P2P = (this.Total_Waste_P2P - this.Prev_Total_Waste_P2P) / delta;
@@ -101,11 +120,14 @@
             this.Avg_Sent_WS = (this.Total_Sent_WS - this.Prev_Total_Sent_WS) / delta;
             this.Offloading = this.Total_Recv_P2P / (this.Total_Recv_HTTP + this.Total_Recv_P2P)
 
+            this.Prev_Total_Recv = this.Total_Recv;
+            this.Prev_Total_Sent = this.Total_Sent;
             this.Prev_Total_Sent_P2P = this.Total_Sent_P2P;
             this.Prev_Total_Recv_P2P = this.Total_Recv_P2P;
             this.Prev_Total_Waste_P2P = this.Total_Waste_P2P;
             this.Prev_Total_Waste_HTTP = this.Total_Waste_HTTP;
             this.Prev_Total_Recv_HTTP = this.Total_Recv_HTTP;
+            this.Prev_Total_loaded_FS = this.Total_loaded_FS;
 
             radio('peer5_state_updated').broadcast(this);
         },
@@ -114,8 +136,12 @@
         registerEvents:function () {
             var thi$ = this;
 
+            radio('peer5_received_fs_chunk').subscribe([function(chunkId,swarmId){
+                this.Total_loaded_FS += peer5.config.CHUNK_SIZE;
+            },this]);
+
             radio('peer5_received_http_chunk').subscribe(function (chunkId, swarmId) {
-                thi$.Total_Recv_HTTP += peer5.config.CHUNK_SIZE;
+                //thi$.Total_Recv_HTTP += peer5.config.CHUNK_SIZE;
                 //thi$.calc_avg(false);
             });
 
@@ -141,9 +167,17 @@
 
             });
 
+            radio('chunkAddedToBlockMap').subscribe(function () {
+                thi$.Size_Uploaded_To_Memory += peer5.config.CHUNK_SIZE;
+            });
+
 
             radio('chunkSentEvent').subscribe([function (blockMap) {
                 thi$.Total_Sent_P2P += peer5.config.CHUNK_SIZE;
+            }]);
+
+            radio('xhrBytesReceived').subscribe([function (size) {
+                thi$.Total_Recv_HTTP += size;
             }]);
 
             radio('transferFinishedEvent').subscribe([function (blockMap) {
