@@ -167,16 +167,6 @@
             }
         },
 
-
-        saveFileLocally:function (blockMap) {
-            var array = new Uint8Array(blockMap.fileSize);
-            for (var i = 0; i < blockMap.getNumOfBlocks(); ++i) {
-                array.set(blockMap.getBlock(i), i * peer5.config.BLOCK_SIZE);
-            }
-            var blob = new Blob([array]);
-            saveLocally(blob, blockMap.getMetadata().name);
-        },
-
         initiateClient:function () {
             var ws_url = location.protocol.replace('http', 'ws') + '//';
             ws_url += location.host;
