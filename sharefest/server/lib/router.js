@@ -32,9 +32,13 @@ exports.configure = function (app, rootdir) {
         }
 
         console.log('/client.js requested. Parsing user agent ' + ua);
-        var debug = url.parse(req.headers.referer).query == 'debuggee' || (domain == 'localhost');
 
-        //get info from IP
+	var debug = false;
+        try {
+            debug = (domain == 'localhost') || url.parse(req.headers.referer).query == 'debuggee';  
+        } catch (err) {}
+	
+	//get info from IP
         var ip = null;
         ip = req.ip;
         console.log(ip + " has requested a connection");
@@ -45,7 +49,7 @@ exports.configure = function (app, rootdir) {
             files = (modes[mode]);
         }
 
-        var js = buildify('..').concat(files);
+        var js = buildify().concat(files);
         js = js.perform(function (content) {
             return content.replace(/peer5.config.BLOCK_SIZE/g, config.blockSize);
         });
