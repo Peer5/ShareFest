@@ -1,3 +1,6 @@
+# Farewell
+It's been 5 years since [commercial browsers started supporting WebRTC ](<https://webrtc.org/blog/2012/11/07/see-you-on-the-web.html>). Peer5 is no longer able to keep Sharefest functional and operating, it's just too much out of our main focus - video streaming. We loved creating Sharefest - the first WebRTC file sharing production application, all the hacks that involved making it work on early Chrome and Firefox, going through first Interoperability of browsers, and now lately with Safari support, WebRTC is almost ubiquitous - it's been a hell of a ride! Thanks everyone that supported the project over the years and special thanks to the Chrome and Firefox teams for being super attentive and tolerant to all our bug reports, feature requests and plain questions about the technology. farewell!
+
 ![Sharefest](https://raw.github.com/Peer5/ShareFest/master/sharefest/public/img/logo.png)
 
 One-To-Many sharing application. Serverless.
